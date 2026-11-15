@@ -4,6 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import {
+  OqEmptyStateComponent,
+  OqIconComponent,
+  OqPageHeaderComponent,
+  OqStatCardComponent,
+} from '../../shared/components';
+import {
   FlashcardCardView,
   FlashcardDueSummary,
   FlashcardSessionMode,
@@ -22,7 +28,15 @@ import { FlashcardsApiService } from './flashcards-api.service';
 @Component({
   selector: 'app-flashcards-home',
   standalone: true,
-  imports: [FormsModule, RouterLink, DatePipe],
+  imports: [
+    FormsModule,
+    RouterLink,
+    DatePipe,
+    OqPageHeaderComponent,
+    OqStatCardComponent,
+    OqEmptyStateComponent,
+    OqIconComponent,
+  ],
   templateUrl: './flashcards-home.component.html',
   styleUrl: './flashcards-home.component.scss',
 })

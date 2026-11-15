@@ -2,6 +2,12 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
+  OqIconComponent,
+  OqModalComponent,
+  OqPageHeaderComponent,
+  OqProgressBarComponent,
+} from '../../shared/components';
+import {
   AttemptAnswerSubmission,
   AttemptDetail,
   QuestionType,
@@ -11,7 +17,14 @@ import { QuizzesApiService } from './quizzes-api.service';
 
 @Component({
   selector: 'app-quiz-player',
-  imports: [FormsModule, RouterLink],
+  imports: [
+    FormsModule,
+    RouterLink,
+    OqPageHeaderComponent,
+    OqProgressBarComponent,
+    OqModalComponent,
+    OqIconComponent,
+  ],
   templateUrl: './quiz-player.component.html',
   styleUrl: './quiz-player.component.scss',
 })

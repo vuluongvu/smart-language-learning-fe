@@ -1,13 +1,27 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import {
+  OqEmptyStateComponent,
+  OqIconComponent,
+  OqModalComponent,
+  OqPageHeaderComponent,
+} from '../../shared/components';
 import { PaginationMeta, TopicSummary } from '../../shared/types/learning.types';
 import { extractApiError } from '../../shared/utils/api-error.util';
 import { TopicsApiService } from './topics-api.service';
 
 @Component({
   selector: 'app-topics-list',
-  imports: [FormsModule, ReactiveFormsModule, RouterLink],
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    RouterLink,
+    OqPageHeaderComponent,
+    OqModalComponent,
+    OqEmptyStateComponent,
+    OqIconComponent,
+  ],
   templateUrl: './topics-list.component.html',
   styleUrl: './topics-list.component.scss',
 })

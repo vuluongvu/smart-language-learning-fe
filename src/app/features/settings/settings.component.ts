@@ -1,13 +1,14 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { OqIconComponent, OqPageHeaderComponent } from '../../shared/components';
 import { ThemeService } from '../../shared/services/theme.service';
 import { COMMON_TIMEZONES, extractApiError } from '../../shared/utils/api-error.util';
 import { AuthService } from '../auth/auth.service';
 
 @Component({
   selector: 'app-settings',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, OqPageHeaderComponent, OqIconComponent],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss',
 })

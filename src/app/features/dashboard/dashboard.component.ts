@@ -2,6 +2,14 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LanguagesApiService } from '../../shared/api/languages-api.service';
+import {
+  OqEmptyStateComponent,
+  OqIconComponent,
+  OqPageHeaderComponent,
+  OqProgressBarComponent,
+  OqStatCardComponent,
+  OqStreakCardComponent,
+} from '../../shared/components';
 import { LanguageItem } from '../../shared/types/auth.types';
 import { DailyActivityPoint, ProgressOverview } from '../../shared/types/learning.types';
 import { extractApiError } from '../../shared/utils/api-error.util';
@@ -10,7 +18,17 @@ import { ProgressApiService } from '../progress/progress-api.service';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [RouterLink, DatePipe, DecimalPipe],
+  imports: [
+    RouterLink,
+    DatePipe,
+    DecimalPipe,
+    OqPageHeaderComponent,
+    OqStreakCardComponent,
+    OqStatCardComponent,
+    OqProgressBarComponent,
+    OqEmptyStateComponent,
+    OqIconComponent,
+  ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })

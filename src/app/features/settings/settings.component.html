@@ -1,11 +1,19 @@
-<section class="settings-header">
-  <h1>Settings &amp; Profile</h1>
-  <p>Manage your learner profile, timezone, theme, and account security.</p>
-</section>
+<oq-page-header
+  eyebrow="Preferences &amp; Security"
+  title="Settings &amp; Profile"
+  subtitle="Manage your learner profile, timezone, appearance, and account security."
+/>
 
 <div class="settings-stack">
-  <section class="oq-card">
-    <h2>Profile &amp; Preferences</h2>
+  <section class="oq-card settings-section" aria-labelledby="section-profile">
+    <div class="settings-section__head">
+      <div>
+        <h2 id="section-profile">Profile &amp; Preferences</h2>
+        <p class="section-desc">
+          Customize your public display identity, learning timezone, and streak visibility.
+        </p>
+      </div>
+    </div>
 
     @if (profileMessage()) {
       <div class="oq-alert oq-alert--success" role="status">
@@ -19,9 +27,20 @@
     }
 
     <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" novalidate>
-      <div class="oq-field">
-        <label for="settings-name">Display name</label>
-        <input id="settings-name" type="text" formControlName="displayName" />
+      <div class="profile-grid">
+        <div class="oq-field">
+          <label for="settings-name">Display name</label>
+          <input id="settings-name" type="text" formControlName="displayName" />
+        </div>
+
+        <div class="oq-field">
+          <label for="settings-timezone">Timezone</label>
+          <select id="settings-timezone" formControlName="timezone">
+            @for (tz of timezoneOptions(); track tz) {
+              <option [value]="tz">{{ tz }}</option>
+            }
+          </select>
+        </div>
       </div>
 
       <div class="oq-field">
@@ -34,16 +53,7 @@
         />
       </div>
 
-      <div class="oq-field">
-        <label for="settings-timezone">Timezone</label>
-        <select id="settings-timezone" formControlName="timezone">
-          @for (tz of timezoneOptions(); track tz) {
-            <option [value]="tz">{{ tz }}</option>
-          }
-        </select>
-      </div>
-
-      <label class="checkbox-row">
+      <label class="oq-check privacy-toggle">
         <input type="checkbox" formControlName="isLeaderboardVisible" />
         <span>Show my display name and streak on the public leaderboard</span>
       </label>
@@ -56,128 +66,151 @@
     </form>
   </section>
 
-  <section class="oq-card">
-    <h2>Appearance</h2>
-    <p class="section-desc">Choose between Light Mode (default) and Dark Mode.</p>
-    <div class="theme-buttons">
+  <section class="oq-card settings-section" aria-labelledby="section-appearance">
+    <div class="settings-section__head">
+      <div>
+        <h2 id="section-appearance">Appearance</h2>
+        <p class="section-desc">Choose between Light Mode (default) and Dark Mode.</p>
+      </div>
+    </div>
+
+    <div class="theme-options">
       <button
         type="button"
-        class="oq-btn"
-        [class.oq-btn--primary]="themeService.theme() === 'light'"
-        [class.oq-btn--secondary]="themeService.theme() !== 'light'"
+        class="theme-tile"
+        [class.theme-tile--active]="themeService.theme() === 'light'"
         (click)="themeService.setTheme('light')"
       >
-        Light Theme
+        <span class="theme-tile__preview theme-tile__preview--light" aria-hidden="true"></span>
+        <span class="theme-tile__meta">
+          <oq-icon name="sun" [size]="16" />
+          <strong>Light Theme</strong>
+        </span>
       </button>
+
       <button
         type="button"
-        class="oq-btn"
-        [class.oq-btn--primary]="themeService.theme() === 'dark'"
-        [class.oq-btn--secondary]="themeService.theme() !== 'dark'"
+        class="theme-tile"
+        [class.theme-tile--active]="themeService.theme() === 'dark'"
         (click)="themeService.setTheme('dark')"
       >
-        Dark Theme
+        <span class="theme-tile__preview theme-tile__preview--dark" aria-hidden="true"></span>
+        <span class="theme-tile__meta">
+          <oq-icon name="moon" [size]="16" />
+          <strong>Dark Theme</strong>
+        </span>
       </button>
     </div>
   </section>
 
-  <section class="oq-card">
-    <h2>
-      {{ authService.user()?.hasPassword ? 'Change Password' : 'Set a Password' }}
-    </h2>
-
-    @if (passwordMessage()) {
-      <div class="oq-alert oq-alert--success" role="status">
-        {{ passwordMessage() }}
+  <section class="oq-card settings-section" aria-labelledby="section-security">
+    <div class="settings-section__head">
+      <div>
+        <h2 id="section-security">Account Security</h2>
+        <p class="section-desc">
+          Update your sign-in password or permanently remove your OpenQuiz account.
+        </p>
       </div>
-    }
-    @if (passwordError()) {
-      <div class="oq-alert oq-alert--error" role="alert">
-        {{ passwordError() }}
-      </div>
-    }
+    </div>
 
-    <form [formGroup]="passwordForm" (ngSubmit)="savePassword()" novalidate>
-      @if (authService.user()?.hasPassword) {
-        <div class="oq-field">
-          <label for="settings-cur-pw">Current password</label>
-          <input
-            id="settings-cur-pw"
-            type="password"
-            formControlName="currentPassword"
-            autocomplete="current-password"
-          />
+    <div class="security-block">
+      <h3>{{ authService.user()?.hasPassword ? 'Change Password' : 'Set a Password' }}</h3>
+
+      @if (passwordMessage()) {
+        <div class="oq-alert oq-alert--success" role="status">
+          {{ passwordMessage() }}
+        </div>
+      }
+      @if (passwordError()) {
+        <div class="oq-alert oq-alert--error" role="alert">
+          {{ passwordError() }}
         </div>
       }
 
-      <div class="oq-field">
-        <label for="settings-new-pw">New password</label>
-        <input
-          id="settings-new-pw"
-          type="password"
-          formControlName="newPassword"
-          autocomplete="new-password"
-        />
-      </div>
-
-      <div class="oq-field">
-        <label for="settings-confirm-pw">Confirm new password</label>
-        <input
-          id="settings-confirm-pw"
-          type="password"
-          formControlName="confirmPassword"
-          autocomplete="new-password"
-        />
-      </div>
-
-      <button type="submit" class="oq-btn oq-btn--primary" [disabled]="passwordBusy()">
-        {{ passwordBusy() ? 'Updating...' : 'Update password' }}
-      </button>
-    </form>
-  </section>
-
-  <section class="oq-card danger-zone">
-    <h2>Delete Account</h2>
-    <p class="section-desc">
-      Permanently removes your account and all learning data. This cannot be undone.
-    </p>
-
-    @if (deleteError()) {
-      <div class="oq-alert oq-alert--error" role="alert">
-        {{ deleteError() }}
-      </div>
-    }
-
-    @if (!showDeleteConfirm()) {
-      <button type="button" class="oq-btn oq-btn--danger" (click)="showDeleteConfirm.set(true)">
-        Delete my account
-      </button>
-    } @else {
-      <form [formGroup]="deleteForm" (ngSubmit)="deleteAccount()">
+      <form [formGroup]="passwordForm" (ngSubmit)="savePassword()" novalidate>
         @if (authService.user()?.hasPassword) {
           <div class="oq-field">
-            <label for="delete-password">Confirm with your password</label>
+            <label for="settings-cur-pw">Current password</label>
             <input
-              id="delete-password"
+              id="settings-cur-pw"
               type="password"
               formControlName="currentPassword"
               autocomplete="current-password"
             />
           </div>
         }
-        <div class="actions-row">
-          <button type="submit" class="oq-btn oq-btn--danger" [disabled]="deleteBusy()">
-            {{ deleteBusy() ? 'Deleting...' : 'Confirm permanent deletion' }}
-          </button>
-          <button
-            type="button"
-            class="oq-btn oq-btn--secondary"
-            (click)="showDeleteConfirm.set(false)"
-          >
-            Cancel
-          </button>
+
+        <div class="profile-grid">
+          <div class="oq-field">
+            <label for="settings-new-pw">New password</label>
+            <input
+              id="settings-new-pw"
+              type="password"
+              formControlName="newPassword"
+              autocomplete="new-password"
+            />
+          </div>
+
+          <div class="oq-field">
+            <label for="settings-confirm-pw">Confirm new password</label>
+            <input
+              id="settings-confirm-pw"
+              type="password"
+              formControlName="confirmPassword"
+              autocomplete="new-password"
+            />
+          </div>
         </div>
+
+        <button type="submit" class="oq-btn oq-btn--primary" [disabled]="passwordBusy()">
+          {{ passwordBusy() ? 'Updating...' : 'Update password' }}
+        </button>
       </form>
-    }
+    </div>
+
+    <div class="danger-block">
+      <h3>Delete Account</h3>
+      <p class="section-desc">
+        Permanently removes your account and all learning data. This cannot be undone.
+      </p>
+
+      @if (deleteError()) {
+        <div class="oq-alert oq-alert--error" role="alert">
+          {{ deleteError() }}
+        </div>
+      }
+
+      @if (!showDeleteConfirm()) {
+        <button type="button" class="oq-btn oq-btn--danger" (click)="showDeleteConfirm.set(true)">
+          Delete my account
+        </button>
+      } @else {
+        <form [formGroup]="deleteForm" (ngSubmit)="deleteAccount()">
+          @if (authService.user()?.hasPassword) {
+            <div class="oq-field">
+              <label for="delete-password">Confirm with your password</label>
+              <input
+                id="delete-password"
+                type="password"
+                formControlName="currentPassword"
+                autocomplete="current-password"
+              />
+            </div>
+          }
+          <div class="actions-row">
+            <button type="submit" class="oq-btn oq-btn--danger" [disabled]="deleteBusy()">
+              {{ deleteBusy() ? 'Deleting...' : 'Confirm permanent deletion' }}
+            </button>
+            <button
+              type="button"
+              class="oq-btn oq-btn--secondary"
+              (click)="showDeleteConfirm.set(false)"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      }
+    </div>
   </section>
 </div>

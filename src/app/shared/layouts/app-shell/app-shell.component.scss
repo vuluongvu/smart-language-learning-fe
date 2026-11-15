@@ -4,6 +4,7 @@
   overflow-x: clip;
   display: flex;
   flex-direction: column;
+  background: var(--oq-bg-canvas);
 }
 
 .shell__topbar {
@@ -20,141 +21,55 @@
 }
 
 .shell__menu-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   min-height: 36px;
-  padding: 6px 12px;
+  padding: 6px 11px;
   border-radius: var(--oq-radius-sm);
   border: 1px solid var(--oq-border-strong);
   background: var(--oq-bg-surface);
   color: var(--oq-text-primary);
   font: inherit;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 600;
   cursor: pointer;
-}
 
-.shell__theme-btn {
-  min-height: 36px;
-  padding: 6px 12px;
-  font-size: 0.875rem;
+  &:hover {
+    background: var(--oq-bg-subtle);
+  }
 }
 
 .shell__brand {
   display: inline-flex;
   align-items: center;
-  gap: var(--oq-space-2);
+  gap: 8px;
   color: var(--oq-text-primary);
-  font-size: 1.125rem;
+  font-size: 1rem;
   font-weight: 700;
+  letter-spacing: -0.02em;
   text-decoration: none;
-}
-
-.shell__dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--oq-accent);
 }
 
 .shell__backdrop {
   position: fixed;
   inset: 0;
   background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(2px);
   z-index: 29;
-}
-
-.shell__sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  width: 248px;
-  background: var(--oq-bg-surface);
-  border-right: 1px solid var(--oq-border-subtle);
-  padding: var(--oq-space-6) var(--oq-space-4);
-  display: flex;
-  flex-direction: column;
-  gap: var(--oq-space-6);
-  transform: translateX(-100%);
-  transition: transform 0.2s ease;
-  z-index: 30;
-
-  &--open {
-    transform: translateX(0);
-  }
-}
-
-.shell__sidebar-header {
-  padding: 0 var(--oq-space-2);
-}
-
-.shell__nav {
-  display: flex;
-  flex-direction: column;
-  gap: var(--oq-space-1);
-}
-
-.shell__nav-link {
-  display: block;
-  padding: 10px 12px;
-  border-radius: var(--oq-radius-sm);
-  color: var(--oq-text-secondary);
-  text-decoration: none;
-  font-weight: 500;
-
-  &:hover {
-    background: var(--oq-bg-subtle);
-    color: var(--oq-text-primary);
-  }
-
-  &--active {
-    background: var(--oq-accent-soft);
-    color: var(--oq-accent);
-    font-weight: 600;
-  }
-}
-
-.shell__sidebar-footer {
-  margin-top: auto;
-  display: flex;
-  flex-direction: column;
-  gap: var(--oq-space-3);
-  border-top: 1px solid var(--oq-border-subtle);
-  padding-top: var(--oq-space-4);
-}
-
-.shell__user {
-  min-width: 0;
-
-  &-name {
-    font-weight: 600;
-    font-size: 0.9375rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  &-email {
-    font-size: 0.8125rem;
-    color: var(--oq-text-muted);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-}
-
-.shell__footer-actions {
-  display: flex;
-  flex-direction: column;
-  gap: var(--oq-space-2);
 }
 
 .shell__content {
   flex: 1;
   min-width: 0;
-  width: 100%;
-  max-width: 1040px;
+  padding: var(--oq-space-5) var(--oq-space-4) calc(72px + var(--oq-space-5));
+}
+
+.shell__container {
+  max-width: 1200px;
   margin: 0 auto;
-  padding: var(--oq-space-6) var(--oq-space-4) 84px;
+  width: 100%;
+  min-width: 0;
 }
 
 .shell__bottom-nav {
@@ -162,7 +77,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  height: 60px;
+  height: 62px;
+  padding: 0 6px;
   background: var(--oq-bg-surface);
   border-top: 1px solid var(--oq-border-subtle);
   display: flex;
@@ -174,12 +90,16 @@
 .shell__bottom-link {
   flex: 1;
   min-width: 0;
-  text-align: center;
-  padding: 8px 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 6px 4px;
   border-radius: var(--oq-radius-sm);
-  color: var(--oq-text-secondary);
+  color: var(--oq-text-muted);
   text-decoration: none;
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 600;
   white-space: nowrap;
 
@@ -195,7 +115,7 @@
   }
 
   .shell__content {
-    padding-bottom: var(--oq-space-8);
+    padding: var(--oq-space-6) var(--oq-space-6) var(--oq-space-8);
   }
 }
 
@@ -204,23 +124,12 @@
     flex-direction: row;
   }
 
-  .shell__topbar {
-    display: none;
-  }
-
+  .shell__topbar,
   .shell__backdrop {
     display: none;
   }
 
-  .shell__sidebar {
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    transform: translateX(0);
-    flex-shrink: 0;
-  }
-
   .shell__content {
-    padding: var(--oq-space-8) var(--oq-space-6);
+    padding: var(--oq-space-8) var(--oq-space-8);
   }
 }

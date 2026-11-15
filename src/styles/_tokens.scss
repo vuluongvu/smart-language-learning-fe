@@ -1,52 +1,86 @@
 :root {
-  --oq-bg-canvas: #f8fafc;
+  /* Core SaaS Canvas & Surfaces */
+  --oq-bg-canvas: #f8f9fc;
   --oq-bg-surface: #ffffff;
-  --oq-bg-subtle: #f1f5f9;
-  --oq-text-primary: #0f172a;
-  --oq-text-secondary: #475569;
-  --oq-text-muted: #64748b;
-  --oq-border-subtle: #e2e8f0;
-  --oq-border-strong: #cbd5e1;
+  --oq-bg-subtle: #f1f4f9;
+  --oq-bg-hover: #f4f6fb;
 
-  /* Restrained crimson/rose accent */
-  --oq-accent: #e11d48;
-  --oq-accent-hover: #be123c;
-  --oq-accent-soft: #fff1f2;
+  /* Typography Hierarchy */
+  --oq-text-primary: #172033;
+  --oq-text-body: #334155;
+  --oq-text-secondary: #64748b;
+  --oq-text-muted: #8490a3;
+
+  /* Borders & Dividers */
+  --oq-border-subtle: #e9ecf2;
+  --oq-border-strong: #d4dbe7;
+
+  /* OpenQuiz Restrained Rose Accent */
+  --oq-accent: #e94b70;
+  --oq-accent-hover: #d9365d;
+  --oq-accent-soft: rgba(233, 75, 112, 0.1);
   --oq-on-accent: #ffffff;
 
-  --oq-success: #15803d;
-  --oq-warning: #b45309;
-  --oq-danger: #b91c1c;
+  /* Semantic Status */
+  --oq-success: #16a37a;
+  --oq-success-soft: rgba(22, 163, 122, 0.1);
+  --oq-warning: #d97706;
+  --oq-warning-soft: rgba(217, 119, 6, 0.1);
+  --oq-danger: #dc2626;
+  --oq-danger-soft: rgba(220, 38, 38, 0.1);
 
-  --oq-radius-sm: 6px;
-  --oq-radius-md: 10px;
-  --oq-radius-lg: 14px;
+  /* Radii (12-16px component system) */
+  --oq-radius-sm: 8px;
+  --oq-radius-md: 12px;
+  --oq-radius-lg: 16px;
+  --oq-radius-full: 9999px;
 
+  /* Spacing Scale */
   --oq-space-1: 4px;
   --oq-space-2: 8px;
   --oq-space-3: 12px;
   --oq-space-4: 16px;
+  --oq-space-5: 20px;
   --oq-space-6: 24px;
   --oq-space-8: 32px;
 
+  /* Typography & Elevation */
   --oq-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --oq-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --oq-shadow-xs: 0 1px 2px rgba(23, 32, 51, 0.04);
+  --oq-shadow-sm: 0 1px 3px rgba(23, 32, 51, 0.05), 0 1px 2px rgba(23, 32, 51, 0.03);
+  --oq-shadow-md: 0 10px 28px -6px rgba(23, 32, 51, 0.1), 0 4px 10px -4px rgba(23, 32, 51, 0.04);
+  --oq-focus-ring: 0 0 0 3px rgba(233, 75, 112, 0.18);
+  --oq-transition: 160ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 [data-theme='dark'] {
-  --oq-bg-canvas: #0b1120;
-  --oq-bg-surface: #111827;
-  --oq-bg-subtle: #1e293b;
-  --oq-text-primary: #f8fafc;
-  --oq-text-secondary: #cbd5e1;
-  --oq-text-muted: #94a3b8;
+  --oq-bg-canvas: #0b0f19;
+  --oq-bg-surface: #121826;
+  --oq-bg-subtle: #1a2234;
+  --oq-bg-hover: #1e273b;
+
+  --oq-text-primary: #f3f6fc;
+  --oq-text-body: #cbd5e1;
+  --oq-text-secondary: #94a3b8;
+  --oq-text-muted: #7c8b9e;
+
   --oq-border-subtle: #1e293b;
-  --oq-border-strong: #334155;
+  --oq-border-strong: #2e3c52;
 
-  --oq-accent: #fb7185;
-  --oq-accent-hover: #f43f5e;
-  --oq-accent-soft: rgba(244, 63, 94, 0.14);
-  --oq-on-accent: #0f172a;
+  --oq-accent: #f05b7e;
+  --oq-accent-hover: #e94b70;
+  --oq-accent-soft: rgba(233, 75, 112, 0.16);
+  --oq-on-accent: #ffffff;
 
-  --oq-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --oq-success: #22c592;
+  --oq-success-soft: rgba(34, 197, 146, 0.15);
+  --oq-warning: #f59e0b;
+  --oq-warning-soft: rgba(245, 158, 11, 0.15);
+  --oq-danger: #f87171;
+  --oq-danger-soft: rgba(248, 113, 113, 0.15);
+
+  --oq-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.25);
+  --oq-shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.35);
+  --oq-shadow-md: 0 14px 32px rgba(0, 0, 0, 0.5);
+  --oq-focus-ring: 0 0 0 3px rgba(240, 91, 126, 0.28);
 }
