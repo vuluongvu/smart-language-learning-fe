@@ -71,6 +71,17 @@ src/
   styles/         # Design tokens (_tokens.scss)
 ```
 
+## Running Frontend in Docker (Full Stack)
+
+Start `smart-language-learning-be` first (`docker compose up -d --build`) so the `openquiz-network` bridge and `openquiz-app` container are healthy, then build and run the Angular + Nginx container:
+
+```bash
+docker compose up -d --build
+```
+
+- Web UI: `http://localhost:4200`
+- Reverse proxy: Nginx serves the built Angular SPA and proxies `/api/*` to `http://openquiz-app:3000`.
+
 ## Git Workflow
 
 Develop on isolated feature branches off `develop`, verify `npm run format:check`, `npm run build`, and `npm run test:ci`, then merge (`--no-ff`) into `develop` and `master`.
