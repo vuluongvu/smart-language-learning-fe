@@ -42,6 +42,23 @@ export interface VocabularyTopicBadge {
   name: string;
 }
 
+export type VocabularyProgressStatus = 'new' | 'learning' | 'mastered';
+export type ReviewRating = 'again' | 'hard' | 'good' | 'easy';
+export type FlashcardSessionMode =
+  'due_and_new' | 'due_only' | 'new_only' | 'hard_only' | 'all' | 'custom';
+export type FlashcardSessionStatus = 'in_progress' | 'completed';
+
+export interface VocabularyProgressSummary {
+  status: VocabularyProgressStatus;
+  repetitions: number;
+  intervalDays: number;
+  easeFactor: number;
+  lastRating: ReviewRating | null;
+  lastReviewedAt: string | null;
+  nextReviewAt: string | null;
+  isDue: boolean;
+}
+
 export interface VocabularyItem {
   id: number;
   languageId: number;
@@ -53,6 +70,7 @@ export interface VocabularyItem {
   notes: string | null;
   source: 'manual' | 'quiz' | 'import' | 'ai';
   topics: VocabularyTopicBadge[];
+  progress?: VocabularyProgressSummary;
   createdAt: string;
   updatedAt: string;
 }
@@ -293,4 +311,72 @@ export interface SaveVocabularyFromQuizResult {
   item: VocabularyItem;
   createdNewItem: boolean;
   createdTopicId: number | null;
+}
+
+export interface FlashcardCardView {
+  id: number;
+  term: string;
+  pronunciation: string | null;
+  partOfSpeech: string | null;
+  definition: string;
+  example: string | null;
+  notes: string | null;
+  topics: VocabularyTopicBadge[];
+  progress: VocabularyProgressSummary;
+  sessionLastRating: ReviewRating | null;
+  sessionReviewCount: number;
+}
+
+export interface FlashcardDueSummary {
+  totalCount: number;
+  dueCount: number;
+  newCount: number;
+  learningCount: number;
+  masteredCount: number;
+  hardCount: number;
+}
+
+export interface FlashcardDueQueueResponse {
+  items: FlashcardCardView[];
+  meta: PaginationMeta;
+  summary: FlashcardDueSummary;
+}
+
+export interface FlashcardSessionSummary {
+  id: number;
+  topicId: number | null;
+  topicName: string | null;
+  mode: FlashcardSessionMode;
+  targetCount: number;
+  reviewedCount: number;
+  streakMinThreshold: number;
+  isStreakEligible: boolean;
+  status: FlashcardSessionStatus;
+  startedAt: string;
+  completedAt: string | null;
+}
+
+export interface FlashcardRatingBreakdown {
+  again: number;
+  hard: number;
+  good: number;
+  easy: number;
+}
+
+export interface FlashcardSessionDetail extends FlashcardSessionSummary {
+  cards: FlashcardCardView[];
+  breakdown: FlashcardRatingBreakdown;
+  forgottenVocabularyIds: number[];
+}
+
+export interface CreateFlashcardSessionPayload {
+  topicId?: number | null;
+  mode?: FlashcardSessionMode;
+  vocabularyIds?: number[];
+  limit?: number;
+}
+
+export interface RecordFlashcardReviewResponse {
+  session: FlashcardSessionDetail;
+  updatedProgress: VocabularyProgressSummary;
 }

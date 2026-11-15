@@ -3,9 +3,18 @@
     <h1>All Vocabulary</h1>
     <p class="page-sub">Manage words and phrases across your topics.</p>
   </div>
-  <button type="button" class="oq-btn oq-btn--primary" (click)="openCreate()">
-    + Add Vocabulary
-  </button>
+  <div class="actions-row">
+    <a
+      routerLink="/flashcards"
+      [queryParams]="selectedTopicId ? { topicId: selectedTopicId } : null"
+      class="oq-btn oq-btn--secondary"
+    >
+      Review Flashcards
+    </a>
+    <button type="button" class="oq-btn oq-btn--primary" (click)="openCreate()">
+      + Add Vocabulary
+    </button>
+  </div>
 </section>
 
 @if (successMessage()) {
@@ -255,6 +264,18 @@
           <tr>
             <td>
               <strong>{{ item.term }}</strong>
+              @if (item.progress; as prog) {
+                <div>
+                  <span
+                    class="progress-pill"
+                    [class.progress-pill--due]="prog.isDue"
+                    [class.progress-pill--learning]="!prog.isDue && prog.status === 'learning'"
+                    [class.progress-pill--mastered]="!prog.isDue && prog.status === 'mastered'"
+                  >
+                    {{ formatProgressStatus(prog.status, prog.isDue) }}
+                  </span>
+                </div>
+              }
               @if (item.pronunciation) {
                 <div class="muted-small">{{ item.pronunciation }}</div>
               }
@@ -301,9 +322,21 @@
       <article class="oq-card mobile-card">
         <div class="mobile-card__top">
           <strong>{{ item.term }}</strong>
-          @if (item.partOfSpeech) {
-            <span class="tag">{{ item.partOfSpeech }}</span>
-          }
+          <div class="topic-tags">
+            @if (item.progress; as prog) {
+              <span
+                class="progress-pill"
+                [class.progress-pill--due]="prog.isDue"
+                [class.progress-pill--learning]="!prog.isDue && prog.status === 'learning'"
+                [class.progress-pill--mastered]="!prog.isDue && prog.status === 'mastered'"
+              >
+                {{ formatProgressStatus(prog.status, prog.isDue) }}
+              </span>
+            }
+            @if (item.partOfSpeech) {
+              <span class="tag">{{ item.partOfSpeech }}</span>
+            }
+          </div>
         </div>
         @if (item.pronunciation) {
           <div class="muted-small">{{ item.pronunciation }}</div>

@@ -35,6 +35,20 @@ export const routes: Routes = [
       { path: 'vocabulary', component: VocabularyListComponent },
       { path: 'topics', component: TopicsListComponent },
       { path: 'topics/:id', component: TopicDetailComponent },
+      {
+        path: 'flashcards',
+        loadComponent: () =>
+          import('./features/flashcards/flashcards-home.component').then(
+            (m) => m.FlashcardsHomeComponent,
+          ),
+      },
+      {
+        path: 'flashcards/sessions/:id',
+        loadComponent: () =>
+          import('./features/flashcards/flashcard-session.component').then(
+            (m) => m.FlashcardSessionComponent,
+          ),
+      },
       { path: 'quizzes', component: QuizzesListComponent },
       { path: 'quizzes/new', component: QuizBuilderComponent },
       { path: 'quizzes/:id/edit', component: QuizBuilderComponent },
