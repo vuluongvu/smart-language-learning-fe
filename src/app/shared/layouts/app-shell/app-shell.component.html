@@ -1,10 +1,14 @@
 <div class="shell">
+  <a class="oq-skip-link" href="#main-content">Skip to main content</a>
+
   <header class="shell__topbar">
     <button
       type="button"
       class="shell__menu-btn"
       (click)="toggleDrawer()"
       aria-label="Toggle navigation menu"
+      [attr.aria-expanded]="drawerOpen()"
+      aria-controls="app-sidebar-nav"
     >
       Menu
     </button>
@@ -16,6 +20,9 @@
       type="button"
       class="oq-btn oq-btn--secondary shell__theme-btn"
       (click)="themeService.toggleTheme()"
+      [attr.aria-label]="
+        'Switch to ' + (themeService.theme() === 'light' ? 'dark' : 'light') + ' theme'
+      "
     >
       {{ themeService.theme() === 'light' ? 'Dark' : 'Light' }}
     </button>
@@ -25,7 +32,7 @@
     <div class="shell__backdrop" (click)="closeDrawer()" aria-hidden="true"></div>
   }
 
-  <aside class="shell__sidebar" [class.shell__sidebar--open]="drawerOpen()">
+  <aside id="app-sidebar-nav" class="shell__sidebar" [class.shell__sidebar--open]="drawerOpen()">
     <div class="shell__sidebar-header">
       <a class="shell__brand" routerLink="/dashboard" (click)="closeDrawer()">
         <span class="shell__dot" aria-hidden="true"></span>
@@ -37,6 +44,7 @@
       <a
         routerLink="/dashboard"
         routerLinkActive="shell__nav-link--active"
+        ariaCurrentWhenActive="page"
         class="shell__nav-link"
         (click)="closeDrawer()"
       >
@@ -45,6 +53,7 @@
       <a
         routerLink="/vocabulary"
         routerLinkActive="shell__nav-link--active"
+        ariaCurrentWhenActive="page"
         class="shell__nav-link"
         (click)="closeDrawer()"
       >
@@ -53,6 +62,7 @@
       <a
         routerLink="/topics"
         routerLinkActive="shell__nav-link--active"
+        ariaCurrentWhenActive="page"
         class="shell__nav-link"
         (click)="closeDrawer()"
       >
@@ -61,6 +71,7 @@
       <a
         routerLink="/flashcards"
         routerLinkActive="shell__nav-link--active"
+        ariaCurrentWhenActive="page"
         class="shell__nav-link"
         (click)="closeDrawer()"
       >
@@ -69,6 +80,7 @@
       <a
         routerLink="/quizzes"
         routerLinkActive="shell__nav-link--active"
+        ariaCurrentWhenActive="page"
         class="shell__nav-link"
         (click)="closeDrawer()"
       >
@@ -77,6 +89,7 @@
       <a
         routerLink="/progress"
         routerLinkActive="shell__nav-link--active"
+        ariaCurrentWhenActive="page"
         class="shell__nav-link"
         (click)="closeDrawer()"
       >
@@ -85,6 +98,7 @@
       <a
         routerLink="/leaderboard"
         routerLinkActive="shell__nav-link--active"
+        ariaCurrentWhenActive="page"
         class="shell__nav-link"
         (click)="closeDrawer()"
       >
@@ -93,6 +107,7 @@
       <a
         routerLink="/settings"
         routerLinkActive="shell__nav-link--active"
+        ariaCurrentWhenActive="page"
         class="shell__nav-link"
         (click)="closeDrawer()"
       >
@@ -113,6 +128,9 @@
           type="button"
           class="oq-btn oq-btn--secondary oq-btn--full"
           (click)="themeService.toggleTheme()"
+          [attr.aria-label]="
+            'Switch to ' + (themeService.theme() === 'light' ? 'dark' : 'light') + ' theme'
+          "
         >
           Theme: {{ themeService.theme() === 'light' ? 'Light' : 'Dark' }}
         </button>
@@ -123,7 +141,7 @@
     </div>
   </aside>
 
-  <main class="shell__content">
+  <main id="main-content" tabindex="-1" class="shell__content">
     <router-outlet />
   </main>
 
@@ -131,6 +149,7 @@
     <a
       routerLink="/dashboard"
       routerLinkActive="shell__bottom-link--active"
+      ariaCurrentWhenActive="page"
       class="shell__bottom-link"
     >
       Home
@@ -138,6 +157,7 @@
     <a
       routerLink="/vocabulary"
       routerLinkActive="shell__bottom-link--active"
+      ariaCurrentWhenActive="page"
       class="shell__bottom-link"
     >
       Vocab
@@ -145,6 +165,7 @@
     <a
       routerLink="/flashcards"
       routerLinkActive="shell__bottom-link--active"
+      ariaCurrentWhenActive="page"
       class="shell__bottom-link"
     >
       Cards
@@ -152,6 +173,7 @@
     <a
       routerLink="/quizzes"
       routerLinkActive="shell__bottom-link--active"
+      ariaCurrentWhenActive="page"
       class="shell__bottom-link"
     >
       Quizzes
@@ -159,6 +181,7 @@
     <a
       routerLink="/progress"
       routerLinkActive="shell__bottom-link--active"
+      ariaCurrentWhenActive="page"
       class="shell__bottom-link"
     >
       Streak

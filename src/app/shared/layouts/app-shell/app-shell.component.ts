@@ -8,6 +8,9 @@ import { ThemeService } from '../../services/theme.service';
   imports: [RouterOutlet, RouterLink, RouterLinkActive],
   templateUrl: './app-shell.component.html',
   styleUrl: './app-shell.component.scss',
+  host: {
+    '(document:keydown.escape)': 'onEscapeKey()',
+  },
 })
 export class AppShellComponent {
   protected readonly authService = inject(AuthService);
@@ -15,6 +18,12 @@ export class AppShellComponent {
   private readonly router = inject(Router);
 
   protected readonly drawerOpen = signal(false);
+
+  onEscapeKey(): void {
+    if (this.drawerOpen()) {
+      this.closeDrawer();
+    }
+  }
 
   toggleDrawer(): void {
     this.drawerOpen.update((v) => !v);
