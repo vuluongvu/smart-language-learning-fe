@@ -1,0 +1,259 @@
+<div class="breadcrumb">
+  <a routerLink="/flashcards">&larr; Back to Flashcards</a>
+</div>
+
+@if (errorMessage()) {
+  <div class="oq-alert oq-alert--error" role="alert">
+    {{ errorMessage() }}
+  </div>
+}
+
+@if (isLoading()) {
+  <div class="oq-card state-box">Loading review session...</div>
+} @else if (session(); as s) {
+  <section class="oq-card session-header">
+    <div>
+      <h1>
+        {{ s.topicName ? s.topicName : 'Flashcard Review' }}
+        <span class="pill">{{ formatMode(s.mode) }}</span>
+      </h1>
+      <p class="muted-small">
+        Progress: {{ s.reviewedCount }} / {{ s.targetCount }} distinct cards rated &middot;
+        @if (s.isStreakEligible) {
+          <strong class="streak-ok"
+            >Daily Streak threshold reached ({{ s.streakMinThreshold }}+)</strong
+          >
+        } @else {
+          <span> Streak threshold: {{ s.reviewedCount }} / {{ s.streakMinThreshold }} cards </span>
+        }
+      </p>
+    </div>
+
+    @if (s.status === 'in_progress') {
+      <button
+        type="button"
+        class="oq-btn oq-btn--secondary"
+        [disabled]="isCompleting()"
+        (click)="completeSession()"
+      >
+        {{ isCompleting() ? 'Finishing...' : 'Finish Session' }}
+      </button>
+    }
+  </section>
+
+  @if (s.status === 'in_progress') {
+    @if (feedbackMessage()) {
+      <div class="oq-alert oq-alert--success" role="status">
+        {{ feedbackMessage() }}
+      </div>
+    }
+
+    @if (s.reviewedCount >= s.targetCount && s.targetCount > 0) {
+      <div class="oq-card deck-done-banner">
+        <div>
+          <strong>All {{ s.targetCount }} cards rated!</strong>
+          <p class="muted-small">Finish now to lock in your summary or keep reviewing any card.</p>
+        </div>
+        <button
+          type="button"
+          class="oq-btn oq-btn--primary"
+          [disabled]="isCompleting()"
+          (click)="completeSession()"
+        >
+          {{ isCompleting() ? 'Completing...' : 'Complete Session' }}
+        </button>
+      </div>
+    }
+
+    @if (currentCard(); as card) {
+      <div class="card-nav-strip" aria-label="Deck cards overview">
+        @for (c of s.cards; track c.id; let i = $index) {
+          <button
+            type="button"
+            class="card-dot"
+            [class.card-dot--active]="i === currentIndex()"
+            [class.card-dot--done]="c.sessionReviewCount > 0"
+            (click)="selectCard(i)"
+            [attr.aria-label]="'Go to card ' + (i + 1) + ': ' + c.term"
+          >
+            {{ i + 1 }}
+          </button>
+        }
+      </div>
+
+      <button
+        type="button"
+        class="oq-card flashcard-stage"
+        [class.flashcard-stage--flipped]="isFlipped()"
+        [attr.aria-pressed]="isFlipped()"
+        aria-label="Flashcard. Press Enter, Space, or click to flip between term and definition."
+        (click)="toggleFlip()"
+      >
+        <div class="flashcard-stage__meta">
+          <span class="pill"> Card {{ currentIndex() + 1 }} / {{ s.cards.length }} </span>
+          <span class="pill">
+            {{ formatStatus(card.progress.status, card.progress.isDue) }}
+          </span>
+          @if (card.sessionLastRating) {
+            <span class="pill pill--accent">
+              Last: {{ formatRating(card.sessionLastRating) }}
+            </span>
+          }
+        </div>
+
+        @if (!isFlipped()) {
+          <div class="flashcard-face">
+            <h2 class="flashcard-term">{{ card.term }}</h2>
+            @if (card.partOfSpeech) {
+              <div class="muted-small">{{ card.partOfSpeech }}</div>
+            }
+            @if (card.topics.length > 0) {
+              <div class="flashcard-topics">
+                @for (t of card.topics; track t.id) {
+                  <span class="pill">{{ t.name }}</span>
+                }
+              </div>
+            }
+            <p class="flashcard-cue">Click card or press Space / Enter to show meaning</p>
+          </div>
+        } @else {
+          <div class="flashcard-face flashcard-face--back">
+            <div class="flashcard-back-head">
+              <strong>{{ card.term }}</strong>
+              @if (card.pronunciation) {
+                <span class="muted-small">{{ card.pronunciation }}</span>
+              }
+              @if (card.partOfSpeech) {
+                <span class="pill">{{ card.partOfSpeech }}</span>
+              }
+            </div>
+            <p class="flashcard-def">{{ card.definition }}</p>
+            @if (card.example) {
+              <p class="flashcard-example">"{{ card.example }}"</p>
+            }
+            @if (card.notes) {
+              <p class="flashcard-notes">Note: {{ card.notes }}</p>
+            }
+            <p class="flashcard-cue">
+              Reps: {{ card.progress.repetitions }} &middot; Current interval:
+              {{ formatInterval(card.progress.intervalDays) }}
+            </p>
+          </div>
+        }
+      </button>
+
+      <div class="controls-bar">
+        <div class="controls-bar__nav">
+          <button
+            type="button"
+            class="oq-btn oq-btn--secondary"
+            [disabled]="currentIndex() === 0"
+            (click)="previousCard()"
+          >
+            &larr; Previous
+          </button>
+          <button type="button" class="oq-btn oq-btn--secondary" (click)="toggleFlip()">
+            {{ isFlipped() ? 'Show Term' : 'Flip Card' }}
+          </button>
+          <button
+            type="button"
+            class="oq-btn oq-btn--secondary"
+            [disabled]="currentIndex() >= s.cards.length - 1"
+            (click)="nextCard()"
+          >
+            Next &rarr;
+          </button>
+        </div>
+
+        @if (isFlipped()) {
+          <div class="rating-grid" role="group" aria-label="Rate how well you remembered this word">
+            @for (btn of ratingButtons; track btn.rating) {
+              <button
+                type="button"
+                class="rate-btn"
+                [class.rate-btn--danger]="btn.tone === 'danger'"
+                [class.rate-btn--warning]="btn.tone === 'warning'"
+                [class.rate-btn--primary]="btn.tone === 'primary'"
+                [class.rate-btn--success]="btn.tone === 'success'"
+                [disabled]="isSubmitting()"
+                (click)="rateCurrent(btn.rating)"
+              >
+                <span class="rate-btn__top">
+                  <strong>{{ btn.label }}</strong>
+                  <kbd>{{ btn.keyHint }}</kbd>
+                </span>
+                <span class="rate-btn__hint">{{ btn.hint }}</span>
+              </button>
+            }
+          </div>
+        } @else {
+          <p class="muted-small">
+            Flip the card first to reveal self-rating buttons (Again / Hard / Good / Easy).
+          </p>
+        }
+      </div>
+    }
+  } @else {
+    <section class="oq-card summary-card">
+      <div class="summary-card__head">
+        <h2>Session Complete</h2>
+        @if (s.isStreakEligible) {
+          <span class="pill pill--success">Eligible for Daily Streak</span>
+        } @else {
+          <span class="pill pill--warning">
+            Partial session (&lt; {{ s.streakMinThreshold }} cards for Streak)
+          </span>
+        }
+      </div>
+
+      <div class="breakdown-grid">
+        <div class="metric-box">
+          <span>Reviewed</span>
+          <strong>{{ s.reviewedCount }} / {{ s.targetCount }}</strong>
+        </div>
+        <div class="metric-box">
+          <span>Again</span>
+          <strong>{{ s.breakdown.again }}</strong>
+        </div>
+        <div class="metric-box">
+          <span>Hard</span>
+          <strong>{{ s.breakdown.hard }}</strong>
+        </div>
+        <div class="metric-box">
+          <span>Good</span>
+          <strong>{{ s.breakdown.good }}</strong>
+        </div>
+        <div class="metric-box">
+          <span>Easy</span>
+          <strong>{{ s.breakdown.easy }}</strong>
+        </div>
+      </div>
+
+      @if (forgottenCards().length > 0) {
+        <div class="forgotten-box">
+          <h3>Cards to Reinforce ({{ forgottenCards().length }})</h3>
+          <ul>
+            @for (card of forgottenCards(); track card.id) {
+              <li>
+                <strong>{{ card.term }}</strong> — {{ card.definition }}
+              </li>
+            }
+          </ul>
+          <button
+            type="button"
+            class="oq-btn oq-btn--primary"
+            [disabled]="isSubmitting()"
+            (click)="practiceForgottenAgain()"
+          >
+            {{ isSubmitting() ? 'Starting...' : 'Practice Forgotten Cards Again' }}
+          </button>
+        </div>
+      }
+
+      <div class="summary-actions">
+        <a routerLink="/flashcards" class="oq-btn oq-btn--secondary"> Back to Flashcards Hub </a>
+        <a routerLink="/vocabulary" class="oq-btn oq-btn--secondary"> Open Vocabulary Bank </a>
+      </div>
+    </section>
+  }
+}
