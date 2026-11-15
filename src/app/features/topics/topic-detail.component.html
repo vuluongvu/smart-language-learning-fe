@@ -51,6 +51,13 @@
       >
         Manage in Vocabulary
       </a>
+      <a
+        routerLink="/flashcards"
+        [queryParams]="{ topicId: current.id }"
+        class="oq-btn oq-btn--secondary"
+      >
+        Review Flashcards
+      </a>
     </div>
   </section>
 

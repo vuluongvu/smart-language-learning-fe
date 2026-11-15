@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
   DuplicateCheckResult,
   PaginationMeta,
@@ -10,12 +10,13 @@ import {
   VocabularySortKey,
 } from '../../shared/types/learning.types';
 import { extractApiError } from '../../shared/utils/api-error.util';
+import { formatProgressStatusLabel } from '../flashcards/flashcard-labels';
 import { TopicsApiService } from '../topics/topics-api.service';
 import { VocabularyApiService } from './vocabulary-api.service';
 
 @Component({
   selector: 'app-vocabulary-list',
-  imports: [FormsModule, ReactiveFormsModule],
+  imports: [FormsModule, ReactiveFormsModule, RouterLink],
   templateUrl: './vocabulary-list.component.html',
   styleUrl: './vocabulary-list.component.scss',
 })
@@ -52,6 +53,8 @@ export class VocabularyListComponent implements OnInit {
 
   protected readonly confirmDeleteItem = signal<VocabularyItem | null>(null);
   protected readonly isDeleting = signal(false);
+
+  protected readonly formatProgressStatus = formatProgressStatusLabel;
 
   protected readonly partOfSpeechOptions = [
     'noun',
