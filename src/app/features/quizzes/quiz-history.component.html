@@ -1,0 +1,114 @@
+<section class="page-head">
+  <div>
+    <h1>
+      @if (quiz(); as q) {
+        History: {{ q.title }}
+      } @else {
+        Quiz Attempt History
+      }
+    </h1>
+    <p class="page-sub">
+      Review completed attempts with locked answer snapshots or resume unfinished sessions.
+    </p>
+  </div>
+  <div class="head-actions">
+    @if (quizId(); as id) {
+      <a [routerLink]="['/quizzes', id, 'take']" class="oq-btn oq-btn--primary">
+        Take / Retake Quiz
+      </a>
+    }
+    <a routerLink="/quizzes" class="oq-btn oq-btn--secondary">Back to Quizzes</a>
+  </div>
+</section>
+
+<section class="oq-card filter-panel">
+  <div class="oq-field filter-panel__select">
+    <label for="attemptStatusFilter">Filter by status</label>
+    <select id="attemptStatusFilter" [(ngModel)]="statusFilter" (ngModelChange)="loadAttempts(1)">
+      <option value="">All Attempts</option>
+      <option value="completed">Completed</option>
+      <option value="in_progress">In Progress</option>
+    </select>
+  </div>
+</section>
+
+@if (errorMessage()) {
+  <div class="oq-alert oq-alert--error" role="alert">{{ errorMessage() }}</div>
+}
+
+@if (isLoading()) {
+  <div class="oq-card"><p class="muted">Loading attempts...</p></div>
+} @else if (attempts().length === 0) {
+  <div class="oq-card empty-state">
+    <h2>No attempts recorded yet</h2>
+    <p>Start a quiz to see your scores, detailed answers, and progress over time.</p>
+    <a routerLink="/quizzes" class="oq-btn oq-btn--primary">Browse Quizzes</a>
+  </div>
+} @else {
+  <div class="attempts-list">
+    @for (attempt of attempts(); track attempt.id) {
+      <article class="oq-card attempt-card">
+        <div class="attempt-card__main">
+          <div class="attempt-card__top">
+            <span
+              class="status-pill"
+              [class.status-pill--done]="attempt.status === 'completed'"
+              [class.status-pill--active]="attempt.status === 'in_progress'"
+            >
+              {{ attempt.status === 'completed' ? 'Completed' : 'In Progress' }}
+            </span>
+            <span class="attempt-card__date">
+              Started: {{ attempt.startedAt | date: 'medium' }}
+            </span>
+          </div>
+
+          <h2 class="attempt-card__title">{{ attempt.quizTitle }}</h2>
+
+          <div class="attempt-card__metrics">
+            @if (attempt.status === 'completed') {
+              <span class="attempt-card__score">{{ attempt.score }}%</span>
+              <span>{{ attempt.correctCount }} / {{ attempt.totalQuestions }} correct</span>
+            } @else {
+              <span>{{ attempt.totalQuestions }} questions</span>
+              <span>Waiting for submission</span>
+            }
+          </div>
+        </div>
+
+        <div class="attempt-card__actions">
+          @if (attempt.status === 'completed') {
+            <a [routerLink]="['/attempts', attempt.id]" class="oq-btn oq-btn--secondary">
+              View Result
+            </a>
+          } @else {
+            <a [routerLink]="['/quizzes', attempt.quizId, 'take']" class="oq-btn oq-btn--primary">
+              Resume
+            </a>
+          }
+        </div>
+      </article>
+    }
+  </div>
+
+  @if (meta().totalPages > 1) {
+    <nav class="pagination" aria-label="Attempts pagination">
+      <button
+        type="button"
+        class="oq-btn oq-btn--secondary"
+        [disabled]="meta().page <= 1"
+        (click)="loadAttempts(meta().page - 1)"
+      >
+        Previous
+      </button>
+      <span class="pagination__info">Page {{ meta().page }} of {{ meta().totalPages }}</span>
+      <button
+        type="button"
+        class="oq-btn oq-btn--secondary"
+        [disabled]="meta().page >= meta().totalPages"
+        (click)="loadAttempts(meta().page + 1)"
+      >
+        Next
+      </button>
+    </nav>
+  }
+}
