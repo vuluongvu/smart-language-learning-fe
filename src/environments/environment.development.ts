@@ -1,4 +1,4 @@
-import type { AppEnvironment } from './environment';
+import type { AppEnvironment } from './environment.type';
 
 export const environment: AppEnvironment = {
   production: false,
