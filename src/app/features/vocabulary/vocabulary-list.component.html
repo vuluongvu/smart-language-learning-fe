@@ -1,0 +1,357 @@
+<section class="page-head">
+  <div>
+    <h1>All Vocabulary</h1>
+    <p class="page-sub">Manage words and phrases across your topics.</p>
+  </div>
+  <button type="button" class="oq-btn oq-btn--primary" (click)="openCreate()">
+    + Add Vocabulary
+  </button>
+</section>
+
+@if (successMessage()) {
+  <div class="oq-alert oq-alert--success" role="status">
+    {{ successMessage() }}
+  </div>
+}
+@if (errorMessage()) {
+  <div class="oq-alert oq-alert--error" role="alert">
+    {{ errorMessage() }}
+    <button type="button" class="inline-retry" (click)="loadVocabulary(meta().page)">Retry</button>
+  </div>
+}
+
+<section class="oq-card filter-panel">
+  <form (ngSubmit)="loadVocabulary(1)" class="filter-grid">
+    <input
+      type="search"
+      [(ngModel)]="search"
+      name="search"
+      placeholder="Search term or definition..."
+      aria-label="Search vocabulary"
+    />
+
+    <select
+      [(ngModel)]="selectedTopicId"
+      name="topicId"
+      (change)="loadVocabulary(1)"
+      aria-label="Filter by topic"
+    >
+      <option [ngValue]="null">All topics</option>
+      @for (topic of topics(); track topic.id) {
+        <option [ngValue]="topic.id">{{ topic.name }}</option>
+      }
+    </select>
+
+    <select
+      [(ngModel)]="partOfSpeechFilter"
+      name="partOfSpeech"
+      (change)="loadVocabulary(1)"
+      aria-label="Filter by part of speech"
+    >
+      <option value="">All parts of speech</option>
+      @for (pos of partOfSpeechOptions; track pos) {
+        <option [value]="pos">{{ pos }}</option>
+      }
+    </select>
+
+    <select
+      [(ngModel)]="reviewStatusFilter"
+      name="reviewStatus"
+      (change)="loadVocabulary(1)"
+      aria-label="Filter by review status"
+    >
+      <option value="all">All statuses</option>
+      <option value="new">New</option>
+      <option value="due">Due</option>
+      <option value="learning">Learning</option>
+      <option value="mastered">Mastered</option>
+    </select>
+
+    <select
+      [(ngModel)]="sortBy"
+      name="sortBy"
+      (change)="loadVocabulary(1)"
+      aria-label="Sort vocabulary"
+    >
+      <option value="newest">Newest first</option>
+      <option value="oldest">Oldest first</option>
+      <option value="term_asc">Term A &rarr; Z</option>
+      <option value="term_desc">Term Z &rarr; A</option>
+    </select>
+
+    <button type="submit" class="oq-btn oq-btn--secondary">Apply</button>
+  </form>
+</section>
+
+@if (showForm()) {
+  <section class="oq-card form-panel">
+    <h2>{{ editingItem() ? 'Edit Vocabulary Item' : 'Add Vocabulary Item' }}</h2>
+
+    @if (formError()) {
+      <div class="oq-alert oq-alert--error" role="alert">{{ formError() }}</div>
+    }
+
+    @if (duplicateCheck(); as dup) {
+      <div class="oq-alert oq-alert--info" role="status">
+        Notice: "{{ form.controls.term.value.trim() }}" already exists in your Vocabulary Bank ({{
+          dup.matches.length
+        }}
+        entry). Saving will add another entry with this meaning.
+      </div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="saveVocabulary()" novalidate>
+      <div class="form-row-2">
+        <div class="oq-field">
+          <label for="vocab-term">Term or phrase</label>
+          <input
+            id="vocab-term"
+            type="text"
+            formControlName="term"
+            (blur)="onTermBlur()"
+            placeholder="e.g., break the ice"
+          />
+          @if (form.controls.term.touched && form.controls.term.invalid) {
+            <span class="oq-field-error">Term is required.</span>
+          }
+        </div>
+
+        <div class="oq-field">
+          <label for="vocab-ipa">Pronunciation / IPA (optional)</label>
+          <input
+            id="vocab-ipa"
+            type="text"
+            formControlName="pronunciation"
+            placeholder="/breɪk ði aɪs/"
+          />
+        </div>
+      </div>
+
+      <div class="form-row-2">
+        <div class="oq-field">
+          <label for="vocab-pos">Part of speech (optional)</label>
+          <input
+            id="vocab-pos"
+            type="text"
+            formControlName="partOfSpeech"
+            list="pos-suggestions"
+            placeholder="noun, verb, phrase..."
+          />
+          <datalist id="pos-suggestions">
+            @for (pos of partOfSpeechOptions; track pos) {
+              <option [value]="pos"></option>
+            }
+          </datalist>
+        </div>
+
+        <div class="oq-field">
+          <label for="vocab-def">Definition / Meaning</label>
+          <input
+            id="vocab-def"
+            type="text"
+            formControlName="definition"
+            placeholder="Meaning in English or Vietnamese"
+          />
+          @if (form.controls.definition.touched && form.controls.definition.invalid) {
+            <span class="oq-field-error">Definition is required.</span>
+          }
+        </div>
+      </div>
+
+      <div class="oq-field">
+        <label for="vocab-example">Example sentence (optional)</label>
+        <input
+          id="vocab-example"
+          type="text"
+          formControlName="example"
+          placeholder="A sentence showing how to use this term."
+        />
+      </div>
+
+      <div class="oq-field">
+        <label for="vocab-notes">Notes (optional)</label>
+        <textarea
+          id="vocab-notes"
+          rows="2"
+          formControlName="notes"
+          placeholder="Personal memory hints or collocations"
+        ></textarea>
+      </div>
+
+      @if (topics().length > 0) {
+        <div class="topic-picker">
+          <span class="topic-picker__label">Topics (optional, multi-select)</span>
+          <div class="topic-picker__chips">
+            @for (topic of topics(); track topic.id) {
+              <label class="topic-chip">
+                <input
+                  type="checkbox"
+                  [checked]="isTopicSelected(topic.id)"
+                  (change)="toggleTopicSelection(topic.id)"
+                />
+                <span>{{ topic.name }}</span>
+              </label>
+            }
+          </div>
+        </div>
+      }
+
+      <div class="actions-row">
+        <button type="submit" class="oq-btn oq-btn--primary" [disabled]="isSaving()">
+          {{ isSaving() ? 'Saving...' : 'Save vocabulary' }}
+        </button>
+        <button type="button" class="oq-btn oq-btn--secondary" (click)="cancelForm()">
+          Cancel
+        </button>
+      </div>
+    </form>
+  </section>
+}
+
+@if (confirmDeleteItem(); as target) {
+  <section class="oq-card delete-panel" role="alertdialog" aria-labelledby="del-vocab-title">
+    <h2 id="del-vocab-title">Delete "{{ target.term }}"?</h2>
+    <p>This permanently removes the vocabulary item and its topic links.</p>
+    <div class="actions-row">
+      <button
+        type="button"
+        class="oq-btn oq-btn--danger"
+        [disabled]="isDeleting()"
+        (click)="deleteSelectedItem()"
+      >
+        {{ isDeleting() ? 'Deleting...' : 'Confirm delete' }}
+      </button>
+      <button type="button" class="oq-btn oq-btn--secondary" (click)="confirmDeleteItem.set(null)">
+        Cancel
+      </button>
+    </div>
+  </section>
+}
+
+@if (isLoading()) {
+  <div class="oq-card state-box">Loading vocabulary...</div>
+} @else if (items().length === 0) {
+  <div class="oq-card state-box">
+    <h3>No vocabulary items match</h3>
+    <p>Add a word or phrase manually, or adjust your search and filters.</p>
+    <button type="button" class="oq-btn oq-btn--primary" (click)="openCreate()">
+      Add vocabulary
+    </button>
+  </div>
+} @else {
+  <div class="oq-card table-wrap desktop-only">
+    <table class="vocab-table">
+      <thead>
+        <tr>
+          <th>Term</th>
+          <th>Type</th>
+          <th>Definition</th>
+          <th>Topics</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of items(); track item.id) {
+          <tr>
+            <td>
+              <strong>{{ item.term }}</strong>
+              @if (item.pronunciation) {
+                <div class="muted-small">{{ item.pronunciation }}</div>
+              }
+            </td>
+            <td>{{ item.partOfSpeech || '—' }}</td>
+            <td>
+              <div>{{ item.definition }}</div>
+              @if (item.example) {
+                <div class="muted-small">"{{ item.example }}"</div>
+              }
+            </td>
+            <td>
+              <div class="topic-tags">
+                @for (t of item.topics; track t.id) {
+                  <span class="tag">{{ t.name }}</span>
+                }
+                @if (item.topics.length === 0) {
+                  <span class="muted-small">Unassigned</span>
+                }
+              </div>
+            </td>
+            <td>
+              <div class="row-actions">
+                <button type="button" class="oq-btn oq-btn--secondary" (click)="openEdit(item)">
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  class="oq-btn oq-btn--secondary"
+                  (click)="confirmDeleteItem.set(item)"
+                >
+                  Delete
+                </button>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="mobile-cards mobile-only">
+    @for (item of items(); track item.id) {
+      <article class="oq-card mobile-card">
+        <div class="mobile-card__top">
+          <strong>{{ item.term }}</strong>
+          @if (item.partOfSpeech) {
+            <span class="tag">{{ item.partOfSpeech }}</span>
+          }
+        </div>
+        @if (item.pronunciation) {
+          <div class="muted-small">{{ item.pronunciation }}</div>
+        }
+        <p class="mobile-card__def">{{ item.definition }}</p>
+        @if (item.example) {
+          <p class="muted-small">"{{ item.example }}"</p>
+        }
+        <div class="topic-tags">
+          @for (t of item.topics; track t.id) {
+            <span class="tag">{{ t.name }}</span>
+          }
+        </div>
+        <div class="row-actions">
+          <button type="button" class="oq-btn oq-btn--secondary" (click)="openEdit(item)">
+            Edit
+          </button>
+          <button
+            type="button"
+            class="oq-btn oq-btn--secondary"
+            (click)="confirmDeleteItem.set(item)"
+          >
+            Delete
+          </button>
+        </div>
+      </article>
+    }
+  </div>
+
+  @if (meta().totalPages > 1) {
+    <div class="pagination">
+      <button
+        type="button"
+        class="oq-btn oq-btn--secondary"
+        [disabled]="meta().page <= 1"
+        (click)="loadVocabulary(meta().page - 1)"
+      >
+        Previous
+      </button>
+      <span>Page {{ meta().page }} of {{ meta().totalPages }}</span>
+      <button
+        type="button"
+        class="oq-btn oq-btn--secondary"
+        [disabled]="meta().page >= meta().totalPages"
+        (click)="loadVocabulary(meta().page + 1)"
+      >
+        Next
+      </button>
+    </div>
+  }
+}

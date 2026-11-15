@@ -1,0 +1,92 @@
+<div class="breadcrumb">
+  <a routerLink="/topics">&larr; Back to Topics</a>
+</div>
+
+@if (statusMessage()) {
+  <div class="oq-alert oq-alert--success" role="status">
+    {{ statusMessage() }}
+  </div>
+}
+@if (errorMessage()) {
+  <div class="oq-alert oq-alert--error" role="alert">
+    {{ errorMessage() }}
+    <button type="button" class="inline-retry" (click)="loadDetail()">Retry</button>
+  </div>
+}
+
+@if (isLoading()) {
+  <div class="oq-card state-box">Loading topic details...</div>
+} @else if (topic(); as current) {
+  <section class="oq-card topic-hero">
+    <div class="topic-hero__top">
+      <div>
+        <h1>{{ current.name }}</h1>
+        <p>{{ current.description || 'No description provided.' }}</p>
+      </div>
+      <span class="topic-badge">{{ current.vocabularyCount }} items</span>
+    </div>
+
+    <div class="attach-bar">
+      <select
+        [(ngModel)]="selectedVocabularyId"
+        aria-label="Choose existing vocabulary item to attach"
+      >
+        <option [ngValue]="null">Select existing word/phrase to add...</option>
+        @for (item of attachableVocabulary(); track item.id) {
+          <option [ngValue]="item.id">{{ item.term }} — {{ item.definition }}</option>
+        }
+      </select>
+      <button
+        type="button"
+        class="oq-btn oq-btn--primary"
+        [disabled]="!selectedVocabularyId || isAttaching()"
+        (click)="attachSelected()"
+      >
+        {{ isAttaching() ? 'Adding...' : 'Add to topic' }}
+      </button>
+      <a
+        routerLink="/vocabulary"
+        [queryParams]="{ topicId: current.id }"
+        class="oq-btn oq-btn--secondary"
+      >
+        Manage in Vocabulary
+      </a>
+    </div>
+  </section>
+
+  @if (current.vocabularyItems.length === 0) {
+    <div class="oq-card state-box">
+      <h3>No vocabulary in this topic yet</h3>
+      <p>Attach an existing word above or create a new vocabulary item.</p>
+    </div>
+  } @else {
+    <div class="vocab-cards">
+      @for (item of current.vocabularyItems; track item.id) {
+        <article class="oq-card vocab-item">
+          <div class="vocab-item__main">
+            <div class="vocab-item__head">
+              <strong>{{ item.term }}</strong>
+              @if (item.pronunciation) {
+                <span class="vocab-ipa">{{ item.pronunciation }}</span>
+              }
+              @if (item.partOfSpeech) {
+                <span class="vocab-pos">{{ item.partOfSpeech }}</span>
+              }
+            </div>
+            <p class="vocab-item__def">{{ item.definition }}</p>
+            @if (item.example) {
+              <p class="vocab-item__ex">"{{ item.example }}"</p>
+            }
+          </div>
+          <button
+            type="button"
+            class="oq-btn oq-btn--secondary"
+            (click)="detachItem(item.id, item.term)"
+          >
+            Remove from topic
+          </button>
+        </article>
+      }
+    </div>
+  }
+}

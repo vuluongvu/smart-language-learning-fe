@@ -1,0 +1,159 @@
+<section class="page-head">
+  <div>
+    <h1>Topics</h1>
+    <p class="page-sub">Organize your English vocabulary by subject or context.</p>
+  </div>
+  <button type="button" class="oq-btn oq-btn--primary" (click)="openCreate()">+ New Topic</button>
+</section>
+
+@if (successMessage()) {
+  <div class="oq-alert oq-alert--success" role="status">
+    {{ successMessage() }}
+  </div>
+}
+@if (errorMessage()) {
+  <div class="oq-alert oq-alert--error" role="alert">
+    {{ errorMessage() }}
+    <button type="button" class="inline-retry" (click)="loadTopics(meta().page)">Retry</button>
+  </div>
+}
+
+<section class="oq-card search-bar">
+  <form (ngSubmit)="loadTopics(1)" class="search-form">
+    <input
+      type="search"
+      [(ngModel)]="searchTerm"
+      name="search"
+      placeholder="Search topics by name or description..."
+      aria-label="Search topics"
+    />
+    <button type="submit" class="oq-btn oq-btn--secondary">Search</button>
+  </form>
+</section>
+
+@if (showForm()) {
+  <section class="oq-card form-panel">
+    <h2>{{ editingTopic() ? 'Edit Topic' : 'Create Topic' }}</h2>
+    @if (formError()) {
+      <div class="oq-alert oq-alert--error" role="alert">{{ formError() }}</div>
+    }
+    <form [formGroup]="form" (ngSubmit)="saveTopic()" novalidate>
+      <div class="oq-field">
+        <label for="topic-name">Topic name</label>
+        <input
+          id="topic-name"
+          type="text"
+          formControlName="name"
+          placeholder="e.g., Environment, Business, Travel"
+        />
+        @if (form.controls.name.touched && form.controls.name.invalid) {
+          <span class="oq-field-error">Topic name is required (max 120 chars).</span>
+        }
+      </div>
+
+      <div class="oq-field">
+        <label for="topic-desc">Description (optional)</label>
+        <textarea
+          id="topic-desc"
+          rows="3"
+          formControlName="description"
+          placeholder="What will you group in this topic?"
+        ></textarea>
+      </div>
+
+      <div class="actions-row">
+        <button type="submit" class="oq-btn oq-btn--primary" [disabled]="isSaving()">
+          {{ isSaving() ? 'Saving...' : 'Save topic' }}
+        </button>
+        <button type="button" class="oq-btn oq-btn--secondary" (click)="cancelForm()">
+          Cancel
+        </button>
+      </div>
+    </form>
+  </section>
+}
+
+@if (confirmDeleteTopic(); as target) {
+  <section class="oq-card delete-panel" role="alertdialog" aria-labelledby="del-topic-title">
+    <h2 id="del-topic-title">Delete topic "{{ target.name }}"?</h2>
+    <p>
+      Vocabulary items inside this topic will not be deleted and will stay in your Vocabulary Bank.
+    </p>
+    <div class="actions-row">
+      <button
+        type="button"
+        class="oq-btn oq-btn--danger"
+        [disabled]="isDeleting()"
+        (click)="deleteSelectedTopic()"
+      >
+        {{ isDeleting() ? 'Deleting...' : 'Confirm delete' }}
+      </button>
+      <button type="button" class="oq-btn oq-btn--secondary" (click)="confirmDeleteTopic.set(null)">
+        Cancel
+      </button>
+    </div>
+  </section>
+}
+
+@if (isLoading()) {
+  <div class="oq-card state-box">Loading topics...</div>
+} @else if (topics().length === 0) {
+  <div class="oq-card state-box">
+    <h3>No topics found</h3>
+    <p>Create your first English topic to start organizing your words and phrases.</p>
+    <button type="button" class="oq-btn oq-btn--primary" (click)="openCreate()">
+      Create your first topic
+    </button>
+  </div>
+} @else {
+  <div class="topics-grid">
+    @for (topic of topics(); track topic.id) {
+      <article class="oq-card topic-card">
+        <div class="topic-card__top">
+          <a [routerLink]="['/topics', topic.id]" class="topic-card__title">
+            {{ topic.name }}
+          </a>
+          <span class="topic-card__count">{{ topic.vocabularyCount }} items</span>
+        </div>
+        <p class="topic-card__desc">
+          {{ topic.description || 'No description provided.' }}
+        </p>
+        <div class="topic-card__actions">
+          <a [routerLink]="['/topics', topic.id]" class="oq-btn oq-btn--secondary"> Open </a>
+          <button type="button" class="oq-btn oq-btn--secondary" (click)="openEdit(topic)">
+            Edit
+          </button>
+          <button
+            type="button"
+            class="oq-btn oq-btn--secondary"
+            (click)="confirmDeleteTopic.set(topic)"
+          >
+            Delete
+          </button>
+        </div>
+      </article>
+    }
+  </div>
+
+  @if (meta().totalPages > 1) {
+    <div class="pagination">
+      <button
+        type="button"
+        class="oq-btn oq-btn--secondary"
+        [disabled]="meta().page <= 1"
+        (click)="loadTopics(meta().page - 1)"
+      >
+        Previous
+      </button>
+      <span>Page {{ meta().page }} of {{ meta().totalPages }}</span>
+      <button
+        type="button"
+        class="oq-btn oq-btn--secondary"
+        [disabled]="meta().page >= meta().totalPages"
+        (click)="loadTopics(meta().page + 1)"
+      >
+        Next
+      </button>
+    </div>
+  }
+}
