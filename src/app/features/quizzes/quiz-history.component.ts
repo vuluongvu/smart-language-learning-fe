@@ -3,6 +3,11 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
+  OqEmptyStateComponent,
+  OqIconComponent,
+  OqPageHeaderComponent,
+} from '../../shared/components';
+import {
   AttemptSummary,
   PaginationMeta,
   QuizAttemptStatus,
@@ -13,7 +18,14 @@ import { QuizzesApiService } from './quizzes-api.service';
 
 @Component({
   selector: 'app-quiz-history',
-  imports: [DatePipe, FormsModule, RouterLink],
+  imports: [
+    DatePipe,
+    FormsModule,
+    RouterLink,
+    OqPageHeaderComponent,
+    OqEmptyStateComponent,
+    OqIconComponent,
+  ],
   templateUrl: './quiz-history.component.html',
   styleUrl: './quiz-history.component.scss',
 })

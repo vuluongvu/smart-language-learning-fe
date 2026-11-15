@@ -1,12 +1,10 @@
-<section class="page-head">
-  <div>
-    <h1>{{ editingQuizId() ? 'Edit Quiz' : 'Create Quiz' }}</h1>
-    <p class="page-sub">
-      Build manual questions across Multiple Choice, Word Meaning, and Fill in the Blank.
-    </p>
-  </div>
-  <a routerLink="/quizzes" class="oq-btn oq-btn--secondary">Back to Quizzes</a>
-</section>
+<oq-page-header
+  backLink="/quizzes"
+  backLabel="Back to Quizzes"
+  eyebrow="Quiz Authoring"
+  [title]="editingQuizId() ? 'Edit Quiz' : 'Create Quiz'"
+  subtitle="Build manual questions across Multiple Choice, Word Meaning, and Fill in the Blank."
+/>
 
 @if (successMessage()) {
   <div class="oq-alert oq-alert--success" role="status">{{ successMessage() }}</div>
@@ -17,7 +15,7 @@
 }
 
 @if (isLoading()) {
-  <div class="oq-card"><p class="muted">Loading quiz...</p></div>
+  <div class="oq-card state-box">Loading quiz...</div>
 } @else {
   <section class="oq-card meta-card">
     <form [formGroup]="metaForm" class="meta-grid">
@@ -76,10 +74,11 @@
       </div>
       <button
         type="button"
-        class="oq-btn oq-btn--secondary"
+        class="oq-btn oq-btn--secondary oq-btn--sm"
         (click)="showGenerator.set(!showGenerator())"
       >
-        {{ showGenerator() ? 'Hide Helper' : 'Generate Draft Questions' }}
+        <oq-icon name="sparkles" [size]="15" />
+        <span>{{ showGenerator() ? 'Hide Helper' : 'Generate Draft Questions' }}</span>
       </button>
     </div>
 
@@ -110,32 +109,34 @@
         </div>
 
         <div class="gen-types">
-          <label class="check-label">
+          <label class="oq-check">
             <input type="checkbox" [(ngModel)]="genIncludeMcq" name="genIncludeMcq" />
-            Multiple Choice
+            <span>Multiple Choice</span>
           </label>
-          <label class="check-label">
+          <label class="oq-check">
             <input
               type="checkbox"
               [(ngModel)]="genIncludeWordMeaning"
               name="genIncludeWordMeaning"
             />
-            Word Meaning
+            <span>Word Meaning</span>
           </label>
-          <label class="check-label">
+          <label class="oq-check">
             <input type="checkbox" [(ngModel)]="genIncludeFillBlank" name="genIncludeFillBlank" />
-            Fill in the Blank
+            <span>Fill in the Blank</span>
           </label>
         </div>
 
-        <button
-          type="button"
-          class="oq-btn oq-btn--primary"
-          [disabled]="isGenerating()"
-          (click)="generateDraftQuestions()"
-        >
-          {{ isGenerating() ? 'Generating...' : 'Append Draft Questions' }}
-        </button>
+        <div>
+          <button
+            type="button"
+            class="oq-btn oq-btn--primary"
+            [disabled]="isGenerating()"
+            (click)="generateDraftQuestions()"
+          >
+            {{ isGenerating() ? 'Generating...' : 'Append Draft Questions' }}
+          </button>
+        </div>
       </div>
     }
   </section>
@@ -145,24 +146,35 @@
     <div class="add-btns">
       <button
         type="button"
-        class="oq-btn oq-btn--secondary"
+        class="oq-btn oq-btn--secondary oq-btn--sm"
         (click)="addQuestion('multiple_choice')"
       >
         + Multiple Choice
       </button>
-      <button type="button" class="oq-btn oq-btn--secondary" (click)="addQuestion('word_meaning')">
+      <button
+        type="button"
+        class="oq-btn oq-btn--secondary oq-btn--sm"
+        (click)="addQuestion('word_meaning')"
+      >
         + Word Meaning
       </button>
-      <button type="button" class="oq-btn oq-btn--secondary" (click)="addQuestion('fill_blank')">
+      <button
+        type="button"
+        class="oq-btn oq-btn--secondary oq-btn--sm"
+        (click)="addQuestion('fill_blank')"
+      >
         + Fill in the Blank
       </button>
     </div>
   </section>
 
   @if (questions().length === 0) {
-    <div class="oq-card empty-questions">
-      <p>No questions added yet. Add a question manually above or use the Vocabulary helper.</p>
-    </div>
+    <oq-empty-state
+      [compact]="true"
+      icon="help-circle"
+      title="No questions added yet"
+      description="Add a question manually above or use the Vocabulary helper."
+    />
   }
 
   <div class="questions-list">
@@ -170,13 +182,13 @@
       <article class="oq-card question-card">
         <div class="question-card__head">
           <div class="question-card__title">
-            <span class="q-index">Q{{ qi + 1 }}</span>
-            <span class="q-type-badge">{{ questionTypeLabel(q.questionType) }}</span>
+            <span class="oq-badge oq-badge--accent">Q{{ qi + 1 }}</span>
+            <span class="oq-badge">{{ questionTypeLabel(q.questionType) }}</span>
           </div>
           <div class="question-card__controls">
             <button
               type="button"
-              class="oq-btn oq-btn--secondary btn-sm"
+              class="oq-btn oq-btn--secondary oq-btn--sm"
               [disabled]="qi === 0"
               (click)="moveQuestion(qi, -1)"
             >
@@ -184,7 +196,7 @@
             </button>
             <button
               type="button"
-              class="oq-btn oq-btn--secondary btn-sm"
+              class="oq-btn oq-btn--secondary oq-btn--sm"
               [disabled]="qi === questions().length - 1"
               (click)="moveQuestion(qi, 1)"
             >
@@ -192,7 +204,7 @@
             </button>
             <button
               type="button"
-              class="oq-btn oq-btn--secondary btn-sm btn-danger-text"
+              class="oq-btn oq-btn--ghost oq-btn--sm btn-danger-text"
               (click)="removeQuestion(qi)"
             >
               Remove
@@ -264,7 +276,7 @@
             </span>
             <button
               type="button"
-              class="oq-btn oq-btn--secondary btn-sm"
+              class="oq-btn oq-btn--secondary oq-btn--sm"
               [disabled]="
                 q.questionType === 'fill_blank' ? q.options.length >= 5 : q.options.length >= 6
               "
@@ -298,7 +310,7 @@
               />
               <button
                 type="button"
-                class="oq-btn oq-btn--secondary btn-sm"
+                class="oq-btn oq-btn--ghost oq-btn--sm"
                 [disabled]="
                   q.questionType === 'fill_blank' ? q.options.length <= 1 : q.options.length <= 2
                 "

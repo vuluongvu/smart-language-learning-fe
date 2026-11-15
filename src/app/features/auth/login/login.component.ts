@@ -11,6 +11,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { environment } from '../../../../environments/environment';
 import { ThemeService } from '../../../shared/services/theme.service';
+import { OqIconComponent } from '../../../shared/components';
 import { detectBrowserTimezone, extractApiError } from '../../../shared/utils/api-error.util';
 import { AuthService } from '../auth.service';
 
@@ -33,7 +34,7 @@ declare global {
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, OqIconComponent],
   templateUrl: './login.component.html',
   styleUrl: '../auth-page.scss',
 })

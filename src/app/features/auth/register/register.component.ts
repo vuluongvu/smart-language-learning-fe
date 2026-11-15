@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ThemeService } from '../../../shared/services/theme.service';
+import { OqIconComponent } from '../../../shared/components';
 import {
   COMMON_TIMEZONES,
   detectBrowserTimezone,
@@ -11,7 +12,7 @@ import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, OqIconComponent],
   templateUrl: './register.component.html',
   styleUrl: '../auth-page.scss',
 })

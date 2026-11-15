@@ -2,6 +2,12 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
+  OqEmptyStateComponent,
+  OqIconComponent,
+  OqModalComponent,
+  OqPageHeaderComponent,
+} from '../../shared/components';
+import {
   PaginationMeta,
   QuizDifficulty,
   QuizSortKey,
@@ -15,7 +21,14 @@ import { QuizzesApiService } from './quizzes-api.service';
 
 @Component({
   selector: 'app-quizzes-list',
-  imports: [FormsModule, RouterLink],
+  imports: [
+    FormsModule,
+    RouterLink,
+    OqPageHeaderComponent,
+    OqModalComponent,
+    OqEmptyStateComponent,
+    OqIconComponent,
+  ],
   templateUrl: './quizzes-list.component.html',
   styleUrl: './quizzes-list.component.scss',
 })

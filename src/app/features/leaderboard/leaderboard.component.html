@@ -1,26 +1,30 @@
 <div class="lb-page">
-  <header class="page-head">
-    <div>
-      <h1>Streak Leaderboard</h1>
-      <p class="page-sub">
-        Friendly consistency ranking based on active streak, longest streak, and milestone timing.
-      </p>
+  <oq-page-header
+    eyebrow="Community"
+    title="Streak Leaderboard"
+    subtitle="Friendly consistency ranking based on active streak, longest streak, and milestone timing."
+  >
+    <div actions class="page-actions">
+      <a routerLink="/progress" class="oq-btn oq-btn--secondary">
+        <oq-icon name="calendar" [size]="16" />
+        <span>My Calendar</span>
+      </a>
+      <a routerLink="/settings" class="oq-btn oq-btn--secondary">
+        <oq-icon name="settings" [size]="16" />
+        <span>Privacy Settings</span>
+      </a>
     </div>
-    <div class="page-actions">
-      <a routerLink="/progress" class="oq-btn oq-btn--secondary">My Calendar</a>
-      <a routerLink="/settings" class="oq-btn oq-btn--secondary">Privacy Settings</a>
-    </div>
-  </header>
+  </oq-page-header>
 
   @if (errorMessage()) {
     <div class="oq-alert oq-alert--error" role="alert">
-      {{ errorMessage() }}
-      <button type="button" class="inline-retry" (click)="loadPage(page())">Retry</button>
+      <span>{{ errorMessage() }}</span>
+      <button type="button" class="oq-inline-retry" (click)="loadPage(page())">Retry</button>
     </div>
   }
 
   @if (loading()) {
-    <section class="oq-card" aria-busy="true">
+    <section class="oq-card state-box" aria-busy="true">
       <p>Loading streak rankings...</p>
     </section>
   } @else if (data(); as lb) {
@@ -39,11 +43,11 @@
             </strong>
           </div>
           <div class="my-card__stats">
-            <div>
+            <div class="my-stat">
               <span>Active Streak</span>
               <strong>{{ lb.myPosition.currentStreak }}d</strong>
             </div>
-            <div>
+            <div class="my-stat">
               <span>Best Streak</span>
               <strong>{{ lb.myPosition.longestStreak }}d</strong>
             </div>
@@ -66,9 +70,16 @@
 
     <section class="oq-card list-card" aria-label="Public streak leaderboard">
       @if (lb.items.length === 0) {
-        <p class="empty-msg">
-          No public learners on the leaderboard yet. Opt in from Settings to appear first!
-        </p>
+        <oq-empty-state
+          [compact]="true"
+          icon="trophy"
+          title="No public learners yet"
+          description="Opt in from Settings & Profile to appear first on the streak leaderboard."
+        >
+          <a actions routerLink="/settings" class="oq-btn oq-btn--secondary oq-btn--sm">
+            Open Privacy Settings
+          </a>
+        </oq-empty-state>
       } @else {
         <ul class="rank-list">
           @for (entry of lb.items; track entry.userId) {
@@ -93,7 +104,7 @@
                 <div class="learner-name">
                   <strong>{{ entry.displayName }}</strong>
                   @if (entry.isCurrentUser) {
-                    <span class="you-pill">You</span>
+                    <span class="oq-badge oq-badge--accent">You</span>
                   }
                 </div>
               </div>
@@ -103,17 +114,17 @@
                   <strong>{{ entry.currentStreak }}</strong>
                   <span>day streak</span>
                 </span>
-                <span class="best-metric">Best: {{ entry.longestStreak }}d</span>
+                <span class="oq-badge">Best: {{ entry.longestStreak }}d</span>
               </div>
             </li>
           }
         </ul>
 
         @if (lb.meta.totalPages > 1) {
-          <nav class="pager" aria-label="Leaderboard pagination">
+          <nav class="oq-pagination" aria-label="Leaderboard pagination">
             <button
               type="button"
-              class="oq-btn oq-btn--secondary"
+              class="oq-btn oq-btn--secondary oq-btn--sm"
               [disabled]="lb.meta.page <= 1"
               (click)="loadPage(lb.meta.page - 1)"
             >
@@ -122,7 +133,7 @@
             <span>Page {{ lb.meta.page }} of {{ lb.meta.totalPages }}</span>
             <button
               type="button"
-              class="oq-btn oq-btn--secondary"
+              class="oq-btn oq-btn--secondary oq-btn--sm"
               [disabled]="lb.meta.page >= lb.meta.totalPages"
               (click)="loadPage(lb.meta.page + 1)"
             >

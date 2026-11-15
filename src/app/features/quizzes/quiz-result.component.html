@@ -1,11 +1,11 @@
-<section class="page-head">
-  <div>
-    <h1>Quiz Result</h1>
-    @if (attempt(); as att) {
-      <p class="page-sub">{{ att.quizTitle }}</p>
-    }
-  </div>
-  <div class="head-actions">
+<oq-page-header
+  backLink="/quizzes"
+  backLabel="All Quizzes"
+  eyebrow="Attempt Review"
+  title="Quiz Result"
+  [subtitle]="attempt()?.quizTitle ?? null"
+>
+  <div actions class="head-actions">
     @if (attempt(); as att) {
       <a
         [routerLink]="['/quizzes', att.quizId, 'take']"
@@ -18,41 +18,52 @@
         Quiz History
       </a>
     }
-    <a routerLink="/quizzes" class="oq-btn oq-btn--secondary">All Quizzes</a>
   </div>
-</section>
+</oq-page-header>
 
 @if (errorMessage()) {
   <div class="oq-alert oq-alert--error" role="alert">{{ errorMessage() }}</div>
 }
 
 @if (isLoading()) {
-  <div class="oq-card"><p class="muted">Loading quiz result...</p></div>
+  <div class="oq-card state-box">Loading quiz result...</div>
 } @else if (attempt(); as att) {
   @if (att.status === 'in_progress') {
-    <div class="oq-card empty-state">
-      <h2>This attempt is still in progress</h2>
-      <p>Continue answering and submit your quiz to see your score and answer breakdown.</p>
-      <a [routerLink]="['/quizzes', att.quizId, 'take']" class="oq-btn oq-btn--primary">
+    <oq-empty-state
+      icon="clock"
+      title="This attempt is still in progress"
+      description="Continue answering and submit your quiz to see your score and answer breakdown."
+    >
+      <a actions [routerLink]="['/quizzes', att.quizId, 'take']" class="oq-btn oq-btn--primary">
         Resume Attempt
       </a>
-    </div>
+    </oq-empty-state>
   } @else {
     <section class="oq-card summary-card">
-      <div class="summary-score">
-        <div class="summary-score__pct">{{ att.score }}%</div>
-        <div class="summary-score__sub">
-          {{ att.correctCount }} / {{ att.totalQuestions }} correct
+      <div class="summary-top">
+        <div class="summary-score">
+          <div class="summary-score__pct">{{ att.score }}%</div>
+          <div class="summary-score__sub">
+            {{ att.correctCount }} / {{ att.totalQuestions }} correct
+          </div>
+        </div>
+
+        <div class="summary-meta">
+          <div>
+            <strong>Completed:</strong>
+            {{ att.completedAt ? (att.completedAt | date: 'medium') : 'Just now' }}
+          </div>
+          <div><strong>Attempt ID:</strong> #{{ att.id }}</div>
         </div>
       </div>
 
-      <div class="summary-meta">
-        <div>
-          <strong>Completed:</strong>
-          {{ att.completedAt ? (att.completedAt | date: 'medium') : 'Just now' }}
-        </div>
-        <div><strong>Attempt ID:</strong> #{{ att.id }}</div>
-      </div>
+      <oq-progress-bar
+        [value]="att.correctCount"
+        [max]="att.totalQuestions"
+        label="Accuracy"
+        [showPercent]="true"
+        [tone]="att.score >= 70 ? 'success' : 'primary'"
+      />
     </section>
 
     <h2 class="section-title">Answer Breakdown ({{ att.answers.length }})</h2>
@@ -66,26 +77,27 @@
         >
           <div class="answer-card__head">
             <div class="answer-card__badges">
-              <span class="q-num">Q{{ i + 1 }}</span>
+              <span class="oq-badge">Q{{ i + 1 }}</span>
               <span
-                class="result-badge"
-                [class.result-badge--correct]="ans.isCorrect"
-                [class.result-badge--wrong]="!ans.isCorrect"
+                class="oq-badge"
+                [class.oq-badge--success]="ans.isCorrect"
+                [class.oq-badge--danger]="!ans.isCorrect"
               >
                 {{ ans.isCorrect ? 'Correct' : 'Incorrect' }}
               </span>
               @if (ans.vocabularyTerm) {
-                <span class="term-tag">Term: {{ ans.vocabularyTerm }}</span>
+                <span class="oq-badge oq-badge--accent">Term: {{ ans.vocabularyTerm }}</span>
               }
             </div>
 
             @if (activeAnswerId() !== ans.id) {
               <button
                 type="button"
-                class="oq-btn oq-btn--secondary btn-sm"
+                class="oq-btn oq-btn--secondary oq-btn--sm"
                 (click)="openSaveVocab(ans)"
               >
-                + Save Word to Vocabulary
+                <oq-icon name="plus" [size]="14" />
+                <span>Save Word to Vocabulary</span>
               </button>
             }
           </div>
@@ -93,12 +105,12 @@
           <h3 class="answer-card__prompt">{{ ans.questionText }}</h3>
 
           <div class="answer-compare">
-            <div>
-              <span class="compare-label">Your answer:</span>
+            <div class="compare-box">
+              <span class="compare-label">Your answer</span>
               <span class="compare-value">{{ ans.answerText || '(No answer)' }}</span>
             </div>
-            <div>
-              <span class="compare-label">Correct answer:</span>
+            <div class="compare-box">
+              <span class="compare-label">Correct answer</span>
               <span class="compare-value compare-value--correct">{{ ans.correctAnswer }}</span>
             </div>
           </div>
@@ -154,7 +166,7 @@
                       >
                       <button
                         type="button"
-                        class="oq-btn oq-btn--secondary btn-sm"
+                        class="oq-btn oq-btn--secondary oq-btn--sm"
                         [disabled]="isSavingVocab()"
                         (click)="attachExistingItem(match.id, ans.id)"
                       >

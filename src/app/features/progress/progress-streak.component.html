@@ -1,62 +1,62 @@
 <div class="progress-page">
-  <header class="page-head">
-    <div>
-      <h1>Progress &amp; Streak Calendar</h1>
-      <p class="page-sub">
-        Consistency calendar in your active timezone, daily activity totals, and weak words.
-      </p>
+  <oq-page-header
+    eyebrow="Consistency"
+    title="Progress &amp; Streak Calendar"
+    subtitle="Consistency calendar in your active timezone, daily activity totals, and weak words."
+  >
+    <div actions class="page-actions">
+      <a routerLink="/leaderboard" class="oq-btn oq-btn--secondary">
+        <oq-icon name="trophy" [size]="16" />
+        <span>Leaderboard</span>
+      </a>
+      <a routerLink="/flashcards" class="oq-btn oq-btn--primary">
+        <oq-icon name="layers" [size]="16" />
+        <span>Study Now</span>
+      </a>
     </div>
-    <div class="page-actions">
-      <a routerLink="/leaderboard" class="oq-btn oq-btn--secondary">Leaderboard</a>
-      <a routerLink="/flashcards" class="oq-btn oq-btn--primary">Study Now</a>
-    </div>
-  </header>
+  </oq-page-header>
 
   @if (errorMessage()) {
     <div class="oq-alert oq-alert--error" role="alert">
-      {{ errorMessage() }}
-      <button type="button" class="inline-retry" (click)="loadAll()">Retry</button>
+      <span>{{ errorMessage() }}</span>
+      <button type="button" class="oq-inline-retry" (click)="loadAll()">Retry</button>
     </div>
   }
 
   @if (loading()) {
-    <section class="oq-card" aria-busy="true">
+    <section class="oq-card state-box" aria-busy="true">
       <p>Loading streak calendar and history...</p>
     </section>
   } @else {
     @if (streak(); as s) {
       <section class="streak-summary-grid" aria-label="Streak metrics">
-        <article class="oq-card stat-box">
-          <span class="stat-box__label">Active Streak</span>
-          <strong class="stat-box__val">{{ s.currentStreak }} days</strong>
-          <span class="stat-box__hint">
-            @if (s.isActiveToday) {
-              Completed today
-            } @else if (s.isAtRiskToday) {
-              At risk today
-            } @else {
-              Start today
-            }
-          </span>
-        </article>
-        <article class="oq-card stat-box">
-          <span class="stat-box__label">Longest Streak</span>
-          <strong class="stat-box__val">{{ s.longestStreak }} days</strong>
-          <span class="stat-box__hint">
-            @if (s.currentStreakStartedAt) {
-              Started {{ s.currentStreakStartedAt }}
-            } @else {
-              Personal best record
-            }
-          </span>
-        </article>
-        <article class="oq-card stat-box">
-          <span class="stat-box__label">Last Qualified Day</span>
-          <strong class="stat-box__val stat-box__val--sm">{{
-            s.lastActivityDate ?? 'None yet'
-          }}</strong>
-          <span class="stat-box__hint">Timezone: {{ s.timezone }}</span>
-        </article>
+        <oq-stat-card
+          label="Active Streak"
+          [value]="s.currentStreak + ' days'"
+          [detail]="
+            s.isActiveToday ? 'Completed today' : s.isAtRiskToday ? 'At risk today' : 'Start today'
+          "
+          icon="flame"
+          [tone]="s.isActiveToday ? 'success' : 'accent'"
+        />
+
+        <oq-stat-card
+          label="Longest Streak"
+          [value]="s.longestStreak + ' days'"
+          [detail]="
+            s.currentStreakStartedAt
+              ? 'Started ' + s.currentStreakStartedAt
+              : 'Personal best record'
+          "
+          icon="trophy"
+        />
+
+        <oq-stat-card
+          label="Last Qualified Day"
+          [value]="s.lastActivityDate ?? 'None yet'"
+          [detail]="'Timezone: ' + s.timezone"
+          icon="calendar"
+        />
       </section>
     }
 
@@ -73,7 +73,7 @@
           <div class="cal-nav">
             <button
               type="button"
-              class="oq-btn oq-btn--secondary"
+              class="oq-btn oq-btn--secondary oq-btn--sm"
               [disabled]="calendarLoading()"
               (click)="changeMonth(-1)"
             >
@@ -81,7 +81,7 @@
             </button>
             <button
               type="button"
-              class="oq-btn oq-btn--secondary"
+              class="oq-btn oq-btn--secondary oq-btn--sm"
               [disabled]="calendarLoading()"
               (click)="changeMonth(1)"
             >
@@ -126,7 +126,7 @@
 
     @if (history(); as hist) {
       <section class="history-grid">
-        <article class="oq-card">
+        <article class="oq-card panel">
           <div class="section-head">
             <h2>Daily Study Log ({{ hist.days }}d)</h2>
             <div class="window-tabs">
@@ -150,13 +150,18 @@
           </div>
 
           @if (activeHistoryRows().length === 0) {
-            <p class="muted-note">No qualified study sessions completed in this window yet.</p>
+            <oq-empty-state
+              [compact]="true"
+              icon="calendar"
+              title="No sessions in this window"
+              description="Complete a quiz or at least 5 flashcards to log a qualified day."
+            />
           } @else {
             <ul class="log-list">
               @for (item of activeHistoryRows(); track item.date) {
                 <li class="log-item">
                   <strong>{{ item.date }}</strong>
-                  <span>
+                  <span class="oq-muted">
                     {{ item.quizCompletions }} quizzes · {{ item.flashcardCompletions }} flashcards
                     ({{ item.activityCount }} total)
                   </span>
@@ -166,7 +171,7 @@
           }
         </article>
 
-        <article class="oq-card">
+        <article class="oq-card panel">
           <div class="section-head">
             <h2>Weak Vocabulary &amp; Recent Scores</h2>
             <a routerLink="/flashcards" class="accent-link">Review weak words →</a>
@@ -178,12 +183,12 @@
                   <span>
                     <strong>{{ w.term }}</strong> — {{ w.definition }}
                   </span>
-                  <span class="badge-warn">{{ w.wrongCount }} missed</span>
+                  <span class="oq-badge oq-badge--warning">{{ w.wrongCount }} missed</span>
                 </li>
               }
             </ul>
           } @else {
-            <p class="muted-note">No struggled vocabulary items right now.</p>
+            <p class="oq-muted">No struggled vocabulary items right now.</p>
           }
 
           @if (hist.recentAttempts.length > 0) {
@@ -194,7 +199,7 @@
                   <a [routerLink]="['/attempts', att.id]" class="accent-link">
                     {{ att.quizTitleSnapshot }}
                   </a>
-                  <span>
+                  <span class="oq-badge oq-badge--success">
                     {{ att.score | number: '1.0-1' }}%
                     @if (att.completedAt) {
                       · {{ att.completedAt | date: 'shortDate' }}

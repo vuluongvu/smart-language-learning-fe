@@ -10,21 +10,29 @@
       [attr.aria-expanded]="drawerOpen()"
       aria-controls="app-sidebar-nav"
     >
-      Menu
+      <oq-icon name="menu" [size]="18" />
+      <span>Menu</span>
     </button>
+
     <a class="shell__brand" routerLink="/dashboard">
-      <span class="shell__dot" aria-hidden="true"></span>
+      <svg width="24" height="24" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+        <rect width="28" height="28" rx="8" fill="var(--oq-accent)" />
+        <circle cx="13.5" cy="13.5" r="5.25" stroke="#fff" stroke-width="2.2" />
+        <path d="M17.5 17.5 21 21" stroke="#fff" stroke-width="2.2" stroke-linecap="round" />
+      </svg>
       <span>OpenQuiz</span>
     </a>
+
     <button
       type="button"
-      class="oq-btn oq-btn--secondary shell__theme-btn"
+      class="oq-btn oq-btn--secondary oq-btn--sm shell__theme-btn"
       (click)="themeService.toggleTheme()"
       [attr.aria-label]="
         'Switch to ' + (themeService.theme() === 'light' ? 'dark' : 'light') + ' theme'
       "
     >
-      {{ themeService.theme() === 'light' ? 'Dark' : 'Light' }}
+      <oq-icon [name]="themeService.theme() === 'light' ? 'moon' : 'sun'" [size]="15" />
+      <span>{{ themeService.theme() === 'light' ? 'Dark' : 'Light' }}</span>
     </button>
   </header>
 
@@ -32,117 +40,19 @@
     <div class="shell__backdrop" (click)="closeDrawer()" aria-hidden="true"></div>
   }
 
-  <aside id="app-sidebar-nav" class="shell__sidebar" [class.shell__sidebar--open]="drawerOpen()">
-    <div class="shell__sidebar-header">
-      <a class="shell__brand" routerLink="/dashboard" (click)="closeDrawer()">
-        <span class="shell__dot" aria-hidden="true"></span>
-        <span>OpenQuiz</span>
-      </a>
-    </div>
-
-    <nav class="shell__nav" aria-label="Main navigation">
-      <a
-        routerLink="/dashboard"
-        routerLinkActive="shell__nav-link--active"
-        ariaCurrentWhenActive="page"
-        class="shell__nav-link"
-        (click)="closeDrawer()"
-      >
-        Dashboard
-      </a>
-      <a
-        routerLink="/vocabulary"
-        routerLinkActive="shell__nav-link--active"
-        ariaCurrentWhenActive="page"
-        class="shell__nav-link"
-        (click)="closeDrawer()"
-      >
-        All Vocabulary
-      </a>
-      <a
-        routerLink="/topics"
-        routerLinkActive="shell__nav-link--active"
-        ariaCurrentWhenActive="page"
-        class="shell__nav-link"
-        (click)="closeDrawer()"
-      >
-        Topics
-      </a>
-      <a
-        routerLink="/flashcards"
-        routerLinkActive="shell__nav-link--active"
-        ariaCurrentWhenActive="page"
-        class="shell__nav-link"
-        (click)="closeDrawer()"
-      >
-        Flashcards
-      </a>
-      <a
-        routerLink="/quizzes"
-        routerLinkActive="shell__nav-link--active"
-        ariaCurrentWhenActive="page"
-        class="shell__nav-link"
-        (click)="closeDrawer()"
-      >
-        Quizzes
-      </a>
-      <a
-        routerLink="/progress"
-        routerLinkActive="shell__nav-link--active"
-        ariaCurrentWhenActive="page"
-        class="shell__nav-link"
-        (click)="closeDrawer()"
-      >
-        Progress &amp; Streak
-      </a>
-      <a
-        routerLink="/leaderboard"
-        routerLinkActive="shell__nav-link--active"
-        ariaCurrentWhenActive="page"
-        class="shell__nav-link"
-        (click)="closeDrawer()"
-      >
-        Leaderboard
-      </a>
-      <a
-        routerLink="/settings"
-        routerLinkActive="shell__nav-link--active"
-        ariaCurrentWhenActive="page"
-        class="shell__nav-link"
-        (click)="closeDrawer()"
-      >
-        Settings &amp; Profile
-      </a>
-    </nav>
-
-    <div class="shell__sidebar-footer">
-      @if (authService.user(); as user) {
-        <div class="shell__user">
-          <div class="shell__user-name">{{ user.displayName }}</div>
-          <div class="shell__user-email">{{ user.email }}</div>
-        </div>
-      }
-
-      <div class="shell__footer-actions">
-        <button
-          type="button"
-          class="oq-btn oq-btn--secondary oq-btn--full"
-          (click)="themeService.toggleTheme()"
-          [attr.aria-label]="
-            'Switch to ' + (themeService.theme() === 'light' ? 'dark' : 'light') + ' theme'
-          "
-        >
-          Theme: {{ themeService.theme() === 'light' ? 'Light' : 'Dark' }}
-        </button>
-        <button type="button" class="oq-btn oq-btn--secondary oq-btn--full" (click)="logout()">
-          Log out
-        </button>
-      </div>
-    </div>
-  </aside>
+  <oq-sidebar
+    [drawerOpen]="drawerOpen()"
+    [user]="authService.user()"
+    [theme]="themeService.theme()"
+    (closeDrawer)="closeDrawer()"
+    (toggleTheme)="themeService.toggleTheme()"
+    (logout)="logout()"
+  />
 
   <main id="main-content" tabindex="-1" class="shell__content">
-    <router-outlet />
+    <div class="shell__container">
+      <router-outlet />
+    </div>
   </main>
 
   <nav class="shell__bottom-nav" aria-label="Mobile navigation">
@@ -152,7 +62,8 @@
       ariaCurrentWhenActive="page"
       class="shell__bottom-link"
     >
-      Home
+      <oq-icon name="layout-dashboard" [size]="18" />
+      <span>Home</span>
     </a>
     <a
       routerLink="/vocabulary"
@@ -160,7 +71,8 @@
       ariaCurrentWhenActive="page"
       class="shell__bottom-link"
     >
-      Vocab
+      <oq-icon name="book-open" [size]="18" />
+      <span>Vocab</span>
     </a>
     <a
       routerLink="/flashcards"
@@ -168,7 +80,8 @@
       ariaCurrentWhenActive="page"
       class="shell__bottom-link"
     >
-      Cards
+      <oq-icon name="layers" [size]="18" />
+      <span>Cards</span>
     </a>
     <a
       routerLink="/quizzes"
@@ -176,7 +89,8 @@
       ariaCurrentWhenActive="page"
       class="shell__bottom-link"
     >
-      Quizzes
+      <oq-icon name="help-circle" [size]="18" />
+      <span>Quizzes</span>
     </a>
     <a
       routerLink="/progress"
@@ -184,7 +98,8 @@
       ariaCurrentWhenActive="page"
       class="shell__bottom-link"
     >
-      Streak
+      <oq-icon name="bar-chart" [size]="18" />
+      <span>Streak</span>
     </a>
   </nav>
 </div>

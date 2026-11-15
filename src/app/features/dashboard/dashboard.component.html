@@ -1,118 +1,127 @@
 <div class="dash-page">
-  <header class="dash-head">
-    <div>
-      <h1>Welcome back, {{ user()?.displayName ?? 'Learner' }}</h1>
-      <p class="dash-head__sub">
-        Track your vocabulary mastery, quiz accuracy, and daily streak consistency.
-        @for (lang of languages(); track lang.id) {
-          <span class="lang-pill">{{ lang.name }}</span>
-        }
-      </p>
+  <oq-page-header
+    eyebrow="Daily Overview"
+    [title]="'Welcome back, ' + (user()?.displayName ?? 'Learner')"
+    subtitle="Track your vocabulary mastery, quiz accuracy, and daily streak consistency."
+  >
+    <div actions class="dash-actions">
+      <a routerLink="/flashcards" class="oq-btn oq-btn--primary">
+        <oq-icon name="layers" [size]="16" />
+        <span>Review Flashcards</span>
+      </a>
+      <a routerLink="/quizzes/new" class="oq-btn oq-btn--secondary">
+        <oq-icon name="plus" [size]="16" />
+        <span>Create Quiz</span>
+      </a>
+      <a routerLink="/vocabulary" class="oq-btn oq-btn--secondary">
+        <oq-icon name="book-open" [size]="16" />
+        <span>Add Word</span>
+      </a>
     </div>
-    <div class="dash-head__actions">
-      <a routerLink="/flashcards" class="oq-btn oq-btn--primary">Review Flashcards</a>
-      <a routerLink="/quizzes/new" class="oq-btn oq-btn--secondary">Create Quiz</a>
-      <a routerLink="/vocabulary" class="oq-btn oq-btn--secondary">Add Word</a>
+  </oq-page-header>
+
+  @if (languages().length > 0) {
+    <div class="lang-row">
+      @for (lang of languages(); track lang.id) {
+        <span class="oq-badge">{{ lang.name }}</span>
+      }
     </div>
-  </header>
+  }
 
   @if (errorMessage()) {
     <div class="oq-alert oq-alert--error" role="alert">
-      {{ errorMessage() }}
-      <button type="button" class="retry-btn" (click)="loadDashboard()">Retry</button>
+      <span>{{ errorMessage() }}</span>
+      <button type="button" class="oq-inline-retry" (click)="loadDashboard()">Retry</button>
     </div>
   }
 
   @if (loading()) {
     <section class="oq-card state-card" aria-busy="true">
-      <p>Loading your real-time study metrics...</p>
+      <p class="oq-muted">Loading your real-time study metrics...</p>
     </section>
   } @else if (overview(); as data) {
-    <section
-      class="oq-card streak-hero"
-      [class.streak-hero--active]="data.streak.isActiveToday"
-      [class.streak-hero--risk]="data.streak.isAtRiskToday"
-      aria-label="Daily learning streak"
-    >
-      <div class="streak-hero__main">
-        <span class="streak-hero__eyebrow">Daily Streak</span>
-        <div class="streak-hero__count">
-          <strong>{{ data.streak.currentStreak }}</strong>
-          <span>{{ data.streak.currentStreak === 1 ? 'day' : 'days' }}</span>
-        </div>
-        <p class="streak-hero__meta">
-          Longest streak: <strong>{{ data.streak.longestStreak }} days</strong> · Timezone:
-          <code>{{ data.streak.timezone }}</code>
-        </p>
-      </div>
-
-      <div class="streak-hero__status">
-        @if (data.streak.isActiveToday) {
-          <span class="status-pill status-pill--active">Qualified activity completed today</span>
-        } @else if (data.streak.isAtRiskToday) {
-          <span class="status-pill status-pill--risk">
-            Streak at risk — finish a quiz or 5 flashcards today
-          </span>
-        } @else {
-          <span class="status-pill status-pill--idle">
-            Complete a quiz or flashcard session to start your streak
-          </span>
-        }
-
-        <div class="streak-hero__links">
-          <a routerLink="/progress" class="oq-btn oq-btn--secondary"
-            >Streak Calendar &amp; History</a
-          >
-          <a routerLink="/leaderboard" class="oq-btn oq-btn--secondary">Streak Leaderboard</a>
-        </div>
-      </div>
-    </section>
+    <oq-streak-card
+      [currentStreak]="data.streak.currentStreak"
+      [longestStreak]="data.streak.longestStreak"
+      [timezone]="data.streak.timezone"
+      [isActiveToday]="data.streak.isActiveToday"
+      [isAtRiskToday]="data.streak.isAtRiskToday"
+      [showLinks]="true"
+    />
 
     <section class="kpi-grid" aria-label="Learning metrics">
-      <article class="oq-card kpi-card">
-        <span class="kpi-card__label">Saved Vocabulary</span>
-        <strong class="kpi-card__value">{{ data.vocabulary.total }}</strong>
-        <p class="kpi-card__detail">
-          {{ data.vocabulary.newCount }} new · {{ data.vocabulary.learningCount }} learning ·
-          {{ data.vocabulary.masteredCount }} mastered
-        </p>
-        <span class="kpi-card__foot">{{ data.vocabulary.topicCount }} study topics</span>
-      </article>
+      <oq-stat-card
+        label="Saved Vocabulary"
+        [value]="data.vocabulary.total"
+        [detail]="
+          data.vocabulary.newCount +
+          ' new · ' +
+          data.vocabulary.learningCount +
+          ' learning · ' +
+          data.vocabulary.masteredCount +
+          ' mastered'
+        "
+        [meta]="data.vocabulary.topicCount + ' study topics'"
+        icon="book-open"
+      />
 
-      <article class="oq-card kpi-card">
-        <span class="kpi-card__label">Due Flashcards</span>
-        <strong class="kpi-card__value kpi-card__value--accent">
-          {{ data.vocabulary.dueFlashcardsCount }}
-        </strong>
-        <p class="kpi-card__detail">
-          {{ data.vocabulary.hardFlashcardsCount }} marked Again / Hard
-        </p>
-        <a routerLink="/flashcards" class="kpi-card__link">Start review queue →</a>
-      </article>
+      <oq-stat-card
+        label="Due Flashcards"
+        [value]="data.vocabulary.dueFlashcardsCount"
+        [detail]="data.vocabulary.hardFlashcardsCount + ' marked Again / Hard'"
+        icon="layers"
+        tone="accent"
+        actionLink="/flashcards"
+        actionLabel="Start review queue"
+      />
 
-      <article class="oq-card kpi-card">
-        <span class="kpi-card__label">Completed Study</span>
-        <strong class="kpi-card__value">{{ data.quizzes.completedAttempts }}</strong>
-        <p class="kpi-card__detail">Quizzes finished ({{ data.quizzes.totalAttempts }} started)</p>
-        <span class="kpi-card__foot">
-          {{ data.flashcards.completedSessions }} flashcard sessions ({{
-            data.flashcards.streakEligibleSessions
-          }}
-          streak-eligible)
-        </span>
-      </article>
+      <oq-stat-card
+        label="Completed Study"
+        [value]="data.quizzes.completedAttempts"
+        [detail]="'Quizzes finished (' + data.quizzes.totalAttempts + ' started)'"
+        [meta]="
+          data.flashcards.completedSessions +
+          ' flashcard sessions (' +
+          data.flashcards.streakEligibleSessions +
+          ' streak-eligible)'
+        "
+        icon="check"
+      />
 
-      <article class="oq-card kpi-card">
-        <span class="kpi-card__label">Quiz Accuracy</span>
-        <strong class="kpi-card__value">{{ data.quizzes.accuracyRate | number: '1.0-1' }}%</strong>
-        <p class="kpi-card__detail">
-          Average quiz score: {{ data.quizzes.averageScore | number: '1.0-1' }}%
-        </p>
-        <span class="kpi-card__foot">
-          {{ data.quizzes.correctAnswers }} / {{ data.quizzes.totalQuestionsAnswered }} answers
-          correct
-        </span>
-      </article>
+      <oq-stat-card
+        label="Quiz Accuracy"
+        [value]="((data.quizzes.accuracyRate | number: '1.0-1') ?? '0') + '%'"
+        [detail]="
+          'Average quiz score: ' + ((data.quizzes.averageScore | number: '1.0-1') ?? '0') + '%'
+        "
+        [meta]="
+          data.quizzes.correctAnswers +
+          ' / ' +
+          data.quizzes.totalQuestionsAnswered +
+          ' answers correct'
+        "
+        icon="target"
+        tone="success"
+      />
+    </section>
+
+    <section class="oq-card mastery-panel">
+      <div class="mastery-panel__head">
+        <div>
+          <h2>Vocabulary Mastery Progress</h2>
+          <p class="oq-muted">
+            {{ data.vocabulary.masteredCount }} of {{ data.vocabulary.total }} saved words mastered
+          </p>
+        </div>
+        <a routerLink="/vocabulary" class="panel__link">Manage library →</a>
+      </div>
+      <oq-progress-bar
+        [value]="data.vocabulary.masteredCount"
+        [max]="data.vocabulary.total"
+        label="Mastered words"
+        [showPercent]="true"
+        tone="success"
+      />
     </section>
 
     <section class="lower-grid">
@@ -153,10 +162,12 @@
           <a routerLink="/flashcards" class="panel__link">Practice due cards →</a>
         </div>
         @if (data.weakVocabulary.length === 0) {
-          <p class="empty-note">
-            No struggled or missed vocabulary recorded yet. Missed quiz words and Again/Hard
-            flashcards will surface here automatically.
-          </p>
+          <oq-empty-state
+            [compact]="true"
+            icon="sparkles"
+            title="All caught up"
+            description="Missed quiz words and Again/Hard flashcards will surface here automatically."
+          />
         } @else {
           <ul class="compact-list">
             @for (word of data.weakVocabulary; track word.vocabularyId) {
@@ -164,16 +175,16 @@
                 <div>
                   <strong>{{ word.term }}</strong>
                   @if (word.pronunciation) {
-                    <span class="muted"> · {{ word.pronunciation }}</span>
+                    <span class="oq-muted"> · {{ word.pronunciation }}</span>
                   }
                   <div class="compact-list__sub">{{ word.definition }}</div>
                 </div>
                 <div class="compact-list__badges">
                   @if (word.wrongCount > 0) {
-                    <span class="mini-badge mini-badge--warn">{{ word.wrongCount }} missed</span>
+                    <span class="oq-badge oq-badge--warning">{{ word.wrongCount }} missed</span>
                   }
                   @if (word.lastRating === 'again' || word.lastRating === 'hard') {
-                    <span class="mini-badge">{{ word.lastRating }}</span>
+                    <span class="oq-badge">{{ word.lastRating }}</span>
                   }
                 </div>
               </li>
@@ -183,16 +194,22 @@
       </article>
     </section>
 
-    <section class="oq-card panel recent-section">
+    <section class="oq-card panel">
       <div class="panel__head">
         <h2>Recent Quiz Attempts</h2>
         <a routerLink="/attempts" class="panel__link">View all attempts →</a>
       </div>
       @if (data.recentQuizAttempts.length === 0) {
-        <p class="empty-note">
-          You have not completed a quiz yet. <a routerLink="/quizzes">Browse your quizzes</a> to
-          record your first attempt.
-        </p>
+        <oq-empty-state
+          [compact]="true"
+          icon="help-circle"
+          title="No completed quiz attempts yet"
+          description="Browse your quizzes to record your first scored attempt."
+        >
+          <a actions routerLink="/quizzes" class="oq-btn oq-btn--secondary oq-btn--sm">
+            Browse quizzes
+          </a>
+        </oq-empty-state>
       } @else {
         <ul class="compact-list">
           @for (attempt of data.recentQuizAttempts; track attempt.id) {
@@ -207,8 +224,13 @@
                 </div>
               </div>
               <div class="compact-list__right">
-                <span class="score-pill">{{ attempt.score | number: '1.0-1' }}%</span>
-                <a [routerLink]="['/attempts', attempt.id]" class="oq-btn oq-btn--secondary">
+                <span class="oq-badge oq-badge--success">
+                  {{ attempt.score | number: '1.0-1' }}%
+                </span>
+                <a
+                  [routerLink]="['/attempts', attempt.id]"
+                  class="oq-btn oq-btn--secondary oq-btn--sm"
+                >
                   Review
                 </a>
               </div>

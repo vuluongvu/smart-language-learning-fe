@@ -1,72 +1,33 @@
-.page-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--oq-space-4);
-  margin-bottom: var(--oq-space-6);
-
-  h1 {
-    margin: 0 0 var(--oq-space-1);
-    font-size: 1.5rem;
-  }
-}
-
-.page-sub {
-  margin: 0;
-  color: var(--oq-text-secondary);
-}
-
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
   gap: var(--oq-space-4);
-  margin-bottom: var(--oq-space-6);
-}
-
-.stat-tile {
-  display: flex;
-  flex-direction: column;
-  gap: var(--oq-space-2);
-
-  &__label {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--oq-text-secondary);
-  }
-
-  &__value {
-    font-size: 1.6rem;
-    line-height: 1.1;
-
-    &--due {
-      color: var(--oq-accent);
-    }
-
-    &--mastered {
-      color: #16a34a;
-    }
-  }
+  margin-bottom: var(--oq-space-5);
 }
 
 .setup-card {
-  margin-bottom: var(--oq-space-6);
+  margin-bottom: var(--oq-space-5);
 
-  h2 {
-    margin: 0 0 var(--oq-space-2);
-    font-size: 1.125rem;
+  &__head {
+    margin-bottom: var(--oq-space-4);
+
+    h2 {
+      margin: 0 0 4px;
+      font-size: 1.0625rem;
+      font-weight: 600;
+    }
   }
 
   &__hint {
-    margin: 0 0 var(--oq-space-4);
-    font-size: 0.9rem;
+    margin: 0;
     color: var(--oq-text-secondary);
+    font-size: 0.875rem;
   }
 }
 
 .setup-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
   gap: var(--oq-space-4);
 
   .oq-field {
@@ -78,31 +39,27 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--oq-space-3);
-  margin-top: var(--oq-space-4);
+  margin-top: var(--oq-space-5);
 }
 
 .fc-columns {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
   gap: var(--oq-space-4);
 }
 
 .panel__head {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
   gap: var(--oq-space-2);
   margin-bottom: var(--oq-space-4);
 
   h2 {
     margin: 0;
     font-size: 1.0625rem;
+    font-weight: 600;
   }
-}
-
-.panel__count {
-  font-size: 0.85rem;
-  color: var(--oq-text-secondary);
 }
 
 .queue-list,
@@ -110,21 +67,19 @@
   list-style: none;
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--oq-space-3);
+  display: grid;
+  gap: 10px;
 }
 
 .queue-item,
 .session-row {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
   gap: var(--oq-space-3);
-  padding: var(--oq-space-3);
-  border: 1px solid var(--oq-border-subtle);
-  border-radius: var(--oq-radius-sm);
-  background: var(--oq-bg-canvas);
+  padding: 12px 14px;
+  border-radius: var(--oq-radius-md);
+  background: var(--oq-bg-subtle);
 }
 
 .queue-item__term,
@@ -132,12 +87,13 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--oq-space-2);
-  margin-bottom: 2px;
+  gap: 8px;
 }
 
-.queue-item__def {
-  font-size: 0.875rem;
+.queue-item__def,
+.muted-small {
+  margin-top: 3px;
+  font-size: 0.8125rem;
   color: var(--oq-text-secondary);
 }
 
@@ -149,62 +105,6 @@
   flex-shrink: 0;
 }
 
-.tag,
-.status-pill {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 8px;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  background: var(--oq-bg-subtle);
-  color: var(--oq-text-secondary);
-}
-
-.status-pill {
-  &--due {
-    background: var(--oq-accent-soft);
-    color: var(--oq-accent);
-  }
-
-  &--learning {
-    background: rgba(217, 119, 6, 0.14);
-    color: #d97706;
-  }
-
-  &--mastered {
-    background: rgba(22, 163, 74, 0.14);
-    color: #16a34a;
-  }
-}
-
-.muted,
-.muted-small {
-  color: var(--oq-text-secondary);
-}
-
-.muted-small {
-  font-size: 0.8rem;
-}
-
-.empty-inline {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--oq-space-3);
-  color: var(--oq-text-secondary);
-
-  p {
-    margin: 0;
-  }
-}
-
-.inline-retry {
-  margin-left: var(--oq-space-2);
-  border: none;
-  background: transparent;
-  color: inherit;
-  font-weight: 700;
-  text-decoration: underline;
-  cursor: pointer;
+.session-row__info {
+  min-width: 0;
 }

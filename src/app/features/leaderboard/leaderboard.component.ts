@@ -1,12 +1,17 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import {
+  OqEmptyStateComponent,
+  OqIconComponent,
+  OqPageHeaderComponent,
+} from '../../shared/components';
 import { StreakLeaderboardResponse } from '../../shared/types/learning.types';
 import { extractApiError } from '../../shared/utils/api-error.util';
 import { ProgressApiService } from '../progress/progress-api.service';
 
 @Component({
   selector: 'app-leaderboard',
-  imports: [RouterLink],
+  imports: [RouterLink, OqPageHeaderComponent, OqEmptyStateComponent, OqIconComponent],
   templateUrl: './leaderboard.component.html',
   styleUrl: './leaderboard.component.scss',
 })

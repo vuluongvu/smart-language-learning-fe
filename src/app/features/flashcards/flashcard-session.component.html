@@ -1,7 +1,3 @@
-<div class="breadcrumb">
-  <a routerLink="/flashcards">&larr; Back to Flashcards</a>
-</div>
-
 @if (errorMessage()) {
   <div class="oq-alert oq-alert--error" role="alert">
     {{ errorMessage() }}
@@ -9,28 +5,28 @@
 }
 
 @if (isLoading()) {
+  <oq-page-header backLink="/flashcards" backLabel="Back to Flashcards" title="Flashcard Review" />
   <div class="oq-card state-box">Loading review session...</div>
 } @else if (session(); as s) {
-  <section class="oq-card session-header">
-    <div>
-      <h1>
-        {{ s.topicName ? s.topicName : 'Flashcard Review' }}
-        <span class="pill">{{ formatMode(s.mode) }}</span>
-      </h1>
-      <p class="muted-small">
-        Progress: {{ s.reviewedCount }} / {{ s.targetCount }} distinct cards rated &middot;
-        @if (s.isStreakEligible) {
-          <strong class="streak-ok"
-            >Daily Streak threshold reached ({{ s.streakMinThreshold }}+)</strong
-          >
-        } @else {
-          <span> Streak threshold: {{ s.reviewedCount }} / {{ s.streakMinThreshold }} cards </span>
-        }
-      </p>
-    </div>
-
+  <oq-page-header
+    backLink="/flashcards"
+    backLabel="Back to Flashcards"
+    [eyebrow]="formatMode(s.mode)"
+    [title]="s.topicName ? s.topicName : 'Flashcard Review'"
+    [subtitle]="
+      'Progress: ' +
+      s.reviewedCount +
+      ' / ' +
+      s.targetCount +
+      ' distinct cards rated · ' +
+      (s.isStreakEligible
+        ? 'Daily Streak threshold reached (' + s.streakMinThreshold + '+)'
+        : 'Streak threshold: ' + s.reviewedCount + ' / ' + s.streakMinThreshold + ' cards')
+    "
+  >
     @if (s.status === 'in_progress') {
       <button
+        actions
         type="button"
         class="oq-btn oq-btn--secondary"
         [disabled]="isCompleting()"
@@ -39,9 +35,20 @@
         {{ isCompleting() ? 'Finishing...' : 'Finish Session' }}
       </button>
     }
-  </section>
+  </oq-page-header>
 
   @if (s.status === 'in_progress') {
+    <section class="oq-card progress-card">
+      <oq-progress-bar
+        [value]="s.reviewedCount"
+        [max]="s.targetCount"
+        label="Session progress"
+        [showPercent]="true"
+        [tone]="s.isStreakEligible ? 'success' : 'primary'"
+        size="sm"
+      />
+    </section>
+
     @if (feedbackMessage()) {
       <div class="oq-alert oq-alert--success" role="status">
         {{ feedbackMessage() }}
@@ -90,12 +97,12 @@
         (click)="toggleFlip()"
       >
         <div class="flashcard-stage__meta">
-          <span class="pill"> Card {{ currentIndex() + 1 }} / {{ s.cards.length }} </span>
-          <span class="pill">
+          <span class="oq-badge">Card {{ currentIndex() + 1 }} / {{ s.cards.length }}</span>
+          <span class="oq-badge">
             {{ formatStatus(card.progress.status, card.progress.isDue) }}
           </span>
           @if (card.sessionLastRating) {
-            <span class="pill pill--accent">
+            <span class="oq-badge oq-badge--accent">
               Last: {{ formatRating(card.sessionLastRating) }}
             </span>
           }
@@ -110,7 +117,7 @@
             @if (card.topics.length > 0) {
               <div class="flashcard-topics">
                 @for (t of card.topics; track t.id) {
-                  <span class="pill">{{ t.name }}</span>
+                  <span class="oq-badge">{{ t.name }}</span>
                 }
               </div>
             }
@@ -124,7 +131,7 @@
                 <span class="muted-small">{{ card.pronunciation }}</span>
               }
               @if (card.partOfSpeech) {
-                <span class="pill">{{ card.partOfSpeech }}</span>
+                <span class="oq-badge">{{ card.partOfSpeech }}</span>
               }
             </div>
             <p class="flashcard-def">{{ card.definition }}</p>
@@ -135,7 +142,7 @@
               <p class="flashcard-notes">Note: {{ card.notes }}</p>
             }
             <p class="flashcard-cue">
-              Reps: {{ card.progress.repetitions }} &middot; Current interval:
+              Reps: {{ card.progress.repetitions }} · Current interval:
               {{ formatInterval(card.progress.intervalDays) }}
             </p>
           </div>
@@ -150,7 +157,8 @@
             [disabled]="currentIndex() === 0"
             (click)="previousCard()"
           >
-            &larr; Previous
+            <oq-icon name="arrow-left" [size]="15" />
+            <span>Previous</span>
           </button>
           <button type="button" class="oq-btn oq-btn--secondary" (click)="toggleFlip()">
             {{ isFlipped() ? 'Show Term' : 'Flip Card' }}
@@ -161,7 +169,8 @@
             [disabled]="currentIndex() >= s.cards.length - 1"
             (click)="nextCard()"
           >
-            Next &rarr;
+            <span>Next</span>
+            <oq-icon name="arrow-right" [size]="15" />
           </button>
         </div>
 
@@ -187,7 +196,7 @@
             }
           </div>
         } @else {
-          <p class="muted-small">
+          <p class="muted-small center-hint">
             Flip the card first to reveal self-rating buttons (Again / Hard / Good / Easy).
           </p>
         }
@@ -198,9 +207,9 @@
       <div class="summary-card__head">
         <h2>Session Complete</h2>
         @if (s.isStreakEligible) {
-          <span class="pill pill--success">Eligible for Daily Streak</span>
+          <span class="oq-badge oq-badge--success">Eligible for Daily Streak</span>
         } @else {
-          <span class="pill pill--warning">
+          <span class="oq-badge oq-badge--warning">
             Partial session (&lt; {{ s.streakMinThreshold }} cards for Streak)
           </span>
         }
@@ -251,8 +260,8 @@
       }
 
       <div class="summary-actions">
-        <a routerLink="/flashcards" class="oq-btn oq-btn--secondary"> Back to Flashcards Hub </a>
-        <a routerLink="/vocabulary" class="oq-btn oq-btn--secondary"> Open Vocabulary Bank </a>
+        <a routerLink="/flashcards" class="oq-btn oq-btn--secondary">Back to Flashcards Hub</a>
+        <a routerLink="/vocabulary" class="oq-btn oq-btn--secondary">Open Vocabulary Bank</a>
       </div>
     </section>
   }

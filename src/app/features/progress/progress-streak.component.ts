@@ -3,6 +3,12 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import {
+  OqEmptyStateComponent,
+  OqIconComponent,
+  OqPageHeaderComponent,
+  OqStatCardComponent,
+} from '../../shared/components';
+import {
   ProgressHistory,
   StreakCalendarDay,
   StreakCalendarResponse,
@@ -13,7 +19,15 @@ import { ProgressApiService } from './progress-api.service';
 
 @Component({
   selector: 'app-progress-streak',
-  imports: [RouterLink, DatePipe, DecimalPipe],
+  imports: [
+    RouterLink,
+    DatePipe,
+    DecimalPipe,
+    OqPageHeaderComponent,
+    OqStatCardComponent,
+    OqEmptyStateComponent,
+    OqIconComponent,
+  ],
   templateUrl: './progress-streak.component.html',
   styleUrl: './progress-streak.component.scss',
 })

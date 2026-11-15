@@ -1,25 +1,19 @@
-<section class="page-head">
-  <div>
-    <h1>
-      @if (quiz(); as q) {
-        History: {{ q.title }}
-      } @else {
-        Quiz Attempt History
-      }
-    </h1>
-    <p class="page-sub">
-      Review completed attempts with locked answer snapshots or resume unfinished sessions.
-    </p>
-  </div>
-  <div class="head-actions">
+<oq-page-header
+  backLink="/quizzes"
+  backLabel="Back to Quizzes"
+  eyebrow="Attempt Log"
+  [title]="quiz() ? 'History: ' + quiz()!.title : 'Quiz Attempt History'"
+  subtitle="Review completed attempts with locked answer snapshots or resume unfinished sessions."
+>
+  <div actions class="head-actions">
     @if (quizId(); as id) {
       <a [routerLink]="['/quizzes', id, 'take']" class="oq-btn oq-btn--primary">
-        Take / Retake Quiz
+        <oq-icon name="plus" [size]="16" />
+        <span>Take / Retake Quiz</span>
       </a>
     }
-    <a routerLink="/quizzes" class="oq-btn oq-btn--secondary">Back to Quizzes</a>
   </div>
-</section>
+</oq-page-header>
 
 <section class="oq-card filter-panel">
   <div class="oq-field filter-panel__select">
@@ -37,13 +31,15 @@
 }
 
 @if (isLoading()) {
-  <div class="oq-card"><p class="muted">Loading attempts...</p></div>
+  <div class="oq-card state-box">Loading attempts...</div>
 } @else if (attempts().length === 0) {
-  <div class="oq-card empty-state">
-    <h2>No attempts recorded yet</h2>
-    <p>Start a quiz to see your scores, detailed answers, and progress over time.</p>
-    <a routerLink="/quizzes" class="oq-btn oq-btn--primary">Browse Quizzes</a>
-  </div>
+  <oq-empty-state
+    icon="clock"
+    title="No attempts recorded yet"
+    description="Start a quiz to see your scores, detailed answers, and progress over time."
+  >
+    <a actions routerLink="/quizzes" class="oq-btn oq-btn--primary">Browse Quizzes</a>
+  </oq-empty-state>
 } @else {
   <div class="attempts-list">
     @for (attempt of attempts(); track attempt.id) {
@@ -51,9 +47,9 @@
         <div class="attempt-card__main">
           <div class="attempt-card__top">
             <span
-              class="status-pill"
-              [class.status-pill--done]="attempt.status === 'completed'"
-              [class.status-pill--active]="attempt.status === 'in_progress'"
+              class="oq-badge"
+              [class.oq-badge--success]="attempt.status === 'completed'"
+              [class.oq-badge--accent]="attempt.status === 'in_progress'"
             >
               {{ attempt.status === 'completed' ? 'Completed' : 'In Progress' }}
             </span>
@@ -77,11 +73,14 @@
 
         <div class="attempt-card__actions">
           @if (attempt.status === 'completed') {
-            <a [routerLink]="['/attempts', attempt.id]" class="oq-btn oq-btn--secondary">
+            <a [routerLink]="['/attempts', attempt.id]" class="oq-btn oq-btn--secondary oq-btn--sm">
               View Result
             </a>
           } @else {
-            <a [routerLink]="['/quizzes', attempt.quizId, 'take']" class="oq-btn oq-btn--primary">
+            <a
+              [routerLink]="['/quizzes', attempt.quizId, 'take']"
+              class="oq-btn oq-btn--primary oq-btn--sm"
+            >
               Resume
             </a>
           }
@@ -91,19 +90,19 @@
   </div>
 
   @if (meta().totalPages > 1) {
-    <nav class="pagination" aria-label="Attempts pagination">
+    <nav class="oq-pagination" aria-label="Attempts pagination">
       <button
         type="button"
-        class="oq-btn oq-btn--secondary"
+        class="oq-btn oq-btn--secondary oq-btn--sm"
         [disabled]="meta().page <= 1"
         (click)="loadAttempts(meta().page - 1)"
       >
         Previous
       </button>
-      <span class="pagination__info">Page {{ meta().page }} of {{ meta().totalPages }}</span>
+      <span>Page {{ meta().page }} of {{ meta().totalPages }}</span>
       <button
         type="button"
-        class="oq-btn oq-btn--secondary"
+        class="oq-btn oq-btn--secondary oq-btn--sm"
         [disabled]="meta().page >= meta().totalPages"
         (click)="loadAttempts(meta().page + 1)"
       >
