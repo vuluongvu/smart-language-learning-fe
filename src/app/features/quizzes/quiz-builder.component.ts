@@ -6,6 +6,7 @@ import {
   OqIconComponent,
   OqPageHeaderComponent,
 } from '../../shared/components';
+import { I18nService, TranslatePipe } from '../../shared/i18n';
 import {
   QuestionType,
   QuizDifficulty,
@@ -43,6 +44,7 @@ interface EditableQuestion {
     OqPageHeaderComponent,
     OqEmptyStateComponent,
     OqIconComponent,
+    TranslatePipe,
   ],
   templateUrl: './quiz-builder.component.html',
   styleUrl: './quiz-builder.component.scss',
@@ -54,6 +56,7 @@ export class QuizBuilderComponent implements OnInit {
   private readonly quizzesApi = inject(QuizzesApiService);
   private readonly topicsApi = inject(TopicsApiService);
   private readonly vocabularyApi = inject(VocabularyApiService);
+  private readonly i18n = inject(I18nService);
 
   private nextKey = 1;
 
@@ -137,7 +140,12 @@ export class QuizBuilderComponent implements OnInit {
         this.isLoading.set(false);
       },
       error: (err: unknown) => {
-        this.errorMessage.set(extractApiError(err, 'Failed to load quiz'));
+        this.errorMessage.set(
+          extractApiError(
+            err,
+            this.i18n.lang() === 'vi' ? 'Không thể tải bài kiểm tra' : 'Failed to load quiz',
+          ),
+        );
         this.isLoading.set(false);
       },
     });
@@ -307,7 +315,11 @@ export class QuizBuilderComponent implements OnInit {
     if (this.genIncludeFillBlank) questionTypes.push('fill_blank');
 
     if (questionTypes.length === 0) {
-      this.errorMessage.set('Select at least one question type to generate draft questions.');
+      this.errorMessage.set(
+        this.i18n.lang() === 'vi'
+          ? 'Chọn ít nhất một loại câu hỏi để tạo câu hỏi nháp.'
+          : 'Select at least one question type to generate draft questions.',
+      );
       return;
     }
 
@@ -351,13 +363,22 @@ export class QuizBuilderComponent implements OnInit {
           }
 
           this.successMessage.set(
-            `Added ${mapped.length} draft question(s) from your vocabulary bank. Review or edit before saving.`,
+            this.i18n.lang() === 'vi'
+              ? `Đã thêm ${mapped.length} câu hỏi nháp từ kho từ vựng. Hãy rà soát hoặc chỉnh sửa trước khi lưu.`
+              : `Added ${mapped.length} draft question(s) from your vocabulary bank. Review or edit before saving.`,
           );
           this.showGenerator.set(false);
         },
         error: (err: unknown) => {
           this.isGenerating.set(false);
-          this.errorMessage.set(extractApiError(err, 'Failed to generate draft questions'));
+          this.errorMessage.set(
+            extractApiError(
+              err,
+              this.i18n.lang() === 'vi'
+                ? 'Không thể tạo câu hỏi nháp'
+                : 'Failed to generate draft questions',
+            ),
+          );
         },
       });
   }
@@ -371,13 +392,21 @@ export class QuizBuilderComponent implements OnInit {
     const rawMeta = this.metaForm.getRawValue();
     const title = rawMeta.title.trim();
     if (!title) {
-      this.errorMessage.set('Quiz title cannot be empty.');
+      this.errorMessage.set(
+        this.i18n.lang() === 'vi'
+          ? 'Tiêu đề bài kiểm tra không được để trống.'
+          : 'Quiz title cannot be empty.',
+      );
       return;
     }
 
     const qs = this.questions();
     if (targetStatus === 'published' && qs.length === 0) {
-      this.errorMessage.set('Add at least 1 question before publishing this quiz.');
+      this.errorMessage.set(
+        this.i18n.lang() === 'vi'
+          ? 'Hãy thêm ít nhất 1 câu hỏi trước khi xuất bản bài kiểm tra này.'
+          : 'Add at least 1 question before publishing this quiz.',
+      );
       return;
     }
 
@@ -422,32 +451,48 @@ export class QuizBuilderComponent implements OnInit {
       },
       error: (err: unknown) => {
         this.isSaving.set(false);
-        this.errorMessage.set(extractApiError(err, 'Failed to save quiz'));
+        this.errorMessage.set(
+          extractApiError(
+            err,
+            this.i18n.lang() === 'vi' ? 'Không thể lưu bài kiểm tra' : 'Failed to save quiz',
+          ),
+        );
       },
     });
   }
 
   private validateQuestions(qs: EditableQuestion[]): string | null {
+    const isVi = this.i18n.lang() === 'vi';
     for (let i = 0; i < qs.length; i += 1) {
       const q = qs[i];
       const num = i + 1;
       if (!q.questionText.trim()) {
-        return `Question #${num}: prompt cannot be empty.`;
+        return isVi
+          ? `Câu hỏi #${num}: nội dung câu hỏi không được để trống.`
+          : `Question #${num}: prompt cannot be empty.`;
       }
       if (q.options.some((o) => !o.optionText.trim())) {
-        return `Question #${num}: all options / answers must have text.`;
+        return isVi
+          ? `Câu hỏi #${num}: tất cả phương án / đáp án phải có nội dung.`
+          : `Question #${num}: all options / answers must have text.`;
       }
       if (q.questionType === 'fill_blank') {
         if (q.options.length === 0) {
-          return `Question #${num}: add at least 1 accepted answer.`;
+          return isVi
+            ? `Câu hỏi #${num}: cần ít nhất 1 đáp án được chấp nhận.`
+            : `Question #${num}: add at least 1 accepted answer.`;
         }
       } else {
         if (q.options.length < 2) {
-          return `Question #${num}: add at least 2 options.`;
+          return isVi
+            ? `Câu hỏi #${num}: cần ít nhất 2 phương án.`
+            : `Question #${num}: add at least 2 options.`;
         }
         const correctCount = q.options.filter((o) => o.isCorrect).length;
         if (correctCount !== 1) {
-          return `Question #${num}: select exactly 1 correct answer.`;
+          return isVi
+            ? `Câu hỏi #${num}: chọn đúng 1 đáp án chính xác.`
+            : `Question #${num}: select exactly 1 correct answer.`;
         }
       }
     }
@@ -457,11 +502,11 @@ export class QuizBuilderComponent implements OnInit {
   questionTypeLabel(type: QuestionType): string {
     switch (type) {
       case 'multiple_choice':
-        return 'Multiple Choice';
+        return this.i18n.t('qb.typeMcq');
       case 'word_meaning':
-        return 'Word Meaning';
+        return this.i18n.t('qb.typeMeaning');
       case 'fill_blank':
-        return 'Fill in the Blank';
+        return this.i18n.t('qb.typeBlank');
     }
   }
 }

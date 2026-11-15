@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { I18nService } from './shared/i18n';
 import { ThemeService } from './shared/services/theme.service';
 
 @Component({
@@ -9,6 +10,7 @@ import { ThemeService } from './shared/services/theme.service';
   styleUrl: './app.scss',
 })
 export class App {
-  // Ensure ThemeService initializes on app bootstrap
+  // Ensure ThemeService and I18nService initialize on app bootstrap
   protected readonly _theme = inject(ThemeService);
+  protected readonly _i18n = inject(I18nService);
 }

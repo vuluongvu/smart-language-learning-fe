@@ -1,11 +1,11 @@
 <oq-page-header
-  eyebrow="Organization"
-  title="Topics"
-  subtitle="Organize your English vocabulary by subject or context."
+  [eyebrow]="'topics.eyebrow' | t"
+  [title]="'topics.title' | t"
+  [subtitle]="'topics.subtitle' | t"
 >
   <button type="button" actions class="oq-btn oq-btn--primary" (click)="openCreate()">
     <oq-icon name="plus" [size]="16" />
-    <span>New Topic</span>
+    <span>{{ 'topics.newBtn' | t }}</span>
   </button>
 </oq-page-header>
 
@@ -17,7 +17,9 @@
 @if (errorMessage()) {
   <div class="oq-alert oq-alert--error" role="alert">
     <span>{{ errorMessage() }}</span>
-    <button type="button" class="oq-inline-retry" (click)="loadTopics(meta().page)">Retry</button>
+    <button type="button" class="oq-inline-retry" (click)="loadTopics(meta().page)">
+      {{ 'common.retry' | t }}
+    </button>
   </div>
 }
 
@@ -29,19 +31,19 @@
         type="search"
         [(ngModel)]="searchTerm"
         name="search"
-        placeholder="Search topics by name or description..."
-        aria-label="Search topics"
+        [placeholder]="'topics.searchPlaceholder' | t"
+        [attr.aria-label]="'topics.searchPlaceholder' | t"
       />
     </div>
-    <button type="submit" class="oq-btn oq-btn--secondary">Search</button>
+    <button type="submit" class="oq-btn oq-btn--secondary">{{ 'common.search' | t }}</button>
   </form>
 </section>
 
 @if (showForm()) {
   <oq-modal
     [open]="true"
-    [title]="editingTopic() ? 'Edit Topic' : 'Create Topic'"
-    description="Group related words together for focused flashcard and quiz practice."
+    [title]="(editingTopic() ? 'topics.editTitle' : 'topics.createTitle') | t"
+    [description]="'topics.modalDesc' | t"
     (closed)="cancelForm()"
   >
     @if (formError()) {
@@ -49,34 +51,34 @@
     }
     <form [formGroup]="form" (ngSubmit)="saveTopic()" novalidate>
       <div class="oq-field">
-        <label for="topic-name">Topic name</label>
+        <label for="topic-name">{{ 'topics.nameLabel' | t }}</label>
         <input
           id="topic-name"
           type="text"
           formControlName="name"
-          placeholder="e.g., Environment, Business, Travel"
+          [placeholder]="'topics.namePlaceholder' | t"
         />
         @if (form.controls.name.touched && form.controls.name.invalid) {
-          <span class="oq-field-error">Topic name is required (max 120 chars).</span>
+          <span class="oq-field-error">{{ 'topics.nameError' | t }}</span>
         }
       </div>
 
       <div class="oq-field">
-        <label for="topic-desc">Description (optional)</label>
+        <label for="topic-desc">{{ 'topics.descLabel' | t }}</label>
         <textarea
           id="topic-desc"
           rows="3"
           formControlName="description"
-          placeholder="What will you group in this topic?"
+          [placeholder]="'topics.descPlaceholder' | t"
         ></textarea>
       </div>
 
       <div class="modal-actions">
         <button type="button" class="oq-btn oq-btn--secondary" (click)="cancelForm()">
-          Cancel
+          {{ 'common.cancel' | t }}
         </button>
         <button type="submit" class="oq-btn oq-btn--primary" [disabled]="isSaving()">
-          {{ isSaving() ? 'Saving...' : 'Save topic' }}
+          {{ isSaving() ? ('common.saving' | t) : ('topics.saveBtn' | t) }}
         </button>
       </div>
     </form>
@@ -88,13 +90,13 @@
     [open]="true"
     size="sm"
     role="alertdialog"
-    [title]="'Delete topic &quot;' + target.name + '&quot;?'"
-    description="Vocabulary items inside this topic will not be deleted and will stay in your Vocabulary Bank."
+    [title]="'topics.deleteTitle' | t: { name: target.name }"
+    [description]="'topics.deleteDesc' | t"
     (closed)="confirmDeleteTopic.set(null)"
   >
     <div class="modal-actions">
       <button type="button" class="oq-btn oq-btn--secondary" (click)="confirmDeleteTopic.set(null)">
-        Cancel
+        {{ 'common.cancel' | t }}
       </button>
       <button
         type="button"
@@ -102,22 +104,22 @@
         [disabled]="isDeleting()"
         (click)="deleteSelectedTopic()"
       >
-        {{ isDeleting() ? 'Deleting...' : 'Confirm delete' }}
+        {{ isDeleting() ? ('common.deleting' | t) : ('common.confirmDelete' | t) }}
       </button>
     </div>
   </oq-modal>
 }
 
 @if (isLoading()) {
-  <div class="oq-card state-box">Loading topics...</div>
+  <div class="oq-card state-box">{{ 'topics.loading' | t }}</div>
 } @else if (topics().length === 0) {
   <oq-empty-state
     icon="folder"
-    title="No topics found"
-    description="Create your first English topic to start organizing your words and phrases."
+    [title]="'topics.emptyTitle' | t"
+    [description]="'topics.emptyDesc' | t"
   >
     <button actions type="button" class="oq-btn oq-btn--primary" (click)="openCreate()">
-      Create your first topic
+      {{ 'topics.emptyBtn' | t }}
     </button>
   </oq-empty-state>
 } @else {
@@ -133,24 +135,26 @@
               {{ topic.name }}
             </a>
           </div>
-          <span class="oq-badge">{{ topic.vocabularyCount }} items</span>
+          <span class="oq-badge">{{
+            'topics.itemsCount' | t: { count: topic.vocabularyCount }
+          }}</span>
         </div>
         <p class="topic-card__desc">
-          {{ topic.description || 'No description provided.' }}
+          {{ topic.description || ('topics.noDesc' | t) }}
         </p>
         <div class="topic-card__actions">
           <a [routerLink]="['/topics', topic.id]" class="oq-btn oq-btn--secondary oq-btn--sm">
-            Open
+            {{ 'common.open' | t }}
           </a>
           <button type="button" class="oq-btn oq-btn--ghost oq-btn--sm" (click)="openEdit(topic)">
-            Edit
+            {{ 'common.edit' | t }}
           </button>
           <button
             type="button"
             class="oq-btn oq-btn--ghost oq-btn--sm"
             (click)="confirmDeleteTopic.set(topic)"
           >
-            Delete
+            {{ 'common.delete' | t }}
           </button>
         </div>
       </article>
@@ -165,16 +169,16 @@
         [disabled]="meta().page <= 1"
         (click)="loadTopics(meta().page - 1)"
       >
-        Previous
+        {{ 'common.previous' | t }}
       </button>
-      <span>Page {{ meta().page }} of {{ meta().totalPages }}</span>
+      <span>{{ 'common.pageOf' | t: { page: meta().page, total: meta().totalPages } }}</span>
       <button
         type="button"
         class="oq-btn oq-btn--secondary oq-btn--sm"
         [disabled]="meta().page >= meta().totalPages"
         (click)="loadTopics(meta().page + 1)"
       >
-        Next
+        {{ 'common.next' | t }}
       </button>
     </div>
   }

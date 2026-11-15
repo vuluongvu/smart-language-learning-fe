@@ -113,9 +113,11 @@ import {
     <oq-sidebar
       [drawerOpen]="drawerOpen"
       [theme]="'light'"
+      [lang]="'en'"
       [user]="profile"
       (closeDrawer)="drawerClosed = true"
       (toggleTheme)="themeToggled = true"
+      (toggleLang)="langToggled = true"
       (logout)="loggedOut = true"
     />
 
@@ -155,6 +157,7 @@ class TestHostComponent {
   drawerOpen = true;
   drawerClosed = false;
   themeToggled = false;
+  langToggled = false;
   loggedOut = false;
 }
 
@@ -284,9 +287,11 @@ describe('Shared UI Component Library', () => {
     expect(sidebarAside?.textContent).toContain('Linh Learner');
 
     el.querySelector<HTMLButtonElement>('oq-sidebar .shell__nav-action')?.click();
+    el.querySelector<HTMLButtonElement>('oq-sidebar .shell__lang-action')?.click();
     el.querySelector<HTMLButtonElement>('oq-sidebar .shell__logout-icon')?.click();
     el.querySelector<HTMLButtonElement>('oq-sidebar .shell__close-btn')?.click();
     expect(host.themeToggled).toBe(true);
+    expect(host.langToggled).toBe(true);
     expect(host.loggedOut).toBe(true);
     expect(host.drawerClosed).toBe(true);
   });

@@ -1,27 +1,28 @@
 @if (errorMessage()) {
   <div class="oq-alert oq-alert--error" role="alert">
     <span>{{ errorMessage() }}</span>
-    <a routerLink="/quizzes" class="oq-btn oq-btn--secondary oq-btn--sm">Back to Quizzes</a>
+    <a routerLink="/quizzes" class="oq-btn oq-btn--secondary oq-btn--sm">{{ 'qb.back' | t }}</a>
   </div>
 }
 
 @if (isLoading()) {
-  <oq-page-header backLink="/quizzes" backLabel="Back to Quizzes" title="Loading Quiz..." />
-  <div class="oq-card state-box">Preparing your quiz session...</div>
+  <oq-page-header backLink="/quizzes" [backLabel]="'qb.back' | t" [title]="'qp.loadingTitle' | t" />
+  <div class="oq-card state-box">{{ 'qp.loadingDesc' | t }}</div>
 } @else if (attempt(); as att) {
   <div class="player-shell">
     <oq-page-header
       backLink="/quizzes"
-      backLabel="Back to Quizzes"
-      eyebrow="Quiz Session"
+      [backLabel]="'qb.back' | t"
+      [eyebrow]="'qp.eyebrow' | t"
       [title]="att.quizTitle"
       [subtitle]="
-        'Answered ' +
-        answeredCount() +
-        ' of ' +
-        att.questions.length +
-        ' question' +
-        (att.questions.length === 1 ? '' : 's')
+        'qp.answeredSub'
+          | t
+            : {
+                answered: answeredCount(),
+                total: att.questions.length,
+                unit: (att.questions.length === 1 ? 'qp.unitSingle' : 'qp.unitPlural') | t,
+              }
       "
     >
       <button
@@ -31,7 +32,7 @@
         [disabled]="isSavingProgress() || isSubmitting()"
         (click)="saveAndExit()"
       >
-        {{ isSavingProgress() ? 'Saving...' : 'Save & Exit' }}
+        {{ isSavingProgress() ? ('common.saving' | t) : ('qp.saveExit' | t) }}
       </button>
     </oq-page-header>
 
@@ -39,7 +40,7 @@
       <oq-progress-bar
         [value]="answeredCount()"
         [max]="att.questions.length"
-        label="Completion"
+        [label]="'qp.completion' | t"
         [showPercent]="true"
         tone="primary"
         size="sm"
@@ -64,7 +65,9 @@
       <article class="oq-card player-card">
         <div class="player-card__head">
           <span class="oq-badge">
-            Question {{ currentIndex() + 1 }} of {{ att.questions.length }}
+            {{
+              'qp.questionCounter' | t: { current: currentIndex() + 1, total: att.questions.length }
+            }}
           </span>
           <span class="oq-badge oq-badge--accent">{{ questionTypeLabel(q.questionType) }}</span>
         </div>
@@ -73,13 +76,13 @@
 
         @if (q.questionType === 'fill_blank') {
           <div class="oq-field blank-field">
-            <label for="blankInput">Your Answer</label>
+            <label for="blankInput">{{ 'qp.yourAnswer' | t }}</label>
             <input
               id="blankInput"
               type="text"
               [ngModel]="blankTexts()[q.id] ?? ''"
               (ngModelChange)="updateBlankText(q.id, $event)"
-              placeholder="Type the missing word or phrase..."
+              [placeholder]="'qp.blankPlaceholder' | t"
               autocomplete="off"
             />
           </div>
@@ -107,12 +110,8 @@
       <oq-modal
         [open]="true"
         size="sm"
-        title="Submit incomplete quiz?"
-        [description]="
-          'You have ' +
-          (att.questions.length - answeredCount()) +
-          ' unanswered question(s). Submit now anyway?'
-        "
+        [title]="'qp.partialTitle' | t"
+        [description]="'qp.partialDesc' | t: { count: att.questions.length - answeredCount() }"
         (closed)="confirmPartialSubmit.set(false)"
       >
         <div class="modal-actions">
@@ -121,7 +120,7 @@
             class="oq-btn oq-btn--secondary"
             (click)="confirmPartialSubmit.set(false)"
           >
-            Keep Answering
+            {{ 'qp.keepAnswering' | t }}
           </button>
           <button
             type="button"
@@ -129,7 +128,7 @@
             [disabled]="isSubmitting()"
             (click)="submitNow()"
           >
-            {{ isSubmitting() ? 'Submitting...' : 'Confirm Submit' }}
+            {{ isSubmitting() ? ('qp.submitting' | t) : ('qp.confirmSubmit' | t) }}
           </button>
         </div>
       </oq-modal>
@@ -143,7 +142,7 @@
         (click)="goToQuestion(currentIndex() - 1)"
       >
         <oq-icon name="arrow-left" [size]="15" />
-        <span>Previous</span>
+        <span>{{ 'common.previous' | t }}</span>
       </button>
 
       <div class="player-footer__right">
@@ -153,7 +152,7 @@
             class="oq-btn oq-btn--secondary"
             (click)="goToQuestion(currentIndex() + 1)"
           >
-            <span>Next</span>
+            <span>{{ 'common.next' | t }}</span>
             <oq-icon name="arrow-right" [size]="15" />
           </button>
         }
@@ -164,7 +163,7 @@
           [disabled]="isSubmitting()"
           (click)="requestSubmit()"
         >
-          {{ isSubmitting() ? 'Submitting...' : 'Submit Quiz' }}
+          {{ isSubmitting() ? ('qp.submitting' | t) : ('qp.submitQuiz' | t) }}
         </button>
       </div>
     </div>

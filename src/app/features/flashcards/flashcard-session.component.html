@@ -5,23 +5,21 @@
 }
 
 @if (isLoading()) {
-  <oq-page-header backLink="/flashcards" backLabel="Back to Flashcards" title="Flashcard Review" />
-  <div class="oq-card state-box">Loading review session...</div>
+  <oq-page-header
+    backLink="/flashcards"
+    [backLabel]="'fc.backToFlashcards' | t"
+    [title]="'fc.sessionTitleFallback' | t"
+  />
+  <div class="oq-card state-box">{{ 'fc.loadingSession' | t }}</div>
 } @else if (session(); as s) {
   <oq-page-header
     backLink="/flashcards"
-    backLabel="Back to Flashcards"
-    [eyebrow]="formatMode(s.mode)"
-    [title]="s.topicName ? s.topicName : 'Flashcard Review'"
+    [backLabel]="'fc.backToFlashcards' | t"
+    [eyebrow]="formatMode(s.mode, i18n.lang())"
+    [title]="s.topicName ? s.topicName : ('fc.sessionTitleFallback' | t)"
     [subtitle]="
-      'Progress: ' +
-      s.reviewedCount +
-      ' / ' +
-      s.targetCount +
-      ' distinct cards rated · ' +
-      (s.isStreakEligible
-        ? 'Daily Streak threshold reached (' + s.streakMinThreshold + '+)'
-        : 'Streak threshold: ' + s.reviewedCount + ' / ' + s.streakMinThreshold + ' cards')
+      (s.isStreakEligible ? 'fc.sessionSubtitleEligible' : 'fc.sessionSubtitlePending')
+        | t: { reviewed: s.reviewedCount, target: s.targetCount, min: s.streakMinThreshold }
     "
   >
     @if (s.status === 'in_progress') {
@@ -32,7 +30,7 @@
         [disabled]="isCompleting()"
         (click)="completeSession()"
       >
-        {{ isCompleting() ? 'Finishing...' : 'Finish Session' }}
+        {{ isCompleting() ? ('fc.finishing' | t) : ('fc.finishSession' | t) }}
       </button>
     }
   </oq-page-header>
@@ -42,7 +40,7 @@
       <oq-progress-bar
         [value]="s.reviewedCount"
         [max]="s.targetCount"
-        label="Session progress"
+        [label]="'fc.sessionProgress' | t"
         [showPercent]="true"
         [tone]="s.isStreakEligible ? 'success' : 'primary'"
         size="sm"
@@ -58,8 +56,8 @@
     @if (s.reviewedCount >= s.targetCount && s.targetCount > 0) {
       <div class="oq-card deck-done-banner">
         <div>
-          <strong>All {{ s.targetCount }} cards rated!</strong>
-          <p class="muted-small">Finish now to lock in your summary or keep reviewing any card.</p>
+          <strong>{{ 'fc.allRatedTitle' | t: { count: s.targetCount } }}</strong>
+          <p class="muted-small">{{ 'fc.allRatedDesc' | t }}</p>
         </div>
         <button
           type="button"
@@ -67,7 +65,7 @@
           [disabled]="isCompleting()"
           (click)="completeSession()"
         >
-          {{ isCompleting() ? 'Completing...' : 'Complete Session' }}
+          {{ isCompleting() ? ('fc.completing' | t) : ('fc.completeSession' | t) }}
         </button>
       </div>
     }
@@ -97,13 +95,17 @@
         (click)="toggleFlip()"
       >
         <div class="flashcard-stage__meta">
-          <span class="oq-badge">Card {{ currentIndex() + 1 }} / {{ s.cards.length }}</span>
           <span class="oq-badge">
-            {{ formatStatus(card.progress.status, card.progress.isDue) }}
+            {{ 'fc.cardCounter' | t: { current: currentIndex() + 1, total: s.cards.length } }}
+          </span>
+          <span class="oq-badge">
+            {{ formatStatus(card.progress.status, card.progress.isDue, i18n.lang()) }}
           </span>
           @if (card.sessionLastRating) {
             <span class="oq-badge oq-badge--accent">
-              Last: {{ formatRating(card.sessionLastRating) }}
+              {{
+                'fc.lastRating' | t: { rating: formatRating(card.sessionLastRating, i18n.lang()) }
+              }}
             </span>
           }
         </div>
@@ -121,7 +123,7 @@
                 }
               </div>
             }
-            <p class="flashcard-cue">Click card or press Space / Enter to show meaning</p>
+            <p class="flashcard-cue">{{ 'fc.flipCue' | t }}</p>
           </div>
         } @else {
           <div class="flashcard-face flashcard-face--back">
@@ -139,11 +141,17 @@
               <p class="flashcard-example">"{{ card.example }}"</p>
             }
             @if (card.notes) {
-              <p class="flashcard-notes">Note: {{ card.notes }}</p>
+              <p class="flashcard-notes">{{ 'fc.notePrefix' | t }} {{ card.notes }}</p>
             }
             <p class="flashcard-cue">
-              Reps: {{ card.progress.repetitions }} · Current interval:
-              {{ formatInterval(card.progress.intervalDays) }}
+              {{
+                'fc.repsInterval'
+                  | t
+                    : {
+                        reps: card.progress.repetitions,
+                        interval: formatInterval(card.progress.intervalDays, i18n.lang()),
+                      }
+              }}
             </p>
           </div>
         }
@@ -158,10 +166,10 @@
             (click)="previousCard()"
           >
             <oq-icon name="arrow-left" [size]="15" />
-            <span>Previous</span>
+            <span>{{ 'common.previous' | t }}</span>
           </button>
           <button type="button" class="oq-btn oq-btn--secondary" (click)="toggleFlip()">
-            {{ isFlipped() ? 'Show Term' : 'Flip Card' }}
+            {{ isFlipped() ? ('fc.showTerm' | t) : ('fc.flipCard' | t) }}
           </button>
           <button
             type="button"
@@ -169,7 +177,7 @@
             [disabled]="currentIndex() >= s.cards.length - 1"
             (click)="nextCard()"
           >
-            <span>Next</span>
+            <span>{{ 'common.next' | t }}</span>
             <oq-icon name="arrow-right" [size]="15" />
           </button>
         </div>
@@ -188,59 +196,59 @@
                 (click)="rateCurrent(btn.rating)"
               >
                 <span class="rate-btn__top">
-                  <strong>{{ btn.label }}</strong>
+                  <strong>{{ btn.labelKey | t }}</strong>
                   <kbd>{{ btn.keyHint }}</kbd>
                 </span>
-                <span class="rate-btn__hint">{{ btn.hint }}</span>
+                <span class="rate-btn__hint">
+                  {{ i18n.lang() === 'vi' ? btn.hintVi : btn.hintEn }}
+                </span>
               </button>
             }
           </div>
         } @else {
-          <p class="muted-small center-hint">
-            Flip the card first to reveal self-rating buttons (Again / Hard / Good / Easy).
-          </p>
+          <p class="muted-small center-hint">{{ 'fc.flipFirstHint' | t }}</p>
         }
       </div>
     }
   } @else {
     <section class="oq-card summary-card">
       <div class="summary-card__head">
-        <h2>Session Complete</h2>
+        <h2>{{ 'fc.sessionComplete' | t }}</h2>
         @if (s.isStreakEligible) {
-          <span class="oq-badge oq-badge--success">Eligible for Daily Streak</span>
+          <span class="oq-badge oq-badge--success">{{ 'fc.eligibleBadge' | t }}</span>
         } @else {
           <span class="oq-badge oq-badge--warning">
-            Partial session (&lt; {{ s.streakMinThreshold }} cards for Streak)
+            {{ 'fc.partialBadge' | t: { min: s.streakMinThreshold } }}
           </span>
         }
       </div>
 
       <div class="breakdown-grid">
         <div class="metric-box">
-          <span>Reviewed</span>
+          <span>{{ 'fc.reviewedLabel' | t }}</span>
           <strong>{{ s.reviewedCount }} / {{ s.targetCount }}</strong>
         </div>
         <div class="metric-box">
-          <span>Again</span>
+          <span>{{ 'fc.ratingAgain' | t }}</span>
           <strong>{{ s.breakdown.again }}</strong>
         </div>
         <div class="metric-box">
-          <span>Hard</span>
+          <span>{{ 'fc.ratingHard' | t }}</span>
           <strong>{{ s.breakdown.hard }}</strong>
         </div>
         <div class="metric-box">
-          <span>Good</span>
+          <span>{{ 'fc.ratingGood' | t }}</span>
           <strong>{{ s.breakdown.good }}</strong>
         </div>
         <div class="metric-box">
-          <span>Easy</span>
+          <span>{{ 'fc.ratingEasy' | t }}</span>
           <strong>{{ s.breakdown.easy }}</strong>
         </div>
       </div>
 
       @if (forgottenCards().length > 0) {
         <div class="forgotten-box">
-          <h3>Cards to Reinforce ({{ forgottenCards().length }})</h3>
+          <h3>{{ 'fc.reinforceTitle' | t: { count: forgottenCards().length } }}</h3>
           <ul>
             @for (card of forgottenCards(); track card.id) {
               <li>
@@ -254,14 +262,16 @@
             [disabled]="isSubmitting()"
             (click)="practiceForgottenAgain()"
           >
-            {{ isSubmitting() ? 'Starting...' : 'Practice Forgotten Cards Again' }}
+            {{ isSubmitting() ? ('fc.starting' | t) : ('fc.practiceForgotten' | t) }}
           </button>
         </div>
       }
 
       <div class="summary-actions">
-        <a routerLink="/flashcards" class="oq-btn oq-btn--secondary">Back to Flashcards Hub</a>
-        <a routerLink="/vocabulary" class="oq-btn oq-btn--secondary">Open Vocabulary Bank</a>
+        <a routerLink="/flashcards" class="oq-btn oq-btn--secondary">{{ 'fc.backToHub' | t }}</a>
+        <a routerLink="/vocabulary" class="oq-btn oq-btn--secondary">{{
+          'fc.openVocabBank' | t
+        }}</a>
       </div>
     </section>
   }

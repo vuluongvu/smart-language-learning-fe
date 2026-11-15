@@ -6,30 +6,38 @@
 @if (errorMessage()) {
   <div class="oq-alert oq-alert--error" role="alert">
     <span>{{ errorMessage() }}</span>
-    <button type="button" class="oq-inline-retry" (click)="loadDetail()">Retry</button>
+    <button type="button" class="oq-inline-retry" (click)="loadDetail()">
+      {{ 'common.retry' | t }}
+    </button>
   </div>
 }
 
 @if (isLoading()) {
-  <oq-page-header backLink="/topics" backLabel="Back to Topics" title="Topic Details" />
-  <div class="oq-card state-box">Loading topic details...</div>
+  <oq-page-header
+    backLink="/topics"
+    [backLabel]="'topicDetail.back' | t"
+    [title]="'topicDetail.loadingTitle' | t"
+  />
+  <div class="oq-card state-box">{{ 'topicDetail.loading' | t }}</div>
 } @else if (topic(); as current) {
   <oq-page-header
     backLink="/topics"
-    backLabel="Back to Topics"
-    eyebrow="Topic Collection"
+    [backLabel]="'topicDetail.back' | t"
+    [eyebrow]="'topicDetail.eyebrow' | t"
     [title]="current.name"
-    [subtitle]="current.description || 'No description provided.'"
+    [subtitle]="current.description || ('topics.noDesc' | t)"
   >
     <div actions class="topic-actions">
-      <span class="oq-badge">{{ current.vocabularyCount }} items</span>
+      <span class="oq-badge">{{
+        'topics.itemsCount' | t: { count: current.vocabularyCount }
+      }}</span>
       <a
         routerLink="/vocabulary"
         [queryParams]="{ topicId: current.id }"
         class="oq-btn oq-btn--secondary"
       >
         <oq-icon name="book-open" [size]="15" />
-        <span>Manage in Vocabulary</span>
+        <span>{{ 'topicDetail.manageVocab' | t }}</span>
       </a>
       <a
         routerLink="/flashcards"
@@ -37,7 +45,7 @@
         class="oq-btn oq-btn--primary"
       >
         <oq-icon name="layers" [size]="15" />
-        <span>Review Flashcards</span>
+        <span>{{ 'dashboard.reviewFlashcards' | t }}</span>
       </a>
     </div>
   </oq-page-header>
@@ -46,9 +54,9 @@
     <div class="attach-bar">
       <select
         [(ngModel)]="selectedVocabularyId"
-        aria-label="Choose existing vocabulary item to attach"
+        [attr.aria-label]="'topicDetail.selectPlaceholder' | t"
       >
-        <option [ngValue]="null">Select existing word/phrase to add...</option>
+        <option [ngValue]="null">{{ 'topicDetail.selectPlaceholder' | t }}</option>
         @for (item of attachableVocabulary(); track item.id) {
           <option [ngValue]="item.id">{{ item.term }} — {{ item.definition }}</option>
         }
@@ -59,7 +67,7 @@
         [disabled]="!selectedVocabularyId || isAttaching()"
         (click)="attachSelected()"
       >
-        {{ isAttaching() ? 'Adding...' : 'Add to topic' }}
+        {{ isAttaching() ? ('topicDetail.adding' | t) : ('topicDetail.addBtn' | t) }}
       </button>
     </div>
   </section>
@@ -67,8 +75,8 @@
   @if (current.vocabularyItems.length === 0) {
     <oq-empty-state
       icon="book-open"
-      title="No vocabulary in this topic yet"
-      description="Attach an existing word above or manage your vocabulary library."
+      [title]="'topicDetail.emptyTitle' | t"
+      [description]="'topicDetail.emptyDesc' | t"
     />
   } @else {
     <div class="vocab-cards">
@@ -94,7 +102,7 @@
             class="oq-btn oq-btn--secondary oq-btn--sm"
             (click)="detachItem(item.id, item.term)"
           >
-            Remove from topic
+            {{ 'topicDetail.removeBtn' | t }}
           </button>
         </article>
       }

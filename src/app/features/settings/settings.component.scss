@@ -28,7 +28,25 @@
 }
 
 .privacy-toggle {
+  margin-bottom: var(--oq-space-4);
+}
+
+.lang-picker {
   margin-bottom: var(--oq-space-5);
+
+  &__label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--oq-text-primary);
+  }
+
+  &__buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
 }
 
 .actions-row {

@@ -1,21 +1,23 @@
 <div class="dash-page">
   <oq-page-header
-    eyebrow="Daily Overview"
-    [title]="'Welcome back, ' + (user()?.displayName ?? 'Learner')"
-    subtitle="Track your vocabulary mastery, quiz accuracy, and daily streak consistency."
+    [eyebrow]="'dashboard.eyebrow' | t"
+    [title]="
+      'dashboard.welcome' | t: { name: user()?.displayName ?? ('dashboard.learnerFallback' | t) }
+    "
+    [subtitle]="'dashboard.subtitle' | t"
   >
     <div actions class="dash-actions">
       <a routerLink="/flashcards" class="oq-btn oq-btn--primary">
         <oq-icon name="layers" [size]="16" />
-        <span>Review Flashcards</span>
+        <span>{{ 'dashboard.reviewFlashcards' | t }}</span>
       </a>
       <a routerLink="/quizzes/new" class="oq-btn oq-btn--secondary">
         <oq-icon name="plus" [size]="16" />
-        <span>Create Quiz</span>
+        <span>{{ 'dashboard.createQuiz' | t }}</span>
       </a>
       <a routerLink="/vocabulary" class="oq-btn oq-btn--secondary">
         <oq-icon name="book-open" [size]="16" />
-        <span>Add Word</span>
+        <span>{{ 'dashboard.addWord' | t }}</span>
       </a>
     </div>
   </oq-page-header>
@@ -31,13 +33,15 @@
   @if (errorMessage()) {
     <div class="oq-alert oq-alert--error" role="alert">
       <span>{{ errorMessage() }}</span>
-      <button type="button" class="oq-inline-retry" (click)="loadDashboard()">Retry</button>
+      <button type="button" class="oq-inline-retry" (click)="loadDashboard()">
+        {{ 'common.retry' | t }}
+      </button>
     </div>
   }
 
   @if (loading()) {
     <section class="oq-card state-card" aria-busy="true">
-      <p class="oq-muted">Loading your real-time study metrics...</p>
+      <p class="oq-muted">{{ 'dashboard.loading' | t }}</p>
     </section>
   } @else if (overview(); as data) {
     <oq-streak-card
@@ -51,54 +55,60 @@
 
     <section class="kpi-grid" aria-label="Learning metrics">
       <oq-stat-card
-        label="Saved Vocabulary"
+        [label]="'dashboard.savedVocab' | t"
         [value]="data.vocabulary.total"
         [detail]="
-          data.vocabulary.newCount +
-          ' new · ' +
-          data.vocabulary.learningCount +
-          ' learning · ' +
-          data.vocabulary.masteredCount +
-          ' mastered'
+          'dashboard.vocabDetail'
+            | t
+              : {
+                  newCount: data.vocabulary.newCount,
+                  learningCount: data.vocabulary.learningCount,
+                  masteredCount: data.vocabulary.masteredCount,
+                }
         "
-        [meta]="data.vocabulary.topicCount + ' study topics'"
+        [meta]="'dashboard.topicCount' | t: { count: data.vocabulary.topicCount }"
         icon="book-open"
       />
 
       <oq-stat-card
-        label="Due Flashcards"
+        [label]="'dashboard.dueFlashcards' | t"
         [value]="data.vocabulary.dueFlashcardsCount"
-        [detail]="data.vocabulary.hardFlashcardsCount + ' marked Again / Hard'"
+        [detail]="'dashboard.hardFlashcards' | t: { count: data.vocabulary.hardFlashcardsCount }"
         icon="layers"
         tone="accent"
         actionLink="/flashcards"
-        actionLabel="Start review queue"
+        [actionLabel]="'dashboard.startReviewQueue' | t"
       />
 
       <oq-stat-card
-        label="Completed Study"
+        [label]="'dashboard.completedStudy' | t"
         [value]="data.quizzes.completedAttempts"
-        [detail]="'Quizzes finished (' + data.quizzes.totalAttempts + ' started)'"
+        [detail]="'dashboard.quizzesCompletedDetail' | t: { started: data.quizzes.totalAttempts }"
         [meta]="
-          data.flashcards.completedSessions +
-          ' flashcard sessions (' +
-          data.flashcards.streakEligibleSessions +
-          ' streak-eligible)'
+          'dashboard.sessionsFoot'
+            | t
+              : {
+                  completed: data.flashcards.completedSessions,
+                  eligible: data.flashcards.streakEligibleSessions,
+                }
         "
         icon="check"
       />
 
       <oq-stat-card
-        label="Quiz Accuracy"
+        [label]="'dashboard.quizAccuracy' | t"
         [value]="((data.quizzes.accuracyRate | number: '1.0-1') ?? '0') + '%'"
         [detail]="
-          'Average quiz score: ' + ((data.quizzes.averageScore | number: '1.0-1') ?? '0') + '%'
+          'dashboard.averageScore'
+            | t: { avg: (data.quizzes.averageScore | number: '1.0-1') ?? '0' }
         "
         [meta]="
-          data.quizzes.correctAnswers +
-          ' / ' +
-          data.quizzes.totalQuestionsAnswered +
-          ' answers correct'
+          'dashboard.answersCorrect'
+            | t
+              : {
+                  correct: data.quizzes.correctAnswers,
+                  total: data.quizzes.totalQuestionsAnswered,
+                }
         "
         icon="target"
         tone="success"
@@ -108,17 +118,20 @@
     <section class="oq-card mastery-panel">
       <div class="mastery-panel__head">
         <div>
-          <h2>Vocabulary Mastery Progress</h2>
+          <h2>{{ 'dashboard.masteryTitle' | t }}</h2>
           <p class="oq-muted">
-            {{ data.vocabulary.masteredCount }} of {{ data.vocabulary.total }} saved words mastered
+            {{
+              'dashboard.masterySubtitle'
+                | t: { mastered: data.vocabulary.masteredCount, total: data.vocabulary.total }
+            }}
           </p>
         </div>
-        <a routerLink="/vocabulary" class="panel__link">Manage library →</a>
+        <a routerLink="/vocabulary" class="panel__link">{{ 'dashboard.manageLibrary' | t }}</a>
       </div>
       <oq-progress-bar
         [value]="data.vocabulary.masteredCount"
         [max]="data.vocabulary.total"
-        label="Mastered words"
+        [label]="'dashboard.masteryBarLabel' | t"
         [showPercent]="true"
         tone="success"
       />
@@ -127,10 +140,10 @@
     <section class="lower-grid">
       <article class="oq-card panel">
         <div class="panel__head">
-          <h2>14-Day Activity</h2>
-          <a routerLink="/progress" class="panel__link">Full calendar →</a>
+          <h2>{{ 'dashboard.activity14d' | t }}</h2>
+          <a routerLink="/progress" class="panel__link">{{ 'dashboard.fullCalendar' | t }}</a>
         </div>
-        <div class="activity-bars" role="img" aria-label="14-day qualified study activity">
+        <div class="activity-bars" role="img" [attr.aria-label]="'dashboard.activity14d' | t">
           @for (point of data.recentActivity14d; track point.date) {
             <div
               class="activity-bar"
@@ -139,11 +152,11 @@
                 point.date +
                 ': ' +
                 point.activityCount +
-                ' activities (' +
+                ' (' +
                 point.quizCompletions +
-                ' quizzes, ' +
+                ' / ' +
                 point.flashcardCompletions +
-                ' flashcards)'
+                ')'
               "
             >
               <div class="activity-bar__track">
@@ -158,15 +171,15 @@
 
       <article class="oq-card panel">
         <div class="panel__head">
-          <h2>Words Needing Review</h2>
-          <a routerLink="/flashcards" class="panel__link">Practice due cards →</a>
+          <h2>{{ 'dashboard.weakTitle' | t }}</h2>
+          <a routerLink="/flashcards" class="panel__link">{{ 'dashboard.practiceDue' | t }}</a>
         </div>
         @if (data.weakVocabulary.length === 0) {
           <oq-empty-state
             [compact]="true"
             icon="sparkles"
-            title="All caught up"
-            description="Missed quiz words and Again/Hard flashcards will surface here automatically."
+            [title]="'dashboard.weakEmptyTitle' | t"
+            [description]="'dashboard.weakEmptyDesc' | t"
           />
         } @else {
           <ul class="compact-list">
@@ -181,10 +194,12 @@
                 </div>
                 <div class="compact-list__badges">
                   @if (word.wrongCount > 0) {
-                    <span class="oq-badge oq-badge--warning">{{ word.wrongCount }} missed</span>
+                    <span class="oq-badge oq-badge--warning">{{
+                      'dashboard.missedCount' | t: { count: word.wrongCount }
+                    }}</span>
                   }
                   @if (word.lastRating === 'again' || word.lastRating === 'hard') {
-                    <span class="oq-badge">{{ word.lastRating }}</span>
+                    <span class="oq-badge">{{ formatRating(word.lastRating, i18n.lang()) }}</span>
                   }
                 </div>
               </li>
@@ -196,18 +211,18 @@
 
     <section class="oq-card panel">
       <div class="panel__head">
-        <h2>Recent Quiz Attempts</h2>
-        <a routerLink="/attempts" class="panel__link">View all attempts →</a>
+        <h2>{{ 'dashboard.recentQuizzes' | t }}</h2>
+        <a routerLink="/attempts" class="panel__link">{{ 'dashboard.viewAllAttempts' | t }}</a>
       </div>
       @if (data.recentQuizAttempts.length === 0) {
         <oq-empty-state
           [compact]="true"
           icon="help-circle"
-          title="No completed quiz attempts yet"
-          description="Browse your quizzes to record your first scored attempt."
+          [title]="'dashboard.recentEmptyTitle' | t"
+          [description]="'dashboard.recentEmptyDesc' | t"
         >
           <a actions routerLink="/quizzes" class="oq-btn oq-btn--secondary oq-btn--sm">
-            Browse quizzes
+            {{ 'dashboard.browseQuizzes' | t }}
           </a>
         </oq-empty-state>
       } @else {
@@ -217,7 +232,10 @@
               <div>
                 <strong>{{ attempt.quizTitleSnapshot }}</strong>
                 <div class="compact-list__sub">
-                  {{ attempt.correctCount }} / {{ attempt.totalQuestions }} correct
+                  {{
+                    'dashboard.questionsCorrect'
+                      | t: { correct: attempt.correctCount, total: attempt.totalQuestions }
+                  }}
                   @if (attempt.completedAt) {
                     · {{ attempt.completedAt | date: 'mediumDate' }}
                   }
@@ -231,7 +249,7 @@
                   [routerLink]="['/attempts', attempt.id]"
                   class="oq-btn oq-btn--secondary oq-btn--sm"
                 >
-                  Review
+                  {{ 'dashboard.review' | t }}
                 </a>
               </div>
             </li>

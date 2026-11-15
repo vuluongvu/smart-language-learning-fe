@@ -1,17 +1,18 @@
 import { Component, input, output } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { AppLocale, TranslatePipe, TxKey } from '../../i18n';
 import { AppTheme } from '../../services/theme.service';
 import { UserProfile } from '../../types/auth.types';
 import { OqIconComponent, OqIconName } from '../icon/icon.component';
 
 interface NavGroup {
-  label: string;
-  items: { label: string; route: string; icon: OqIconName }[];
+  labelKey: TxKey;
+  items: { labelKey: TxKey; route: string; icon: OqIconName }[];
 }
 
 @Component({
   selector: 'oq-sidebar',
-  imports: [RouterLink, RouterLinkActive, OqIconComponent],
+  imports: [RouterLink, RouterLinkActive, OqIconComponent, TranslatePipe],
   template: `
     <aside id="app-sidebar-nav" class="shell__sidebar" [class.shell__sidebar--open]="drawerOpen()">
       <div class="shell__sidebar-header">
@@ -33,7 +34,7 @@ interface NavGroup {
         <button
           type="button"
           class="shell__close-btn"
-          aria-label="Close navigation menu"
+          [attr.aria-label]="'common.closeMenu' | t"
           (click)="closeDrawer.emit()"
         >
           <oq-icon name="x" [size]="18" />
@@ -41,9 +42,9 @@ interface NavGroup {
       </div>
 
       <nav class="shell__nav" aria-label="Main navigation">
-        @for (group of navGroups; track group.label) {
+        @for (group of navGroups; track group.labelKey) {
           <div class="shell__nav-group">
-            <span class="shell__nav-heading">{{ group.label }}</span>
+            <span class="shell__nav-heading">{{ group.labelKey | t }}</span>
             @for (item of group.items; track item.route) {
               <a
                 [routerLink]="item.route"
@@ -53,7 +54,7 @@ interface NavGroup {
                 (click)="closeDrawer.emit()"
               >
                 <oq-icon [name]="item.icon" [size]="17" />
-                <span>{{ item.label }}</span>
+                <span>{{ item.labelKey | t }}</span>
               </a>
             }
           </div>
@@ -69,17 +70,35 @@ interface NavGroup {
           (click)="closeDrawer.emit()"
         >
           <oq-icon name="settings" [size]="17" />
-          <span>Settings &amp; Profile</span>
+          <span>{{ 'nav.settings' | t }}</span>
         </a>
 
         <button
           type="button"
           class="shell__nav-link shell__nav-action"
           (click)="toggleTheme.emit()"
-          [attr.aria-label]="'Switch to ' + (theme() === 'light' ? 'dark' : 'light') + ' theme'"
+          [attr.aria-label]="
+            'common.switchToTheme'
+              | t
+                : {
+                    mode:
+                      theme() === 'light' ? ('common.darkShort' | t) : ('common.lightShort' | t),
+                  }
+          "
         >
           <oq-icon [name]="theme() === 'light' ? 'moon' : 'sun'" [size]="17" />
-          <span>{{ theme() === 'light' ? 'Dark mode' : 'Light mode' }}</span>
+          <span>{{ (theme() === 'light' ? 'common.darkMode' : 'common.lightMode') | t }}</span>
+        </button>
+
+        <button
+          type="button"
+          class="shell__nav-link shell__lang-action"
+          (click)="toggleLang.emit()"
+          [attr.aria-label]="'common.switchLangAria' | t"
+        >
+          <oq-icon name="globe" [size]="17" />
+          <span>{{ 'common.langLabel' | t }}</span>
+          <span class="shell__lang-pill">{{ lang().toUpperCase() }}</span>
         </button>
 
         @if (user(); as profile) {
@@ -94,8 +113,8 @@ interface NavGroup {
             <button
               type="button"
               class="shell__logout-icon"
-              aria-label="Log out"
-              title="Log out"
+              [attr.aria-label]="'common.logout' | t"
+              [attr.title]="'common.logout' | t"
               (click)="logout.emit()"
             >
               <oq-icon name="log-out" [size]="16" />
@@ -108,7 +127,7 @@ interface NavGroup {
             (click)="logout.emit()"
           >
             <oq-icon name="log-out" [size]="15" />
-            <span>Log out</span>
+            <span>{{ 'common.logout' | t }}</span>
           </button>
         }
       </div>
@@ -238,6 +257,17 @@ interface NavGroup {
         border-top: 1px solid var(--oq-border-subtle);
       }
 
+      .shell__lang-pill {
+        margin-left: auto;
+        padding: 1px 6px;
+        border-radius: 6px;
+        font-size: 0.6875rem;
+        font-weight: 700;
+        background: var(--oq-bg-subtle);
+        color: var(--oq-text-secondary);
+        border: 1px solid var(--oq-border-subtle);
+      }
+
       .shell__account {
         display: flex;
         align-items: center;
@@ -322,32 +352,34 @@ export class OqSidebarComponent {
   readonly drawerOpen = input<boolean>(false);
   readonly user = input<UserProfile | null>(null);
   readonly theme = input<AppTheme>('light');
+  readonly lang = input<AppLocale>('en');
 
   readonly closeDrawer = output<void>();
   readonly toggleTheme = output<void>();
+  readonly toggleLang = output<void>();
   readonly logout = output<void>();
 
   protected readonly navGroups: NavGroup[] = [
     {
-      label: 'Study',
+      labelKey: 'nav.study',
       items: [
-        { label: 'Dashboard', route: '/dashboard', icon: 'layout-dashboard' },
-        { label: 'All Vocabulary', route: '/vocabulary', icon: 'book-open' },
-        { label: 'Topics', route: '/topics', icon: 'folder' },
+        { labelKey: 'nav.dashboard', route: '/dashboard', icon: 'layout-dashboard' },
+        { labelKey: 'nav.vocabulary', route: '/vocabulary', icon: 'book-open' },
+        { labelKey: 'nav.topics', route: '/topics', icon: 'folder' },
       ],
     },
     {
-      label: 'Practice',
+      labelKey: 'nav.practice',
       items: [
-        { label: 'Flashcards', route: '/flashcards', icon: 'layers' },
-        { label: 'Quizzes', route: '/quizzes', icon: 'help-circle' },
+        { labelKey: 'nav.flashcards', route: '/flashcards', icon: 'layers' },
+        { labelKey: 'nav.quizzes', route: '/quizzes', icon: 'help-circle' },
       ],
     },
     {
-      label: 'Insights',
+      labelKey: 'nav.insights',
       items: [
-        { label: 'Progress & Streak', route: '/progress', icon: 'bar-chart' },
-        { label: 'Leaderboard', route: '/leaderboard', icon: 'trophy' },
+        { labelKey: 'nav.progress', route: '/progress', icon: 'bar-chart' },
+        { labelKey: 'nav.leaderboard', route: '/leaderboard', icon: 'trophy' },
       ],
     },
   ];

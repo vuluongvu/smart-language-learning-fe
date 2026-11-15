@@ -6,6 +6,7 @@ import {
   OqIconComponent,
   OqPageHeaderComponent,
 } from '../../shared/components';
+import { I18nService, TranslatePipe } from '../../shared/i18n';
 import { TopicDetail, VocabularyItem } from '../../shared/types/learning.types';
 import { extractApiError } from '../../shared/utils/api-error.util';
 import { VocabularyApiService } from '../vocabulary/vocabulary-api.service';
@@ -13,7 +14,14 @@ import { TopicsApiService } from './topics-api.service';
 
 @Component({
   selector: 'app-topic-detail',
-  imports: [FormsModule, RouterLink, OqPageHeaderComponent, OqEmptyStateComponent, OqIconComponent],
+  imports: [
+    FormsModule,
+    RouterLink,
+    OqPageHeaderComponent,
+    OqEmptyStateComponent,
+    OqIconComponent,
+    TranslatePipe,
+  ],
   templateUrl: './topic-detail.component.html',
   styleUrl: './topic-detail.component.scss',
 })
@@ -21,6 +29,7 @@ export class TopicDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly topicsApi = inject(TopicsApiService);
   private readonly vocabularyApi = inject(VocabularyApiService);
+  private readonly i18n = inject(I18nService);
 
   protected readonly topic = signal<TopicDetail | null>(null);
   protected readonly allVocabulary = signal<VocabularyItem[]>([]);
@@ -45,7 +54,9 @@ export class TopicDetailComponent implements OnInit {
   loadDetail(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     if (!id) {
-      this.errorMessage.set('Invalid topic ID');
+      this.errorMessage.set(
+        this.i18n.lang() === 'vi' ? 'ID chủ đề không hợp lệ' : 'Invalid topic ID',
+      );
       this.isLoading.set(false);
       return;
     }
@@ -60,7 +71,12 @@ export class TopicDetailComponent implements OnInit {
         this.loadAvailableVocabulary();
       },
       error: (err: unknown) => {
-        this.errorMessage.set(extractApiError(err, 'Failed to load topic'));
+        this.errorMessage.set(
+          extractApiError(
+            err,
+            this.i18n.lang() === 'vi' ? 'Không thể tải chủ đề' : 'Failed to load topic',
+          ),
+        );
         this.isLoading.set(false);
       },
     });
@@ -78,12 +94,17 @@ export class TopicDetailComponent implements OnInit {
       next: () => {
         this.isAttaching.set(false);
         this.selectedVocabularyId = null;
-        this.statusMessage.set('Vocabulary item attached to topic.');
+        this.statusMessage.set(this.i18n.t('topicDetail.attachedMsg'));
         this.loadDetail();
       },
       error: (err: unknown) => {
         this.isAttaching.set(false);
-        this.errorMessage.set(extractApiError(err, 'Failed to attach item'));
+        this.errorMessage.set(
+          extractApiError(
+            err,
+            this.i18n.lang() === 'vi' ? 'Không thể thêm từ vào chủ đề' : 'Failed to attach item',
+          ),
+        );
       },
     });
   }
@@ -97,13 +118,16 @@ export class TopicDetailComponent implements OnInit {
 
     this.topicsApi.detachVocabulary(currentTopic.id, vocabularyId).subscribe({
       next: () => {
-        this.statusMessage.set(
-          `Removed "${term}" from this topic. The item remains in All Vocabulary.`,
-        );
+        this.statusMessage.set(this.i18n.t('topicDetail.detachedMsg', { term }));
         this.loadDetail();
       },
       error: (err: unknown) => {
-        this.errorMessage.set(extractApiError(err, 'Failed to remove item'));
+        this.errorMessage.set(
+          extractApiError(
+            err,
+            this.i18n.lang() === 'vi' ? 'Không thể gỡ từ khỏi chủ đề' : 'Failed to remove item',
+          ),
+        );
       },
     });
   }

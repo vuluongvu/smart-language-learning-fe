@@ -2,13 +2,14 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { OqIconComponent, OqPageHeaderComponent } from '../../shared/components';
+import { I18nService, TranslatePipe } from '../../shared/i18n';
 import { ThemeService } from '../../shared/services/theme.service';
 import { COMMON_TIMEZONES, extractApiError } from '../../shared/utils/api-error.util';
 import { AuthService } from '../auth/auth.service';
 
 @Component({
   selector: 'app-settings',
-  imports: [ReactiveFormsModule, OqPageHeaderComponent, OqIconComponent],
+  imports: [ReactiveFormsModule, OqPageHeaderComponent, OqIconComponent, TranslatePipe],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss',
 })
@@ -17,6 +18,7 @@ export class SettingsComponent implements OnInit {
   private readonly router = inject(Router);
   protected readonly authService = inject(AuthService);
   protected readonly themeService = inject(ThemeService);
+  protected readonly i18n = inject(I18nService);
 
   protected readonly timezoneOptions = signal<string[]>([...COMMON_TIMEZONES]);
   protected readonly profileBusy = signal(false);
@@ -84,11 +86,20 @@ export class SettingsComponent implements OnInit {
       .subscribe({
         next: () => {
           this.profileBusy.set(false);
-          this.profileMessage.set('Profile updated successfully.');
+          this.profileMessage.set(
+            this.i18n.lang() === 'vi'
+              ? 'Đã cập nhật hồ sơ thành công.'
+              : 'Profile updated successfully.',
+          );
         },
         error: (err: unknown) => {
           this.profileBusy.set(false);
-          this.profileError.set(extractApiError(err, 'Failed to update profile'));
+          this.profileError.set(
+            extractApiError(
+              err,
+              this.i18n.lang() === 'vi' ? 'Không thể cập nhật hồ sơ' : 'Failed to update profile',
+            ),
+          );
         },
       });
   }
@@ -101,7 +112,11 @@ export class SettingsComponent implements OnInit {
 
     const raw = this.passwordForm.getRawValue();
     if (raw.newPassword !== raw.confirmPassword) {
-      this.passwordError.set('New password and confirmation do not match.');
+      this.passwordError.set(
+        this.i18n.lang() === 'vi'
+          ? 'Mật khẩu mới và xác nhận mật khẩu không khớp.'
+          : 'New password and confirmation do not match.',
+      );
       return;
     }
 
@@ -123,7 +138,14 @@ export class SettingsComponent implements OnInit {
         },
         error: (err: unknown) => {
           this.passwordBusy.set(false);
-          this.passwordError.set(extractApiError(err, 'Failed to update password'));
+          this.passwordError.set(
+            extractApiError(
+              err,
+              this.i18n.lang() === 'vi'
+                ? 'Không thể cập nhật mật khẩu'
+                : 'Failed to update password',
+            ),
+          );
         },
       });
   }
@@ -145,7 +167,12 @@ export class SettingsComponent implements OnInit {
         },
         error: (err: unknown) => {
           this.deleteBusy.set(false);
-          this.deleteError.set(extractApiError(err, 'Failed to delete account'));
+          this.deleteError.set(
+            extractApiError(
+              err,
+              this.i18n.lang() === 'vi' ? 'Không thể xóa tài khoản' : 'Failed to delete account',
+            ),
+          );
         },
       });
   }
