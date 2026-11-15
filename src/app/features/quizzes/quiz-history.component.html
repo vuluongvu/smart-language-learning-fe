@@ -1,15 +1,15 @@
 <oq-page-header
   backLink="/quizzes"
-  backLabel="Back to Quizzes"
-  eyebrow="Attempt Log"
-  [title]="quiz() ? 'History: ' + quiz()!.title : 'Quiz Attempt History'"
-  subtitle="Review completed attempts with locked answer snapshots or resume unfinished sessions."
+  [backLabel]="'qb.back' | t"
+  [eyebrow]="'qh.eyebrow' | t"
+  [title]="quiz() ? ('qh.historyOf' | t: { title: quiz()!.title }) : ('qh.title' | t)"
+  [subtitle]="'qh.subtitle' | t"
 >
   <div actions class="head-actions">
     @if (quizId(); as id) {
       <a [routerLink]="['/quizzes', id, 'take']" class="oq-btn oq-btn--primary">
         <oq-icon name="plus" [size]="16" />
-        <span>Take / Retake Quiz</span>
+        <span>{{ 'qh.retake' | t }}</span>
       </a>
     }
   </div>
@@ -17,11 +17,11 @@
 
 <section class="oq-card filter-panel">
   <div class="oq-field filter-panel__select">
-    <label for="attemptStatusFilter">Filter by status</label>
+    <label for="attemptStatusFilter">{{ 'qh.filterStatus' | t }}</label>
     <select id="attemptStatusFilter" [(ngModel)]="statusFilter" (ngModelChange)="loadAttempts(1)">
-      <option value="">All Attempts</option>
-      <option value="completed">Completed</option>
-      <option value="in_progress">In Progress</option>
+      <option value="">{{ 'qh.allAttempts' | t }}</option>
+      <option value="completed">{{ 'fc.completed' | t }}</option>
+      <option value="in_progress">{{ 'fc.inProgress' | t }}</option>
     </select>
   </div>
 </section>
@@ -31,14 +31,10 @@
 }
 
 @if (isLoading()) {
-  <div class="oq-card state-box">Loading attempts...</div>
+  <div class="oq-card state-box">{{ 'qh.loading' | t }}</div>
 } @else if (attempts().length === 0) {
-  <oq-empty-state
-    icon="clock"
-    title="No attempts recorded yet"
-    description="Start a quiz to see your scores, detailed answers, and progress over time."
-  >
-    <a actions routerLink="/quizzes" class="oq-btn oq-btn--primary">Browse Quizzes</a>
+  <oq-empty-state icon="clock" [title]="'qh.emptyTitle' | t" [description]="'qh.emptyDesc' | t">
+    <a actions routerLink="/quizzes" class="oq-btn oq-btn--primary">{{ 'qh.browseQuizzes' | t }}</a>
   </oq-empty-state>
 } @else {
   <div class="attempts-list">
@@ -51,10 +47,10 @@
               [class.oq-badge--success]="attempt.status === 'completed'"
               [class.oq-badge--accent]="attempt.status === 'in_progress'"
             >
-              {{ attempt.status === 'completed' ? 'Completed' : 'In Progress' }}
+              {{ (attempt.status === 'completed' ? 'fc.completed' : 'fc.inProgress') | t }}
             </span>
             <span class="attempt-card__date">
-              Started: {{ attempt.startedAt | date: 'medium' }}
+              {{ 'qh.started' | t }} {{ attempt.startedAt | date: 'medium' }}
             </span>
           </div>
 
@@ -63,10 +59,16 @@
           <div class="attempt-card__metrics">
             @if (attempt.status === 'completed') {
               <span class="attempt-card__score">{{ attempt.score }}%</span>
-              <span>{{ attempt.correctCount }} / {{ attempt.totalQuestions }} correct</span>
+              <span>{{
+                'dashboard.questionsCorrect'
+                  | t: { correct: attempt.correctCount, total: attempt.totalQuestions }
+              }}</span>
             } @else {
-              <span>{{ attempt.totalQuestions }} questions</span>
-              <span>Waiting for submission</span>
+              <span>{{
+                (attempt.totalQuestions === 1 ? 'quizzes.questionSingle' : 'quizzes.questionPlural')
+                  | t: { count: attempt.totalQuestions }
+              }}</span>
+              <span>{{ 'qh.waitingSubmission' | t }}</span>
             }
           </div>
         </div>
@@ -74,14 +76,14 @@
         <div class="attempt-card__actions">
           @if (attempt.status === 'completed') {
             <a [routerLink]="['/attempts', attempt.id]" class="oq-btn oq-btn--secondary oq-btn--sm">
-              View Result
+              {{ 'qh.viewResult' | t }}
             </a>
           } @else {
             <a
               [routerLink]="['/quizzes', attempt.quizId, 'take']"
               class="oq-btn oq-btn--primary oq-btn--sm"
             >
-              Resume
+              {{ 'fc.resume' | t }}
             </a>
           }
         </div>
@@ -97,16 +99,16 @@
         [disabled]="meta().page <= 1"
         (click)="loadAttempts(meta().page - 1)"
       >
-        Previous
+        {{ 'common.previous' | t }}
       </button>
-      <span>Page {{ meta().page }} of {{ meta().totalPages }}</span>
+      <span>{{ 'common.pageOf' | t: { page: meta().page, total: meta().totalPages } }}</span>
       <button
         type="button"
         class="oq-btn oq-btn--secondary oq-btn--sm"
         [disabled]="meta().page >= meta().totalPages"
         (click)="loadAttempts(meta().page + 1)"
       >
-        Next
+        {{ 'common.next' | t }}
       </button>
     </nav>
   }

@@ -7,6 +7,7 @@ import {
   OqModalComponent,
   OqPageHeaderComponent,
 } from '../../shared/components';
+import { I18nService, TranslatePipe } from '../../shared/i18n';
 import { PaginationMeta, TopicSummary } from '../../shared/types/learning.types';
 import { extractApiError } from '../../shared/utils/api-error.util';
 import { TopicsApiService } from './topics-api.service';
@@ -21,6 +22,7 @@ import { TopicsApiService } from './topics-api.service';
     OqModalComponent,
     OqEmptyStateComponent,
     OqIconComponent,
+    TranslatePipe,
   ],
   templateUrl: './topics-list.component.html',
   styleUrl: './topics-list.component.scss',
@@ -28,6 +30,7 @@ import { TopicsApiService } from './topics-api.service';
 export class TopicsListComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly topicsApi = inject(TopicsApiService);
+  private readonly i18n = inject(I18nService);
 
   protected readonly topics = signal<TopicSummary[]>([]);
   protected readonly meta = signal<PaginationMeta>({
@@ -69,7 +72,7 @@ export class TopicsListComponent implements OnInit {
         this.isLoading.set(false);
       },
       error: (err: unknown) => {
-        this.errorMessage.set(extractApiError(err, 'Failed to load topics'));
+        this.errorMessage.set(extractApiError(err, this.i18n.t('topics.loadError')));
         this.isLoading.set(false);
       },
     });
@@ -107,7 +110,7 @@ export class TopicsListComponent implements OnInit {
     const raw = this.form.getRawValue();
     const name = raw.name.trim();
     if (!name) {
-      this.formError.set('Topic name cannot be empty.');
+      this.formError.set(this.i18n.t('topics.nameEmptyError'));
       return;
     }
 
@@ -131,14 +134,17 @@ export class TopicsListComponent implements OnInit {
         this.isSaving.set(false);
         this.showForm.set(false);
         this.editingTopic.set(null);
-        this.successMessage.set(
-          editing ? 'Topic updated successfully.' : 'Topic created successfully.',
-        );
+        this.successMessage.set(this.i18n.t(editing ? 'topics.updatedMsg' : 'topics.createdMsg'));
         this.loadTopics(editing ? this.meta().page : 1);
       },
       error: (err: unknown) => {
         this.isSaving.set(false);
-        this.formError.set(extractApiError(err, 'Failed to save topic'));
+        this.formError.set(
+          extractApiError(
+            err,
+            this.i18n.lang() === 'vi' ? 'Không thể lưu chủ đề' : 'Failed to save topic',
+          ),
+        );
       },
     });
   }
@@ -155,14 +161,17 @@ export class TopicsListComponent implements OnInit {
       next: () => {
         this.isDeleting.set(false);
         this.confirmDeleteTopic.set(null);
-        this.successMessage.set(
-          `Deleted topic "${target.name}". Shared vocabulary items were preserved.`,
-        );
+        this.successMessage.set(this.i18n.t('topics.deletedMsg', { name: target.name }));
         this.loadTopics(this.meta().page);
       },
       error: (err: unknown) => {
         this.isDeleting.set(false);
-        this.errorMessage.set(extractApiError(err, 'Failed to delete topic'));
+        this.errorMessage.set(
+          extractApiError(
+            err,
+            this.i18n.lang() === 'vi' ? 'Không thể xóa chủ đề' : 'Failed to delete topic',
+          ),
+        );
       },
     });
   }

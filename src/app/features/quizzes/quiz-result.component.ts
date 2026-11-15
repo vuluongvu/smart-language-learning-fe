@@ -8,6 +8,7 @@ import {
   OqPageHeaderComponent,
   OqProgressBarComponent,
 } from '../../shared/components';
+import { I18nService, TranslatePipe } from '../../shared/i18n';
 import {
   AttemptCompletedAnswer,
   AttemptDetail,
@@ -29,6 +30,7 @@ import { QuizzesApiService } from './quizzes-api.service';
     OqProgressBarComponent,
     OqEmptyStateComponent,
     OqIconComponent,
+    TranslatePipe,
   ],
   templateUrl: './quiz-result.component.html',
   styleUrl: './quiz-result.component.scss',
@@ -38,6 +40,7 @@ export class QuizResultComponent implements OnInit {
   private readonly quizzesApi = inject(QuizzesApiService);
   private readonly topicsApi = inject(TopicsApiService);
   private readonly vocabularyApi = inject(VocabularyApiService);
+  private readonly i18n = inject(I18nService);
 
   protected readonly attempt = signal<AttemptDetail | null>(null);
   protected readonly topics = signal<TopicSummary[]>([]);
@@ -61,7 +64,9 @@ export class QuizResultComponent implements OnInit {
   ngOnInit(): void {
     const attemptId = Number(this.route.snapshot.paramMap.get('attemptId'));
     if (!attemptId || attemptId <= 0) {
-      this.errorMessage.set('Invalid attempt ID.');
+      this.errorMessage.set(
+        this.i18n.lang() === 'vi' ? 'ID lượt làm bài không hợp lệ.' : 'Invalid attempt ID.',
+      );
       this.isLoading.set(false);
       return;
     }
@@ -73,7 +78,14 @@ export class QuizResultComponent implements OnInit {
         this.isLoading.set(false);
       },
       error: (err: unknown) => {
-        this.errorMessage.set(extractApiError(err, 'Failed to load quiz result'));
+        this.errorMessage.set(
+          extractApiError(
+            err,
+            this.i18n.lang() === 'vi'
+              ? 'Không thể tải kết quả bài kiểm tra'
+              : 'Failed to load quiz result',
+          ),
+        );
         this.isLoading.set(false);
       },
     });
@@ -140,7 +152,9 @@ export class QuizResultComponent implements OnInit {
     const newTopic = this.newTopicName.trim();
     if (topicIds.length === 0 && !newTopic) {
       this.saveError.set(
-        'Select at least one Topic or enter a new Topic name to attach the existing item.',
+        this.i18n.lang() === 'vi'
+          ? 'Chọn ít nhất một chủ đề hoặc nhập tên chủ đề mới để gắn từ có sẵn.'
+          : 'Select at least one Topic or enter a new Topic name to attach the existing item.',
       );
       return;
     }
@@ -160,7 +174,10 @@ export class QuizResultComponent implements OnInit {
           this.activeAnswerId.set(null);
           this.savedMessages.update((prev) => ({
             ...prev,
-            [answerId]: `Attached existing item "${res.item.term}" to selected topic(s).`,
+            [answerId]:
+              this.i18n.lang() === 'vi'
+                ? `Đã gắn từ có sẵn "${res.item.term}" vào chủ đề đã chọn.`
+                : `Attached existing item "${res.item.term}" to selected topic(s).`,
           }));
           if (res.createdTopicId) {
             this.loadTopics();
@@ -168,7 +185,14 @@ export class QuizResultComponent implements OnInit {
         },
         error: (err: unknown) => {
           this.isSavingVocab.set(false);
-          this.saveError.set(extractApiError(err, 'Failed to attach existing vocabulary'));
+          this.saveError.set(
+            extractApiError(
+              err,
+              this.i18n.lang() === 'vi'
+                ? 'Không thể gắn từ có sẵn'
+                : 'Failed to attach existing vocabulary',
+            ),
+          );
         },
       });
   }
@@ -177,7 +201,11 @@ export class QuizResultComponent implements OnInit {
     const term = this.saveTerm.trim();
     const definition = this.saveDefinition.trim();
     if (!term || !definition) {
-      this.saveError.set('Term and definition are required.');
+      this.saveError.set(
+        this.i18n.lang() === 'vi'
+          ? 'Cần nhập cả từ vựng và định nghĩa.'
+          : 'Term and definition are required.',
+      );
       return;
     }
 
@@ -201,7 +229,10 @@ export class QuizResultComponent implements OnInit {
           this.activeAnswerId.set(null);
           this.savedMessages.update((prev) => ({
             ...prev,
-            [answerId]: `Saved "${res.item.term}" to your Vocabulary Bank.`,
+            [answerId]:
+              this.i18n.lang() === 'vi'
+                ? `Đã lưu "${res.item.term}" vào Kho từ vựng.`
+                : `Saved "${res.item.term}" to your Vocabulary Bank.`,
           }));
           if (res.createdTopicId) {
             this.loadTopics();
@@ -209,7 +240,14 @@ export class QuizResultComponent implements OnInit {
         },
         error: (err: unknown) => {
           this.isSavingVocab.set(false);
-          this.saveError.set(extractApiError(err, 'Failed to save vocabulary item'));
+          this.saveError.set(
+            extractApiError(
+              err,
+              this.i18n.lang() === 'vi'
+                ? 'Không thể lưu mục từ vựng'
+                : 'Failed to save vocabulary item',
+            ),
+          );
         },
       });
   }

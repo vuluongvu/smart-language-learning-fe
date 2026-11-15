@@ -7,6 +7,7 @@ import {
   OqModalComponent,
   OqPageHeaderComponent,
 } from '../../shared/components';
+import { I18nService, TranslatePipe } from '../../shared/i18n';
 import {
   DuplicateCheckResult,
   PaginationMeta,
@@ -30,6 +31,7 @@ import { VocabularyApiService } from './vocabulary-api.service';
     OqModalComponent,
     OqEmptyStateComponent,
     OqIconComponent,
+    TranslatePipe,
   ],
   templateUrl: './vocabulary-list.component.html',
   styleUrl: './vocabulary-list.component.scss',
@@ -39,6 +41,7 @@ export class VocabularyListComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly vocabularyApi = inject(VocabularyApiService);
   private readonly topicsApi = inject(TopicsApiService);
+  protected readonly i18n = inject(I18nService);
 
   protected readonly items = signal<VocabularyItem[]>([]);
   protected readonly topics = signal<TopicSummary[]>([]);
@@ -126,7 +129,14 @@ export class VocabularyListComponent implements OnInit {
           this.isLoading.set(false);
         },
         error: (err: unknown) => {
-          this.errorMessage.set(extractApiError(err, 'Failed to load vocabulary'));
+          this.errorMessage.set(
+            extractApiError(
+              err,
+              this.i18n.lang() === 'vi'
+                ? 'Không thể tải danh sách từ vựng'
+                : 'Failed to load vocabulary',
+            ),
+          );
           this.isLoading.set(false);
         },
       });
@@ -205,7 +215,11 @@ export class VocabularyListComponent implements OnInit {
     const term = raw.term.trim();
     const definition = raw.definition.trim();
     if (!term || !definition) {
-      this.formError.set('Term and definition cannot be empty.');
+      this.formError.set(
+        this.i18n.lang() === 'vi'
+          ? 'Từ vựng và định nghĩa không được để trống.'
+          : 'Term and definition cannot be empty.',
+      );
       return;
     }
 
@@ -230,12 +244,21 @@ export class VocabularyListComponent implements OnInit {
           this.isSaving.set(false);
           this.showForm.set(false);
           this.editingItem.set(null);
-          this.successMessage.set('Vocabulary item updated.');
+          this.successMessage.set(
+            this.i18n.lang() === 'vi' ? 'Đã cập nhật từ vựng.' : 'Vocabulary item updated.',
+          );
           this.loadVocabulary(this.meta().page);
         },
         error: (err: unknown) => {
           this.isSaving.set(false);
-          this.formError.set(extractApiError(err, 'Failed to update vocabulary item'));
+          this.formError.set(
+            extractApiError(
+              err,
+              this.i18n.lang() === 'vi'
+                ? 'Không thể cập nhật từ vựng'
+                : 'Failed to update vocabulary item',
+            ),
+          );
         },
       });
     } else {
@@ -246,14 +269,25 @@ export class VocabularyListComponent implements OnInit {
           this.duplicateCheck.set(null);
           this.successMessage.set(
             created.duplicateWarning
-              ? `Added "${created.term}" (note: ${created.existingMatchCount} existing item(s) share this term).`
-              : `Added "${created.term}" to your Vocabulary Bank.`,
+              ? this.i18n.lang() === 'vi'
+                ? `Đã thêm "${created.term}" (lưu ý: đã có ${created.existingMatchCount} mục trùng từ này).`
+                : `Added "${created.term}" (note: ${created.existingMatchCount} existing item(s) share this term).`
+              : this.i18n.lang() === 'vi'
+                ? `Đã thêm "${created.term}" vào Kho từ vựng.`
+                : `Added "${created.term}" to your Vocabulary Bank.`,
           );
           this.loadVocabulary(1);
         },
         error: (err: unknown) => {
           this.isSaving.set(false);
-          this.formError.set(extractApiError(err, 'Failed to create vocabulary item'));
+          this.formError.set(
+            extractApiError(
+              err,
+              this.i18n.lang() === 'vi'
+                ? 'Không thể tạo từ vựng'
+                : 'Failed to create vocabulary item',
+            ),
+          );
         },
       });
     }
@@ -271,12 +305,21 @@ export class VocabularyListComponent implements OnInit {
       next: () => {
         this.isDeleting.set(false);
         this.confirmDeleteItem.set(null);
-        this.successMessage.set(`Deleted "${target.term}".`);
+        this.successMessage.set(
+          this.i18n.lang() === 'vi' ? `Đã xóa "${target.term}".` : `Deleted "${target.term}".`,
+        );
         this.loadVocabulary(this.meta().page);
       },
       error: (err: unknown) => {
         this.isDeleting.set(false);
-        this.errorMessage.set(extractApiError(err, 'Failed to delete vocabulary item'));
+        this.errorMessage.set(
+          extractApiError(
+            err,
+            this.i18n.lang() === 'vi'
+              ? 'Không thể xóa từ vựng'
+              : 'Failed to delete vocabulary item',
+          ),
+        );
       },
     });
   }

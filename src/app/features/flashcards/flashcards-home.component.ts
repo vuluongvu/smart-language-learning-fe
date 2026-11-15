@@ -9,6 +9,7 @@ import {
   OqPageHeaderComponent,
   OqStatCardComponent,
 } from '../../shared/components';
+import { I18nService, TranslatePipe, TxKey } from '../../shared/i18n';
 import {
   FlashcardCardView,
   FlashcardDueSummary,
@@ -36,6 +37,7 @@ import { FlashcardsApiService } from './flashcards-api.service';
     OqStatCardComponent,
     OqEmptyStateComponent,
     OqIconComponent,
+    TranslatePipe,
   ],
   templateUrl: './flashcards-home.component.html',
   styleUrl: './flashcards-home.component.scss',
@@ -45,6 +47,7 @@ export class FlashcardsHomeComponent implements OnInit {
   private readonly topicsApi = inject(TopicsApiService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  protected readonly i18n = inject(I18nService);
 
   readonly topics = signal<TopicSummary[]>([]);
   readonly summary = signal<FlashcardDueSummary>({
@@ -66,12 +69,12 @@ export class FlashcardsHomeComponent implements OnInit {
   selectedMode: FlashcardSessionMode = 'due_and_new';
   sessionLimit = 20;
 
-  readonly modeOptions: Array<{ value: FlashcardSessionMode; label: string }> = [
-    { value: 'due_and_new', label: 'Due & New Cards' },
-    { value: 'due_only', label: 'Due Only' },
-    { value: 'new_only', label: 'New Cards Only' },
-    { value: 'hard_only', label: 'Hard Cards (Again / Hard)' },
-    { value: 'all', label: 'All Topic / Bank Cards' },
+  readonly modeOptions: Array<{ value: FlashcardSessionMode; labelKey: TxKey }> = [
+    { value: 'due_and_new', labelKey: 'fc.modeDueAndNew' },
+    { value: 'due_only', labelKey: 'fc.modeDueOnly' },
+    { value: 'new_only', labelKey: 'fc.modeNewOnly' },
+    { value: 'hard_only', labelKey: 'fc.modeHardOnly' },
+    { value: 'all', labelKey: 'fc.modeAll' },
   ];
 
   readonly formatMode = formatStudyModeLabel;
@@ -110,7 +113,14 @@ export class FlashcardsHomeComponent implements OnInit {
         this.isLoading.set(false);
       },
       error: (err: unknown) => {
-        this.errorMessage.set(extractApiError(err, 'Could not load flashcard review queue.'));
+        this.errorMessage.set(
+          extractApiError(
+            err,
+            this.i18n.lang() === 'vi'
+              ? 'Không thể tải hàng đợi thẻ ghi nhớ.'
+              : 'Could not load flashcard review queue.',
+          ),
+        );
         this.isLoading.set(false);
       },
     });
@@ -137,7 +147,14 @@ export class FlashcardsHomeComponent implements OnInit {
           void this.router.navigate(['/flashcards/sessions', session.id]);
         },
         error: (err: unknown) => {
-          this.errorMessage.set(extractApiError(err, 'Unable to start flashcard session.'));
+          this.errorMessage.set(
+            extractApiError(
+              err,
+              this.i18n.lang() === 'vi'
+                ? 'Không thể bắt đầu phiên thẻ ghi nhớ.'
+                : 'Unable to start flashcard session.',
+            ),
+          );
           this.isStarting.set(false);
         },
       });

@@ -9,23 +9,43 @@
         </svg>
         <span>OpenQuiz</span>
       </div>
-      <button
-        type="button"
-        class="oq-btn oq-btn--secondary oq-btn--sm"
-        (click)="themeService.toggleTheme()"
-        [attr.aria-label]="
-          'Switch to ' + (themeService.theme() === 'light' ? 'dark' : 'light') + ' theme'
-        "
-      >
-        <oq-icon [name]="themeService.theme() === 'light' ? 'moon' : 'sun'" [size]="15" />
-        <span>{{ themeService.theme() === 'light' ? 'Dark' : 'Light' }}</span>
-      </button>
+      <div class="auth-header__actions">
+        <button
+          type="button"
+          class="oq-btn oq-btn--secondary oq-btn--sm"
+          (click)="i18n.toggleLang()"
+          [attr.aria-label]="'common.switchLangAria' | t"
+        >
+          <oq-icon name="globe" [size]="15" />
+          <span>{{ 'common.langCode' | t }}</span>
+        </button>
+        <button
+          type="button"
+          class="oq-btn oq-btn--secondary oq-btn--sm"
+          (click)="themeService.toggleTheme()"
+          [attr.aria-label]="
+            'common.switchToTheme'
+              | t
+                : {
+                    mode:
+                      themeService.theme() === 'light'
+                        ? ('common.darkShort' | t)
+                        : ('common.lightShort' | t),
+                  }
+          "
+        >
+          <oq-icon [name]="themeService.theme() === 'light' ? 'moon' : 'sun'" [size]="15" />
+          <span>{{
+            (themeService.theme() === 'light' ? 'common.darkShort' : 'common.lightShort') | t
+          }}</span>
+        </button>
+      </div>
     </div>
 
     <div class="auth-intro">
-      <span class="auth-eyebrow">Language Workspace</span>
-      <h1 class="auth-title">Welcome back</h1>
-      <p class="auth-subtitle">Sign in to continue your English learning streak.</p>
+      <span class="auth-eyebrow">{{ 'auth.workspace' | t }}</span>
+      <h1 class="auth-title">{{ 'auth.welcomeBack' | t }}</h1>
+      <p class="auth-subtitle">{{ 'auth.loginSubtitle' | t }}</p>
     </div>
 
     @if (errorMessage()) {
@@ -36,51 +56,51 @@
 
     <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
       <div class="oq-field">
-        <label for="login-email">Email</label>
+        <label for="login-email">{{ 'auth.email' | t }}</label>
         <input
           id="login-email"
           type="email"
           formControlName="email"
           autocomplete="email"
-          placeholder="you@example.com"
+          [placeholder]="'auth.emailPlaceholder' | t"
         />
         @if (form.controls.email.touched && form.controls.email.invalid) {
-          <span class="oq-field-error">Please enter a valid email address.</span>
+          <span class="oq-field-error">{{ 'auth.emailError' | t }}</span>
         }
       </div>
 
       <div class="oq-field">
-        <label for="login-password">Password</label>
+        <label for="login-password">{{ 'auth.password' | t }}</label>
         <input
           id="login-password"
           type="password"
           formControlName="password"
           autocomplete="current-password"
-          placeholder="Enter your password"
+          [placeholder]="'auth.passwordPlaceholder' | t"
         />
         @if (form.controls.password.touched && form.controls.password.invalid) {
-          <span class="oq-field-error">Password is required.</span>
+          <span class="oq-field-error">{{ 'auth.passwordError' | t }}</span>
         }
       </div>
 
       <button type="submit" class="oq-btn oq-btn--primary oq-btn--full" [disabled]="isSubmitting()">
-        {{ isSubmitting() ? 'Signing in...' : 'Sign in' }}
+        {{ isSubmitting() ? ('auth.signingIn' | t) : ('auth.signIn' | t) }}
       </button>
     </form>
 
-    <div class="auth-divider">or</div>
+    <div class="auth-divider">{{ 'auth.or' | t }}</div>
 
     @if (googleClientId) {
       <div #googleBtnContainer class="auth-google-slot"></div>
     } @else {
       <div class="oq-alert oq-alert--info auth-google-note">
-        Google Sign-In is disabled until <code>googleClientId</code> is configured in environment.
+        {{ 'auth.googleDisabled' | t }}
       </div>
     }
 
     <p class="auth-footer">
-      New to OpenQuiz?
-      <a routerLink="/register">Create an account</a>
+      {{ 'auth.newHere' | t }}
+      <a routerLink="/register">{{ 'auth.createAccountLink' | t }}</a>
     </p>
   </section>
 </div>

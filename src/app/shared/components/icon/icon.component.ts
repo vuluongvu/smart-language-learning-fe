@@ -33,7 +33,8 @@ export type OqIconName =
   | 'user'
   | 'sparkles'
   | 'alert-circle'
-  | 'lock';
+  | 'lock'
+  | 'globe';
 
 @Component({
   selector: 'oq-icon',
@@ -217,6 +218,11 @@ export type OqIconName =
         @case ('lock') {
           <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
           <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+        }
+        @case ('globe') {
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+          <path d="M2 12h20" />
         }
       }
     </svg>

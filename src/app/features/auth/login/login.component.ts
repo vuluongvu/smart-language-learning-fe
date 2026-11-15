@@ -10,8 +10,9 @@ import {
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { environment } from '../../../../environments/environment';
-import { ThemeService } from '../../../shared/services/theme.service';
 import { OqIconComponent } from '../../../shared/components';
+import { I18nService, TranslatePipe } from '../../../shared/i18n';
+import { ThemeService } from '../../../shared/services/theme.service';
 import { detectBrowserTimezone, extractApiError } from '../../../shared/utils/api-error.util';
 import { AuthService } from '../auth.service';
 
@@ -34,7 +35,7 @@ declare global {
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule, RouterLink, OqIconComponent],
+  imports: [ReactiveFormsModule, RouterLink, OqIconComponent, TranslatePipe],
   templateUrl: './login.component.html',
   styleUrl: '../auth-page.scss',
 })
@@ -44,6 +45,7 @@ export class LoginComponent implements AfterViewInit {
   private readonly router = inject(Router);
   private readonly ngZone = inject(NgZone);
   protected readonly themeService = inject(ThemeService);
+  protected readonly i18n = inject(I18nService);
 
   @ViewChild('googleBtnContainer')
   private readonly googleBtnContainer?: ElementRef<HTMLElement>;
@@ -79,7 +81,12 @@ export class LoginComponent implements AfterViewInit {
       },
       error: (err: unknown) => {
         this.isSubmitting.set(false);
-        this.errorMessage.set(extractApiError(err, 'Unable to sign in'));
+        this.errorMessage.set(
+          extractApiError(
+            err,
+            this.i18n.lang() === 'vi' ? 'Không thể đăng nhập' : 'Unable to sign in',
+          ),
+        );
       },
     });
   }
@@ -134,7 +141,12 @@ export class LoginComponent implements AfterViewInit {
       },
       error: (err: unknown) => {
         this.isSubmitting.set(false);
-        this.errorMessage.set(extractApiError(err, 'Google sign-in failed'));
+        this.errorMessage.set(
+          extractApiError(
+            err,
+            this.i18n.lang() === 'vi' ? 'Đăng nhập Google thất bại' : 'Google sign-in failed',
+          ),
+        );
       },
     });
   }

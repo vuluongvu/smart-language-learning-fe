@@ -7,6 +7,7 @@ import {
   OqPageHeaderComponent,
   OqProgressBarComponent,
 } from '../../shared/components';
+import { I18nService, TranslatePipe } from '../../shared/i18n';
 import {
   AttemptAnswerSubmission,
   AttemptDetail,
@@ -24,6 +25,7 @@ import { QuizzesApiService } from './quizzes-api.service';
     OqProgressBarComponent,
     OqModalComponent,
     OqIconComponent,
+    TranslatePipe,
   ],
   templateUrl: './quiz-player.component.html',
   styleUrl: './quiz-player.component.scss',
@@ -32,6 +34,7 @@ export class QuizPlayerComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly quizzesApi = inject(QuizzesApiService);
+  private readonly i18n = inject(I18nService);
 
   protected readonly attempt = signal<AttemptDetail | null>(null);
   protected readonly currentIndex = signal(0);
@@ -61,7 +64,9 @@ export class QuizPlayerComponent implements OnInit {
     const forceNew = this.route.snapshot.queryParamMap.get('new') === '1';
 
     if (!quizId || quizId <= 0) {
-      this.errorMessage.set('Invalid quiz ID.');
+      this.errorMessage.set(
+        this.i18n.lang() === 'vi' ? 'ID bài kiểm tra không hợp lệ.' : 'Invalid quiz ID.',
+      );
       this.isLoading.set(false);
       return;
     }
@@ -85,7 +90,12 @@ export class QuizPlayerComponent implements OnInit {
         this.isLoading.set(false);
       },
       error: (err: unknown) => {
-        this.errorMessage.set(extractApiError(err, 'Unable to start quiz'));
+        this.errorMessage.set(
+          extractApiError(
+            err,
+            this.i18n.lang() === 'vi' ? 'Không thể bắt đầu bài kiểm tra' : 'Unable to start quiz',
+          ),
+        );
         this.isLoading.set(false);
       },
     });
@@ -168,7 +178,12 @@ export class QuizPlayerComponent implements OnInit {
       },
       error: (err: unknown) => {
         this.isSubmitting.set(false);
-        this.errorMessage.set(extractApiError(err, 'Failed to submit quiz'));
+        this.errorMessage.set(
+          extractApiError(
+            err,
+            this.i18n.lang() === 'vi' ? 'Không thể nộp bài kiểm tra' : 'Failed to submit quiz',
+          ),
+        );
       },
     });
   }
@@ -176,11 +191,11 @@ export class QuizPlayerComponent implements OnInit {
   questionTypeLabel(type: QuestionType): string {
     switch (type) {
       case 'multiple_choice':
-        return 'Multiple Choice';
+        return this.i18n.t('qb.typeMcq');
       case 'word_meaning':
-        return 'Word Meaning';
+        return this.i18n.t('qb.typeMeaning');
       case 'fill_blank':
-        return 'Fill in the Blank';
+        return this.i18n.t('qb.typeBlank');
     }
   }
 

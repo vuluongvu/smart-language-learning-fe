@@ -1,11 +1,12 @@
 import { Component, input, output } from '@angular/core';
+import { TranslatePipe } from '../../i18n';
 import { OqIconComponent } from '../icon/icon.component';
 
 let nextModalId = 0;
 
 @Component({
   selector: 'oq-modal',
-  imports: [OqIconComponent],
+  imports: [OqIconComponent, TranslatePipe],
   host: {
     '(document:keydown.escape)': 'onEscape()',
   },
@@ -31,7 +32,7 @@ let nextModalId = 0;
             <button
               type="button"
               class="oq-modal__close"
-              aria-label="Close modal"
+              [attr.aria-label]="'common.closeModal' | t"
               (click)="closed.emit()"
             >
               <oq-icon name="x" [size]="18" />

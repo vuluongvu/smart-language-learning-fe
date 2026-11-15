@@ -1,17 +1,17 @@
 <div class="progress-page">
   <oq-page-header
-    eyebrow="Consistency"
-    title="Progress &amp; Streak Calendar"
-    subtitle="Consistency calendar in your active timezone, daily activity totals, and weak words."
+    [eyebrow]="'progress.eyebrow' | t"
+    [title]="'progress.title' | t"
+    [subtitle]="'progress.subtitle' | t"
   >
     <div actions class="page-actions">
       <a routerLink="/leaderboard" class="oq-btn oq-btn--secondary">
         <oq-icon name="trophy" [size]="16" />
-        <span>Leaderboard</span>
+        <span>{{ 'progress.leaderboard' | t }}</span>
       </a>
       <a routerLink="/flashcards" class="oq-btn oq-btn--primary">
         <oq-icon name="layers" [size]="16" />
-        <span>Study Now</span>
+        <span>{{ 'progress.studyNow' | t }}</span>
       </a>
     </div>
   </oq-page-header>
@@ -19,42 +19,49 @@
   @if (errorMessage()) {
     <div class="oq-alert oq-alert--error" role="alert">
       <span>{{ errorMessage() }}</span>
-      <button type="button" class="oq-inline-retry" (click)="loadAll()">Retry</button>
+      <button type="button" class="oq-inline-retry" (click)="loadAll()">
+        {{ 'common.retry' | t }}
+      </button>
     </div>
   }
 
   @if (loading()) {
     <section class="oq-card state-box" aria-busy="true">
-      <p>Loading streak calendar and history...</p>
+      <p>{{ 'progress.loading' | t }}</p>
     </section>
   } @else {
     @if (streak(); as s) {
       <section class="streak-summary-grid" aria-label="Streak metrics">
         <oq-stat-card
-          label="Active Streak"
-          [value]="s.currentStreak + ' days'"
+          [label]="'progress.activeStreak' | t"
+          [value]="'progress.daysValue' | t: { count: s.currentStreak }"
           [detail]="
-            s.isActiveToday ? 'Completed today' : s.isAtRiskToday ? 'At risk today' : 'Start today'
+            (s.isActiveToday
+              ? 'progress.completedToday'
+              : s.isAtRiskToday
+                ? 'progress.atRiskToday'
+                : 'progress.startToday'
+            ) | t
           "
           icon="flame"
           [tone]="s.isActiveToday ? 'success' : 'accent'"
         />
 
         <oq-stat-card
-          label="Longest Streak"
-          [value]="s.longestStreak + ' days'"
+          [label]="'progress.longestStreak' | t"
+          [value]="'progress.daysValue' | t: { count: s.longestStreak }"
           [detail]="
             s.currentStreakStartedAt
-              ? 'Started ' + s.currentStreakStartedAt
-              : 'Personal best record'
+              ? ('progress.startedAt' | t: { date: s.currentStreakStartedAt })
+              : ('progress.personalBest' | t)
           "
           icon="trophy"
         />
 
         <oq-stat-card
-          label="Last Qualified Day"
-          [value]="s.lastActivityDate ?? 'None yet'"
-          [detail]="'Timezone: ' + s.timezone"
+          [label]="'progress.lastQualified' | t"
+          [value]="s.lastActivityDate ?? ('progress.noneYet' | t)"
+          [detail]="('streak.timezone' | t) + ' ' + s.timezone"
           icon="calendar"
         />
       </section>
@@ -66,8 +73,15 @@
           <div>
             <h2>{{ cal.month }}</h2>
             <p class="cal-sub">
-              {{ cal.totalActiveDays }} active days · {{ cal.totalMissedDays }} missed days (since
-              {{ cal.registeredDate }})
+              {{
+                'progress.calMeta'
+                  | t
+                    : {
+                        active: cal.totalActiveDays,
+                        missed: cal.totalMissedDays,
+                        registered: cal.registeredDate,
+                      }
+              }}
             </p>
           </div>
           <div class="cal-nav">
@@ -77,7 +91,7 @@
               [disabled]="calendarLoading()"
               (click)="changeMonth(-1)"
             >
-              Prev
+              {{ 'common.previous' | t }}
             </button>
             <button
               type="button"
@@ -85,13 +99,13 @@
               [disabled]="calendarLoading()"
               (click)="changeMonth(1)"
             >
-              Next
+              {{ 'common.next' | t }}
             </button>
           </div>
         </div>
 
         <div class="cal-grid" role="grid">
-          @for (dayName of weekdays; track dayName) {
+          @for (dayName of weekdays(); track dayName) {
             <div class="cal-weekday" role="columnheader">{{ dayName }}</div>
           }
           @for (spacer of leadingSpacers(); track spacer) {
@@ -116,10 +130,10 @@
         </div>
 
         <div class="cal-legend">
-          <span><i class="dot dot--active"></i> Active day</span>
-          <span><i class="dot dot--today"></i> Today (pending)</span>
-          <span><i class="dot dot--missed"></i> Missed day</span>
-          <span><i class="dot dot--dim"></i> Pre-signup / Future</span>
+          <span><i class="dot dot--active"></i> {{ 'progress.legendActive' | t }}</span>
+          <span><i class="dot dot--today"></i> {{ 'progress.legendToday' | t }}</span>
+          <span><i class="dot dot--missed"></i> {{ 'progress.legendMissed' | t }}</span>
+          <span><i class="dot dot--dim"></i> {{ 'progress.legendFuture' | t }}</span>
         </div>
       </section>
     }
@@ -128,7 +142,7 @@
       <section class="history-grid">
         <article class="oq-card panel">
           <div class="section-head">
-            <h2>Daily Study Log ({{ hist.days }}d)</h2>
+            <h2>{{ 'progress.dailyLog' | t: { days: hist.days } }}</h2>
             <div class="window-tabs">
               <button
                 type="button"
@@ -153,8 +167,8 @@
             <oq-empty-state
               [compact]="true"
               icon="calendar"
-              title="No sessions in this window"
-              description="Complete a quiz or at least 5 flashcards to log a qualified day."
+              [title]="'progress.emptyLogTitle' | t"
+              [description]="'progress.emptyLogDesc' | t"
             />
           } @else {
             <ul class="log-list">
@@ -162,8 +176,15 @@
                 <li class="log-item">
                   <strong>{{ item.date }}</strong>
                   <span class="oq-muted">
-                    {{ item.quizCompletions }} quizzes · {{ item.flashcardCompletions }} flashcards
-                    ({{ item.activityCount }} total)
+                    {{
+                      'progress.logCounts'
+                        | t
+                          : {
+                              quizzes: item.quizCompletions,
+                              flashcards: item.flashcardCompletions,
+                              total: item.activityCount,
+                            }
+                    }}
                   </span>
                 </li>
               }
@@ -173,8 +194,8 @@
 
         <article class="oq-card panel">
           <div class="section-head">
-            <h2>Weak Vocabulary &amp; Recent Scores</h2>
-            <a routerLink="/flashcards" class="accent-link">Review weak words →</a>
+            <h2>{{ 'progress.weakSection' | t }}</h2>
+            <a routerLink="/flashcards" class="accent-link">{{ 'progress.reviewWeak' | t }}</a>
           </div>
           @if (hist.weakVocabulary.length > 0) {
             <ul class="log-list">
@@ -183,16 +204,18 @@
                   <span>
                     <strong>{{ w.term }}</strong> — {{ w.definition }}
                   </span>
-                  <span class="oq-badge oq-badge--warning">{{ w.wrongCount }} missed</span>
+                  <span class="oq-badge oq-badge--warning">{{
+                    'dashboard.missedCount' | t: { count: w.wrongCount }
+                  }}</span>
                 </li>
               }
             </ul>
           } @else {
-            <p class="oq-muted">No struggled vocabulary items right now.</p>
+            <p class="oq-muted">{{ 'progress.noWeakWords' | t }}</p>
           }
 
           @if (hist.recentAttempts.length > 0) {
-            <h3 class="subhead">Latest Quizzes</h3>
+            <h3 class="subhead">{{ 'progress.latestQuizzes' | t }}</h3>
             <ul class="log-list">
               @for (att of hist.recentAttempts.slice(0, 5); track att.id) {
                 <li class="log-item">

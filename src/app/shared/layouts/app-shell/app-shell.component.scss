@@ -51,6 +51,12 @@
   text-decoration: none;
 }
 
+.shell__topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .shell__backdrop {
   position: fixed;
   inset: 0;

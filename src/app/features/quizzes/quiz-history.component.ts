@@ -7,6 +7,7 @@ import {
   OqIconComponent,
   OqPageHeaderComponent,
 } from '../../shared/components';
+import { I18nService, TranslatePipe } from '../../shared/i18n';
 import {
   AttemptSummary,
   PaginationMeta,
@@ -25,6 +26,7 @@ import { QuizzesApiService } from './quizzes-api.service';
     OqPageHeaderComponent,
     OqEmptyStateComponent,
     OqIconComponent,
+    TranslatePipe,
   ],
   templateUrl: './quiz-history.component.html',
   styleUrl: './quiz-history.component.scss',
@@ -32,6 +34,7 @@ import { QuizzesApiService } from './quizzes-api.service';
 export class QuizHistoryComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly quizzesApi = inject(QuizzesApiService);
+  private readonly i18n = inject(I18nService);
 
   protected readonly quizId = signal<number | null>(null);
   protected readonly quiz = signal<QuizDetail | null>(null);
@@ -79,7 +82,14 @@ export class QuizHistoryComponent implements OnInit {
           this.isLoading.set(false);
         },
         error: (err: unknown) => {
-          this.errorMessage.set(extractApiError(err, 'Failed to load quiz attempt history'));
+          this.errorMessage.set(
+            extractApiError(
+              err,
+              this.i18n.lang() === 'vi'
+                ? 'Không thể tải lịch sử làm bài'
+                : 'Failed to load quiz attempt history',
+            ),
+          );
           this.isLoading.set(false);
         },
       });

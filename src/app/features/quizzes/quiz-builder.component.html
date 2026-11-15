@@ -1,9 +1,9 @@
 <oq-page-header
   backLink="/quizzes"
-  backLabel="Back to Quizzes"
-  eyebrow="Quiz Authoring"
-  [title]="editingQuizId() ? 'Edit Quiz' : 'Create Quiz'"
-  subtitle="Build manual questions across Multiple Choice, Word Meaning, and Fill in the Blank."
+  [backLabel]="'qb.back' | t"
+  [eyebrow]="'qb.eyebrow' | t"
+  [title]="(editingQuizId() ? 'qb.editTitle' : 'qb.createTitle') | t"
+  [subtitle]="'qb.subtitle' | t"
 />
 
 @if (successMessage()) {
@@ -15,27 +15,27 @@
 }
 
 @if (isLoading()) {
-  <div class="oq-card state-box">Loading quiz...</div>
+  <div class="oq-card state-box">{{ 'qb.loading' | t }}</div>
 } @else {
   <section class="oq-card meta-card">
     <form [formGroup]="metaForm" class="meta-grid">
       <div class="oq-field meta-grid__full">
-        <label for="quizTitle">Quiz Title *</label>
+        <label for="quizTitle">{{ 'qb.titleLabel' | t }}</label>
         <input
           id="quizTitle"
           type="text"
           formControlName="title"
-          placeholder="e.g., Business Meetings Vocabulary Check"
+          [placeholder]="'qb.titlePlaceholder' | t"
         />
         @if (metaForm.controls.title.touched && metaForm.controls.title.invalid) {
-          <span class="oq-field-error">Title is required (max 160 characters).</span>
+          <span class="oq-field-error">{{ 'qb.titleError' | t }}</span>
         }
       </div>
 
       <div class="oq-field">
-        <label for="quizTopic">Topic (Optional)</label>
+        <label for="quizTopic">{{ 'qb.topicLabel' | t }}</label>
         <select id="quizTopic" formControlName="topicId">
-          <option [ngValue]="null">No specific topic</option>
+          <option [ngValue]="null">{{ 'qb.noTopic' | t }}</option>
           @for (topic of topics(); track topic.id) {
             <option [ngValue]="topic.id">{{ topic.name }}</option>
           }
@@ -43,22 +43,22 @@
       </div>
 
       <div class="oq-field">
-        <label for="quizDifficulty">Difficulty (Optional)</label>
+        <label for="quizDifficulty">{{ 'qb.difficultyLabel' | t }}</label>
         <select id="quizDifficulty" formControlName="difficulty">
-          <option value="">Unspecified</option>
-          <option value="easy">Easy</option>
-          <option value="medium">Medium</option>
-          <option value="hard">Hard</option>
+          <option value="">{{ 'qb.unspecified' | t }}</option>
+          <option value="easy">{{ 'quizzes.easy' | t }}</option>
+          <option value="medium">{{ 'quizzes.medium' | t }}</option>
+          <option value="hard">{{ 'quizzes.hard' | t }}</option>
         </select>
       </div>
 
       <div class="oq-field meta-grid__full">
-        <label for="quizDescription">Description (Optional)</label>
+        <label for="quizDescription">{{ 'qb.descLabel' | t }}</label>
         <textarea
           id="quizDescription"
           rows="2"
           formControlName="description"
-          placeholder="Notes or instructions for yourself..."
+          [placeholder]="'qb.descPlaceholder' | t"
         ></textarea>
       </div>
     </form>
@@ -67,10 +67,8 @@
   <section class="oq-card gen-card">
     <div class="gen-card__head">
       <div>
-        <h2>Build from Your Vocabulary Bank</h2>
-        <p class="gen-card__sub">
-          Quickly draft editable questions from your saved English words (zero AI, zero cost).
-        </p>
+        <h2>{{ 'qb.helperTitle' | t }}</h2>
+        <p class="gen-card__sub">{{ 'qb.helperSub' | t }}</p>
       </div>
       <button
         type="button"
@@ -78,7 +76,7 @@
         (click)="showGenerator.set(!showGenerator())"
       >
         <oq-icon name="sparkles" [size]="15" />
-        <span>{{ showGenerator() ? 'Hide Helper' : 'Generate Draft Questions' }}</span>
+        <span>{{ (showGenerator() ? 'qb.hideHelper' : 'qb.showHelper') | t }}</span>
       </button>
     </div>
 
@@ -86,9 +84,9 @@
       <div class="gen-card__body">
         <div class="gen-grid">
           <div class="oq-field">
-            <label for="genTopic">Source Topic</label>
+            <label for="genTopic">{{ 'qb.sourceTopic' | t }}</label>
             <select id="genTopic" [(ngModel)]="genTopicId" name="genTopicId">
-              <option [ngValue]="null">All Vocabulary Items</option>
+              <option [ngValue]="null">{{ 'qb.allVocabItems' | t }}</option>
               @for (topic of topics(); track topic.id) {
                 <option [ngValue]="topic.id">{{ topic.name }}</option>
               }
@@ -96,7 +94,7 @@
           </div>
 
           <div class="oq-field">
-            <label for="genCount">Question Count</label>
+            <label for="genCount">{{ 'qb.questionCount' | t }}</label>
             <input
               id="genCount"
               type="number"
@@ -111,7 +109,7 @@
         <div class="gen-types">
           <label class="oq-check">
             <input type="checkbox" [(ngModel)]="genIncludeMcq" name="genIncludeMcq" />
-            <span>Multiple Choice</span>
+            <span>{{ 'qb.typeMcq' | t }}</span>
           </label>
           <label class="oq-check">
             <input
@@ -119,11 +117,11 @@
               [(ngModel)]="genIncludeWordMeaning"
               name="genIncludeWordMeaning"
             />
-            <span>Word Meaning</span>
+            <span>{{ 'qb.typeMeaning' | t }}</span>
           </label>
           <label class="oq-check">
             <input type="checkbox" [(ngModel)]="genIncludeFillBlank" name="genIncludeFillBlank" />
-            <span>Fill in the Blank</span>
+            <span>{{ 'qb.typeBlank' | t }}</span>
           </label>
         </div>
 
@@ -134,7 +132,7 @@
             [disabled]="isGenerating()"
             (click)="generateDraftQuestions()"
           >
-            {{ isGenerating() ? 'Generating...' : 'Append Draft Questions' }}
+            {{ isGenerating() ? ('qb.generating' | t) : ('qb.appendDrafts' | t) }}
           </button>
         </div>
       </div>
@@ -142,28 +140,28 @@
   </section>
 
   <section class="questions-header">
-    <h2>Questions ({{ questions().length }})</h2>
+    <h2>{{ 'qb.questionsHeading' | t: { count: questions().length } }}</h2>
     <div class="add-btns">
       <button
         type="button"
         class="oq-btn oq-btn--secondary oq-btn--sm"
         (click)="addQuestion('multiple_choice')"
       >
-        + Multiple Choice
+        + {{ 'qb.typeMcq' | t }}
       </button>
       <button
         type="button"
         class="oq-btn oq-btn--secondary oq-btn--sm"
         (click)="addQuestion('word_meaning')"
       >
-        + Word Meaning
+        + {{ 'qb.typeMeaning' | t }}
       </button>
       <button
         type="button"
         class="oq-btn oq-btn--secondary oq-btn--sm"
         (click)="addQuestion('fill_blank')"
       >
-        + Fill in the Blank
+        + {{ 'qb.typeBlank' | t }}
       </button>
     </div>
   </section>
@@ -172,8 +170,8 @@
     <oq-empty-state
       [compact]="true"
       icon="help-circle"
-      title="No questions added yet"
-      description="Add a question manually above or use the Vocabulary helper."
+      [title]="'qb.emptyQuestionsTitle' | t"
+      [description]="'qb.emptyQuestionsDesc' | t"
     />
   }
 
@@ -192,7 +190,7 @@
               [disabled]="qi === 0"
               (click)="moveQuestion(qi, -1)"
             >
-              Up
+              {{ 'qb.up' | t }}
             </button>
             <button
               type="button"
@@ -200,40 +198,40 @@
               [disabled]="qi === questions().length - 1"
               (click)="moveQuestion(qi, 1)"
             >
-              Down
+              {{ 'qb.down' | t }}
             </button>
             <button
               type="button"
               class="oq-btn oq-btn--ghost oq-btn--sm btn-danger-text"
               (click)="removeQuestion(qi)"
             >
-              Remove
+              {{ 'qb.remove' | t }}
             </button>
           </div>
         </div>
 
         <div class="question-meta-row">
           <div class="oq-field">
-            <label [for]="'qType-' + q.localKey">Question Type</label>
+            <label [for]="'qType-' + q.localKey">{{ 'qb.qType' | t }}</label>
             <select
               [id]="'qType-' + q.localKey"
               [ngModel]="q.questionType"
               (ngModelChange)="onQuestionTypeChange(qi, $event)"
             >
-              <option value="multiple_choice">Multiple Choice</option>
-              <option value="word_meaning">Word Meaning</option>
-              <option value="fill_blank">Fill in the Blank</option>
+              <option value="multiple_choice">{{ 'qb.typeMcq' | t }}</option>
+              <option value="word_meaning">{{ 'qb.typeMeaning' | t }}</option>
+              <option value="fill_blank">{{ 'qb.typeBlank' | t }}</option>
             </select>
           </div>
 
           <div class="oq-field">
-            <label [for]="'qVocab-' + q.localKey">Link Vocabulary Item (Optional)</label>
+            <label [for]="'qVocab-' + q.localKey">{{ 'qb.linkVocab' | t }}</label>
             <select
               [id]="'qVocab-' + q.localKey"
               [ngModel]="q.vocabularyId"
               (ngModelChange)="onVocabularySelect(qi, $event)"
             >
-              <option [ngValue]="null">None</option>
+              <option [ngValue]="null">{{ 'common.none' | t }}</option>
               @for (v of vocabularyItems(); track v.id) {
                 <option [ngValue]="v.id">{{ v.term }} — {{ v.definition }}</option>
               }
@@ -241,7 +239,7 @@
           </div>
 
           <div class="oq-field">
-            <label [for]="'qTerm-' + q.localKey">Related Term Tag (Optional)</label>
+            <label [for]="'qTerm-' + q.localKey">{{ 'qb.relatedTerm' | t }}</label>
             <input
               [id]="'qTerm-' + q.localKey"
               type="text"
@@ -252,15 +250,16 @@
         </div>
 
         <div class="oq-field">
-          <label [for]="'qText-' + q.localKey">Question Prompt *</label>
+          <label [for]="'qText-' + q.localKey">{{ 'qb.promptLabel' | t }}</label>
           <textarea
             [id]="'qText-' + q.localKey"
             rows="2"
             [(ngModel)]="q.questionText"
             [placeholder]="
-              q.questionType === 'fill_blank'
-                ? 'e.g., Early testing helps _____ production risk.'
-                : 'Enter the question prompt...'
+              (q.questionType === 'fill_blank'
+                ? 'qb.promptBlankPlaceholder'
+                : 'qb.promptDefaultPlaceholder'
+              ) | t
             "
           ></textarea>
         </div>
@@ -269,9 +268,10 @@
           <div class="options-block__head">
             <span>
               {{
-                q.questionType === 'fill_blank'
-                  ? 'Accepted Answers * (case and extra spaces ignored)'
-                  : 'Answer Options * (select the 1 correct option)'
+                (q.questionType === 'fill_blank'
+                  ? 'qb.acceptedAnswersHint'
+                  : 'qb.answerOptionsHint'
+                ) | t
               }}
             </span>
             <button
@@ -282,7 +282,7 @@
               "
               (click)="addOption(qi)"
             >
-              {{ q.questionType === 'fill_blank' ? '+ Accepted Answer' : '+ Option' }}
+              {{ (q.questionType === 'fill_blank' ? 'qb.addAcceptedAnswer' : 'qb.addOption') | t }}
             </button>
           </div>
 
@@ -316,19 +316,19 @@
                 "
                 (click)="removeOption(qi, oi)"
               >
-                Remove
+                {{ 'qb.remove' | t }}
               </button>
             </div>
           }
         </div>
 
         <div class="oq-field explanation-field">
-          <label [for]="'qExp-' + q.localKey">Explanation (Shown after submission, Optional)</label>
+          <label [for]="'qExp-' + q.localKey">{{ 'qb.explanationLabel' | t }}</label>
           <input
             [id]="'qExp-' + q.localKey"
             type="text"
             [(ngModel)]="q.explanation"
-            placeholder="Why this answer is correct or usage notes..."
+            [placeholder]="'qb.explanationPlaceholder' | t"
           />
         </div>
       </article>
@@ -342,7 +342,7 @@
       [disabled]="isSaving()"
       (click)="saveQuiz('draft')"
     >
-      {{ isSaving() ? 'Saving...' : 'Save as Draft' }}
+      {{ isSaving() ? ('common.saving' | t) : ('qb.saveDraft' | t) }}
     </button>
     <button
       type="button"
@@ -350,7 +350,7 @@
       [disabled]="isSaving()"
       (click)="saveQuiz('published')"
     >
-      {{ isSaving() ? 'Saving...' : 'Save & Publish' }}
+      {{ isSaving() ? ('common.saving' | t) : ('qb.savePublish' | t) }}
     </button>
   </div>
 }

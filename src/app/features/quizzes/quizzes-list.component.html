@@ -1,16 +1,16 @@
 <oq-page-header
-  eyebrow="Practice"
-  title="Quizzes"
-  subtitle="Create manual or vocabulary-assisted quizzes with Multiple Choice, Word Meaning, and Fill in the Blank questions."
+  [eyebrow]="'quizzes.eyebrow' | t"
+  [title]="'quizzes.title' | t"
+  [subtitle]="'quizzes.subtitle' | t"
 >
   <div actions class="head-actions">
     <a routerLink="/attempts" class="oq-btn oq-btn--secondary">
       <oq-icon name="clock" [size]="16" />
-      <span>Attempt History</span>
+      <span>{{ 'quizzes.attemptHistory' | t }}</span>
     </a>
     <a routerLink="/quizzes/new" class="oq-btn oq-btn--primary">
       <oq-icon name="plus" [size]="16" />
-      <span>Create Quiz</span>
+      <span>{{ 'quizzes.createQuiz' | t }}</span>
     </a>
   </div>
 </oq-page-header>
@@ -26,25 +26,25 @@
 <section class="oq-card filter-card">
   <form class="filter-grid" (ngSubmit)="loadQuizzes(1)">
     <div class="oq-field filter-card__search">
-      <label for="quizSearch">Search quizzes</label>
+      <label for="quizSearch">{{ 'quizzes.searchLabel' | t }}</label>
       <input
         id="quizSearch"
         type="search"
         [(ngModel)]="search"
         name="search"
-        placeholder="Search title or description..."
+        [placeholder]="'quizzes.searchPlaceholder' | t"
       />
     </div>
 
     <div class="oq-field">
-      <label for="quizTopicFilter">Topic</label>
+      <label for="quizTopicFilter">{{ 'quizzes.topicLabel' | t }}</label>
       <select
         id="quizTopicFilter"
         [(ngModel)]="selectedTopicId"
         name="topicId"
         (ngModelChange)="loadQuizzes(1)"
       >
-        <option [ngValue]="null">All Topics</option>
+        <option [ngValue]="null">{{ 'quizzes.allTopics' | t }}</option>
         @for (t of topics(); track t.id) {
           <option [ngValue]="t.id">{{ t.name }}</option>
         }
@@ -52,47 +52,49 @@
     </div>
 
     <div class="oq-field">
-      <label for="quizStatusFilter">Status</label>
+      <label for="quizStatusFilter">{{ 'quizzes.statusLabel' | t }}</label>
       <select
         id="quizStatusFilter"
         [(ngModel)]="statusFilter"
         name="status"
         (ngModelChange)="loadQuizzes(1)"
       >
-        <option value="">All Statuses</option>
-        <option value="published">Published</option>
-        <option value="draft">Draft</option>
+        <option value="">{{ 'quizzes.allStatuses' | t }}</option>
+        <option value="published">{{ 'quizzes.published' | t }}</option>
+        <option value="draft">{{ 'quizzes.draft' | t }}</option>
       </select>
     </div>
 
     <div class="oq-field">
-      <label for="quizDifficultyFilter">Difficulty</label>
+      <label for="quizDifficultyFilter">{{ 'quizzes.difficultyLabel' | t }}</label>
       <select
         id="quizDifficultyFilter"
         [(ngModel)]="difficultyFilter"
         name="difficulty"
         (ngModelChange)="loadQuizzes(1)"
       >
-        <option value="">Any Difficulty</option>
-        <option value="easy">Easy</option>
-        <option value="medium">Medium</option>
-        <option value="hard">Hard</option>
+        <option value="">{{ 'quizzes.anyDifficulty' | t }}</option>
+        <option value="easy">{{ 'quizzes.easy' | t }}</option>
+        <option value="medium">{{ 'quizzes.medium' | t }}</option>
+        <option value="hard">{{ 'quizzes.hard' | t }}</option>
       </select>
     </div>
 
     <div class="oq-field">
-      <label for="quizSortBy">Sort</label>
+      <label for="quizSortBy">{{ 'quizzes.sortLabel' | t }}</label>
       <select id="quizSortBy" [(ngModel)]="sortBy" name="sortBy" (ngModelChange)="loadQuizzes(1)">
-        <option value="newest">Newest</option>
-        <option value="oldest">Oldest</option>
-        <option value="title_asc">Title A-Z</option>
-        <option value="title_desc">Title Z-A</option>
+        <option value="newest">{{ 'quizzes.sortNewest' | t }}</option>
+        <option value="oldest">{{ 'quizzes.sortOldest' | t }}</option>
+        <option value="title_asc">{{ 'quizzes.sortAsc' | t }}</option>
+        <option value="title_desc">{{ 'quizzes.sortDesc' | t }}</option>
       </select>
     </div>
 
     <div class="filter-actions">
-      <button type="submit" class="oq-btn oq-btn--secondary">Apply</button>
-      <button type="button" class="oq-btn oq-btn--ghost" (click)="resetFilters()">Reset</button>
+      <button type="submit" class="oq-btn oq-btn--secondary">{{ 'common.apply' | t }}</button>
+      <button type="button" class="oq-btn oq-btn--ghost" (click)="resetFilters()">
+        {{ 'common.reset' | t }}
+      </button>
     </div>
   </form>
 </section>
@@ -102,8 +104,8 @@
     [open]="true"
     size="sm"
     role="alertdialog"
-    [title]="'Delete &quot;' + target.title + '&quot;?'"
-    description="This removes the quiz, its questions, and its attempt records. Your Vocabulary Bank items remain safe."
+    [title]="'quizzes.deleteTitle' | t: { title: target.title }"
+    [description]="'quizzes.deleteDesc' | t"
     (closed)="confirmDeleteQuiz.set(null)"
   >
     <div class="modal-actions">
@@ -113,7 +115,7 @@
         [disabled]="isDeleting()"
         (click)="confirmDeleteQuiz.set(null)"
       >
-        Cancel
+        {{ 'common.cancel' | t }}
       </button>
       <button
         type="button"
@@ -121,23 +123,23 @@
         [disabled]="isDeleting()"
         (click)="deleteSelectedQuiz()"
       >
-        {{ isDeleting() ? 'Deleting...' : 'Confirm Delete' }}
+        {{ isDeleting() ? ('common.deleting' | t) : ('quizzes.confirmDelete' | t) }}
       </button>
     </div>
   </oq-modal>
 }
 
 @if (isLoading()) {
-  <div class="oq-card state-box">Loading quizzes...</div>
+  <div class="oq-card state-box">{{ 'quizzes.loading' | t }}</div>
 } @else if (quizzes().length === 0) {
   <oq-empty-state
     icon="help-circle"
-    title="No quizzes found"
-    description="Create your first quiz manually or generate editable draft questions from your existing Vocabulary Bank."
+    [title]="'quizzes.emptyTitle' | t"
+    [description]="'quizzes.emptyDesc' | t"
   >
     <a actions routerLink="/quizzes/new" class="oq-btn oq-btn--primary">
       <oq-icon name="plus" [size]="16" />
-      <span>Create Quiz</span>
+      <span>{{ 'quizzes.createQuiz' | t }}</span>
     </a>
   </oq-empty-state>
 } @else {
@@ -150,10 +152,10 @@
             [class.oq-badge--success]="quiz.status === 'published'"
             [class.oq-badge--warning]="quiz.status === 'draft'"
           >
-            {{ quiz.status === 'published' ? 'Published' : 'Draft' }}
+            {{ (quiz.status === 'published' ? 'quizzes.published' : 'quizzes.draft') | t }}
           </span>
           @if (quiz.difficulty) {
-            <span class="oq-badge">{{ quiz.difficulty }}</span>
+            <span class="oq-badge">{{ difficultyKey(quiz.difficulty) | t }}</span>
           }
           @if (quiz.topicName) {
             <span class="oq-badge oq-badge--accent">{{ quiz.topicName }}</span>
@@ -162,14 +164,22 @@
 
         <h2 class="quiz-card__title">{{ quiz.title }}</h2>
         <p class="quiz-card__desc">
-          {{ quiz.description || 'No description provided.' }}
+          {{ quiz.description || ('topics.noDesc' | t) }}
         </p>
 
         <div class="quiz-card__stats">
-          <span>{{ quiz.questionCount }} question{{ quiz.questionCount === 1 ? '' : 's' }}</span>
-          <span>{{ quiz.attemptCount }} attempt{{ quiz.attemptCount === 1 ? '' : 's' }}</span>
+          <span>{{
+            (quiz.questionCount === 1 ? 'quizzes.questionSingle' : 'quizzes.questionPlural')
+              | t: { count: quiz.questionCount }
+          }}</span>
+          <span>{{
+            (quiz.attemptCount === 1 ? 'quizzes.attemptSingle' : 'quizzes.attemptPlural')
+              | t: { count: quiz.attemptCount }
+          }}</span>
           @if (quiz.lastScore !== null) {
-            <span class="quiz-card__score">Last score: {{ quiz.lastScore }}%</span>
+            <span class="quiz-card__score">{{
+              'quizzes.lastScore' | t: { score: quiz.lastScore }
+            }}</span>
           }
         </div>
 
@@ -179,27 +189,27 @@
               [routerLink]="['/quizzes', quiz.id, 'take']"
               class="oq-btn oq-btn--primary oq-btn--sm"
             >
-              {{ quiz.inProgressAttemptId ? 'Resume Attempt' : 'Take Quiz' }}
+              {{ (quiz.inProgressAttemptId ? 'quizzes.resumeAttempt' : 'quizzes.takeQuiz') | t }}
             </a>
           }
           <a
             [routerLink]="['/quizzes', quiz.id, 'edit']"
             class="oq-btn oq-btn--secondary oq-btn--sm"
           >
-            Edit
+            {{ 'common.edit' | t }}
           </a>
           <a
             [routerLink]="['/quizzes', quiz.id, 'history']"
             class="oq-btn oq-btn--ghost oq-btn--sm"
           >
-            History
+            {{ 'quizzes.history' | t }}
           </a>
           <button
             type="button"
             class="oq-btn oq-btn--ghost oq-btn--sm quiz-card__del-btn"
             (click)="confirmDeleteQuiz.set(quiz)"
           >
-            Delete
+            {{ 'common.delete' | t }}
           </button>
         </div>
       </article>
@@ -214,16 +224,16 @@
         [disabled]="meta().page <= 1"
         (click)="loadQuizzes(meta().page - 1)"
       >
-        Previous
+        {{ 'common.previous' | t }}
       </button>
-      <span>Page {{ meta().page }} of {{ meta().totalPages }}</span>
+      <span>{{ 'common.pageOf' | t: { page: meta().page, total: meta().totalPages } }}</span>
       <button
         type="button"
         class="oq-btn oq-btn--secondary oq-btn--sm"
         [disabled]="meta().page >= meta().totalPages"
         (click)="loadQuizzes(meta().page + 1)"
       >
-        Next
+        {{ 'common.next' | t }}
       </button>
     </nav>
   }

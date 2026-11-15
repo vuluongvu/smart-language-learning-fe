@@ -1,7 +1,7 @@
 <oq-page-header
-  eyebrow="Library"
-  title="All Vocabulary"
-  subtitle="Manage words, definitions, IPA pronunciation, and topic tags across your collection."
+  [eyebrow]="'vocab.eyebrow' | t"
+  [title]="'vocab.title' | t"
+  [subtitle]="'vocab.subtitle' | t"
 >
   <div actions class="actions-row">
     <a
@@ -10,11 +10,11 @@
       class="oq-btn oq-btn--secondary"
     >
       <oq-icon name="layers" [size]="16" />
-      <span>Review Flashcards</span>
+      <span>{{ 'dashboard.reviewFlashcards' | t }}</span>
     </a>
     <button type="button" class="oq-btn oq-btn--primary" (click)="openCreate()">
       <oq-icon name="plus" [size]="16" />
-      <span>Add Vocabulary</span>
+      <span>{{ 'vocab.addBtn' | t }}</span>
     </button>
   </div>
 </oq-page-header>
@@ -28,7 +28,7 @@
   <div class="oq-alert oq-alert--error" role="alert">
     <span>{{ errorMessage() }}</span>
     <button type="button" class="oq-inline-retry" (click)="loadVocabulary(meta().page)">
-      Retry
+      {{ 'common.retry' | t }}
     </button>
   </div>
 }
@@ -41,8 +41,8 @@
         type="search"
         [(ngModel)]="search"
         name="search"
-        placeholder="Search term or definition..."
-        aria-label="Search vocabulary"
+        [placeholder]="'vocab.searchPlaceholder' | t"
+        [attr.aria-label]="'vocab.searchPlaceholder' | t"
       />
     </div>
 
@@ -50,9 +50,9 @@
       [(ngModel)]="selectedTopicId"
       name="topicId"
       (change)="loadVocabulary(1)"
-      aria-label="Filter by topic"
+      [attr.aria-label]="'vocab.allTopics' | t"
     >
-      <option [ngValue]="null">All topics</option>
+      <option [ngValue]="null">{{ 'vocab.allTopics' | t }}</option>
       @for (topic of topics(); track topic.id) {
         <option [ngValue]="topic.id">{{ topic.name }}</option>
       }
@@ -62,9 +62,9 @@
       [(ngModel)]="partOfSpeechFilter"
       name="partOfSpeech"
       (change)="loadVocabulary(1)"
-      aria-label="Filter by part of speech"
+      [attr.aria-label]="'vocab.allPos' | t"
     >
-      <option value="">All parts of speech</option>
+      <option value="">{{ 'vocab.allPos' | t }}</option>
       @for (pos of partOfSpeechOptions; track pos) {
         <option [value]="pos">{{ pos }}</option>
       }
@@ -74,28 +74,28 @@
       [(ngModel)]="reviewStatusFilter"
       name="reviewStatus"
       (change)="loadVocabulary(1)"
-      aria-label="Filter by review status"
+      [attr.aria-label]="'vocab.allStatuses' | t"
     >
-      <option value="all">All statuses</option>
-      <option value="new">New</option>
-      <option value="due">Due</option>
-      <option value="learning">Learning</option>
-      <option value="mastered">Mastered</option>
+      <option value="all">{{ 'vocab.allStatuses' | t }}</option>
+      <option value="new">{{ 'vocab.statusNew' | t }}</option>
+      <option value="due">{{ 'vocab.statusDue' | t }}</option>
+      <option value="learning">{{ 'vocab.statusLearning' | t }}</option>
+      <option value="mastered">{{ 'vocab.statusMastered' | t }}</option>
     </select>
 
     <select
       [(ngModel)]="sortBy"
       name="sortBy"
       (change)="loadVocabulary(1)"
-      aria-label="Sort vocabulary"
+      [attr.aria-label]="'quizzes.sortLabel' | t"
     >
-      <option value="newest">Newest first</option>
-      <option value="oldest">Oldest first</option>
-      <option value="term_asc">Term A &rarr; Z</option>
-      <option value="term_desc">Term Z &rarr; A</option>
+      <option value="newest">{{ 'vocab.sortNewest' | t }}</option>
+      <option value="oldest">{{ 'vocab.sortOldest' | t }}</option>
+      <option value="term_asc">{{ 'vocab.sortTermAsc' | t }}</option>
+      <option value="term_desc">{{ 'vocab.sortTermDesc' | t }}</option>
     </select>
 
-    <button type="submit" class="oq-btn oq-btn--secondary">Apply</button>
+    <button type="submit" class="oq-btn oq-btn--secondary">{{ 'common.apply' | t }}</button>
   </form>
 </section>
 
@@ -103,8 +103,8 @@
   <oq-modal
     [open]="true"
     size="lg"
-    [title]="editingItem() ? 'Edit Vocabulary Item' : 'Add Vocabulary Item'"
-    description="Capture meaning, pronunciation, examples, and link topics."
+    [title]="(editingItem() ? 'vocab.editTitle' : 'vocab.createTitle') | t"
+    [description]="'vocab.modalDesc' | t"
     (closed)="cancelForm()"
   >
     @if (formError()) {
@@ -113,31 +113,31 @@
 
     @if (duplicateCheck(); as dup) {
       <div class="oq-alert oq-alert--info" role="status">
-        Notice: "{{ form.controls.term.value.trim() }}" already exists in your Vocabulary Bank ({{
-          dup.matches.length
+        {{
+          'vocab.dupNotice'
+            | t: { term: form.controls.term.value.trim(), count: dup.matches.length }
         }}
-        entry). Saving will add another entry with this meaning.
       </div>
     }
 
     <form [formGroup]="form" (ngSubmit)="saveVocabulary()" novalidate>
       <div class="form-row-2">
         <div class="oq-field">
-          <label for="vocab-term">Term or phrase</label>
+          <label for="vocab-term">{{ 'vocab.termLabel' | t }}</label>
           <input
             id="vocab-term"
             type="text"
             formControlName="term"
             (blur)="onTermBlur()"
-            placeholder="e.g., break the ice"
+            [placeholder]="'vocab.termPlaceholder' | t"
           />
           @if (form.controls.term.touched && form.controls.term.invalid) {
-            <span class="oq-field-error">Term is required.</span>
+            <span class="oq-field-error">{{ 'vocab.termError' | t }}</span>
           }
         </div>
 
         <div class="oq-field">
-          <label for="vocab-ipa">Pronunciation / IPA (optional)</label>
+          <label for="vocab-ipa">{{ 'vocab.ipaLabel' | t }}</label>
           <input
             id="vocab-ipa"
             type="text"
@@ -149,13 +149,13 @@
 
       <div class="form-row-2">
         <div class="oq-field">
-          <label for="vocab-pos">Part of speech (optional)</label>
+          <label for="vocab-pos">{{ 'vocab.posLabel' | t }}</label>
           <input
             id="vocab-pos"
             type="text"
             formControlName="partOfSpeech"
             list="pos-suggestions"
-            placeholder="noun, verb, phrase..."
+            [placeholder]="'vocab.posPlaceholder' | t"
           />
           <datalist id="pos-suggestions">
             @for (pos of partOfSpeechOptions; track pos) {
@@ -165,42 +165,42 @@
         </div>
 
         <div class="oq-field">
-          <label for="vocab-def">Definition / Meaning</label>
+          <label for="vocab-def">{{ 'vocab.defLabel' | t }}</label>
           <input
             id="vocab-def"
             type="text"
             formControlName="definition"
-            placeholder="Meaning in English or Vietnamese"
+            [placeholder]="'vocab.defPlaceholder' | t"
           />
           @if (form.controls.definition.touched && form.controls.definition.invalid) {
-            <span class="oq-field-error">Definition is required.</span>
+            <span class="oq-field-error">{{ 'vocab.defError' | t }}</span>
           }
         </div>
       </div>
 
       <div class="oq-field">
-        <label for="vocab-example">Example sentence (optional)</label>
+        <label for="vocab-example">{{ 'vocab.exampleLabel' | t }}</label>
         <input
           id="vocab-example"
           type="text"
           formControlName="example"
-          placeholder="A sentence showing how to use this term."
+          [placeholder]="'vocab.examplePlaceholder' | t"
         />
       </div>
 
       <div class="oq-field">
-        <label for="vocab-notes">Notes (optional)</label>
+        <label for="vocab-notes">{{ 'vocab.notesLabel' | t }}</label>
         <textarea
           id="vocab-notes"
           rows="2"
           formControlName="notes"
-          placeholder="Personal memory hints or collocations"
+          [placeholder]="'vocab.notesPlaceholder' | t"
         ></textarea>
       </div>
 
       @if (topics().length > 0) {
         <div class="topic-picker">
-          <span class="topic-picker__label">Topics (optional, multi-select)</span>
+          <span class="topic-picker__label">{{ 'vocab.topicsLabel' | t }}</span>
           <div class="topic-picker__chips">
             @for (topic of topics(); track topic.id) {
               <label class="topic-chip" [class.topic-chip--active]="isTopicSelected(topic.id)">
@@ -218,10 +218,10 @@
 
       <div class="modal-actions">
         <button type="button" class="oq-btn oq-btn--secondary" (click)="cancelForm()">
-          Cancel
+          {{ 'common.cancel' | t }}
         </button>
         <button type="submit" class="oq-btn oq-btn--primary" [disabled]="isSaving()">
-          {{ isSaving() ? 'Saving...' : 'Save vocabulary' }}
+          {{ isSaving() ? ('common.saving' | t) : ('vocab.saveBtn' | t) }}
         </button>
       </div>
     </form>
@@ -233,13 +233,13 @@
     [open]="true"
     size="sm"
     role="alertdialog"
-    [title]="'Delete &quot;' + target.term + '&quot;?'"
-    description="This permanently removes the vocabulary item and its topic links."
+    [title]="'vocab.deleteTitle' | t: { term: target.term }"
+    [description]="'vocab.deleteDesc' | t"
     (closed)="confirmDeleteItem.set(null)"
   >
     <div class="modal-actions">
       <button type="button" class="oq-btn oq-btn--secondary" (click)="confirmDeleteItem.set(null)">
-        Cancel
+        {{ 'common.cancel' | t }}
       </button>
       <button
         type="button"
@@ -247,22 +247,22 @@
         [disabled]="isDeleting()"
         (click)="deleteSelectedItem()"
       >
-        {{ isDeleting() ? 'Deleting...' : 'Confirm delete' }}
+        {{ isDeleting() ? ('common.deleting' | t) : ('common.confirmDelete' | t) }}
       </button>
     </div>
   </oq-modal>
 }
 
 @if (isLoading()) {
-  <div class="oq-card state-box">Loading vocabulary...</div>
+  <div class="oq-card state-box">{{ 'vocab.loading' | t }}</div>
 } @else if (items().length === 0) {
   <oq-empty-state
     icon="book-open"
-    title="No vocabulary items match"
-    description="Add a word or phrase manually, or adjust your search and filters."
+    [title]="'vocab.emptyTitle' | t"
+    [description]="'vocab.emptyDesc' | t"
   >
     <button actions type="button" class="oq-btn oq-btn--primary" (click)="openCreate()">
-      Add vocabulary
+      {{ 'vocab.addBtn' | t }}
     </button>
   </oq-empty-state>
 } @else {
@@ -270,11 +270,11 @@
     <table class="vocab-table">
       <thead>
         <tr>
-          <th>Term</th>
-          <th>Type</th>
-          <th>Definition</th>
-          <th>Topics</th>
-          <th class="col-actions">Actions</th>
+          <th>{{ 'vocab.colTerm' | t }}</th>
+          <th>{{ 'vocab.colType' | t }}</th>
+          <th>{{ 'vocab.colDef' | t }}</th>
+          <th>{{ 'vocab.colTopics' | t }}</th>
+          <th class="col-actions">{{ 'vocab.colActions' | t }}</th>
         </tr>
       </thead>
       <tbody>
@@ -290,7 +290,7 @@
                     [class.oq-badge--accent]="!prog.isDue && prog.status === 'learning'"
                     [class.oq-badge--success]="!prog.isDue && prog.status === 'mastered'"
                   >
-                    {{ formatProgressStatus(prog.status, prog.isDue) }}
+                    {{ formatProgressStatus(prog.status, prog.isDue, i18n.lang()) }}
                   </span>
                 </div>
               }
@@ -311,7 +311,7 @@
                   <span class="oq-badge">{{ t.name }}</span>
                 }
                 @if (item.topics.length === 0) {
-                  <span class="muted-small">Unassigned</span>
+                  <span class="muted-small">{{ 'vocab.unassigned' | t }}</span>
                 }
               </div>
             </td>
@@ -322,14 +322,14 @@
                   class="oq-btn oq-btn--ghost oq-btn--sm"
                   (click)="openEdit(item)"
                 >
-                  Edit
+                  {{ 'common.edit' | t }}
                 </button>
                 <button
                   type="button"
                   class="oq-btn oq-btn--ghost oq-btn--sm"
                   (click)="confirmDeleteItem.set(item)"
                 >
-                  Delete
+                  {{ 'common.delete' | t }}
                 </button>
               </div>
             </td>
@@ -352,7 +352,7 @@
                 [class.oq-badge--accent]="!prog.isDue && prog.status === 'learning'"
                 [class.oq-badge--success]="!prog.isDue && prog.status === 'mastered'"
               >
-                {{ formatProgressStatus(prog.status, prog.isDue) }}
+                {{ formatProgressStatus(prog.status, prog.isDue, i18n.lang()) }}
               </span>
             }
             @if (item.partOfSpeech) {
@@ -378,14 +378,14 @@
             class="oq-btn oq-btn--secondary oq-btn--sm"
             (click)="openEdit(item)"
           >
-            Edit
+            {{ 'common.edit' | t }}
           </button>
           <button
             type="button"
             class="oq-btn oq-btn--secondary oq-btn--sm"
             (click)="confirmDeleteItem.set(item)"
           >
-            Delete
+            {{ 'common.delete' | t }}
           </button>
         </div>
       </article>
@@ -400,16 +400,16 @@
         [disabled]="meta().page <= 1"
         (click)="loadVocabulary(meta().page - 1)"
       >
-        Previous
+        {{ 'common.previous' | t }}
       </button>
-      <span>Page {{ meta().page }} of {{ meta().totalPages }}</span>
+      <span>{{ 'common.pageOf' | t: { page: meta().page, total: meta().totalPages } }}</span>
       <button
         type="button"
         class="oq-btn oq-btn--secondary oq-btn--sm"
         [disabled]="meta().page >= meta().totalPages"
         (click)="loadVocabulary(meta().page + 1)"
       >
-        Next
+        {{ 'common.next' | t }}
       </button>
     </div>
   }
