@@ -59,6 +59,14 @@
         Topics
       </a>
       <a
+        routerLink="/quizzes"
+        routerLinkActive="shell__nav-link--active"
+        class="shell__nav-link"
+        (click)="closeDrawer()"
+      >
+        Quizzes
+      </a>
+      <a
         routerLink="/settings"
         routerLinkActive="shell__nav-link--active"
         class="shell__nav-link"
@@ -108,7 +116,7 @@
       routerLinkActive="shell__bottom-link--active"
       class="shell__bottom-link"
     >
-      Vocabulary
+      Vocab
     </a>
     <a
       routerLink="/topics"
@@ -116,6 +124,13 @@
       class="shell__bottom-link"
     >
       Topics
+    </a>
+    <a
+      routerLink="/quizzes"
+      routerLinkActive="shell__bottom-link--active"
+      class="shell__bottom-link"
+    >
+      Quizzes
     </a>
     <a
       routerLink="/settings"

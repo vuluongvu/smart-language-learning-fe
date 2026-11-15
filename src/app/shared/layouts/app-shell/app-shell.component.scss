@@ -169,12 +169,16 @@
 }
 
 .shell__bottom-link {
-  padding: 8px 16px;
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  padding: 8px 4px;
   border-radius: var(--oq-radius-sm);
   color: var(--oq-text-secondary);
   text-decoration: none;
-  font-size: 0.875rem;
+  font-size: 0.78rem;
   font-weight: 600;
+  white-space: nowrap;
 
   &--active {
     color: var(--oq-accent);
