@@ -1,0 +1,136 @@
+<div class="lb-page">
+  <header class="page-head">
+    <div>
+      <h1>Streak Leaderboard</h1>
+      <p class="page-sub">
+        Friendly consistency ranking based on active streak, longest streak, and milestone timing.
+      </p>
+    </div>
+    <div class="page-actions">
+      <a routerLink="/progress" class="oq-btn oq-btn--secondary">My Calendar</a>
+      <a routerLink="/settings" class="oq-btn oq-btn--secondary">Privacy Settings</a>
+    </div>
+  </header>
+
+  @if (errorMessage()) {
+    <div class="oq-alert oq-alert--error" role="alert">
+      {{ errorMessage() }}
+      <button type="button" class="inline-retry" (click)="loadPage(page())">Retry</button>
+    </div>
+  }
+
+  @if (loading()) {
+    <section class="oq-card" aria-busy="true">
+      <p>Loading streak rankings...</p>
+    </section>
+  } @else if (data(); as lb) {
+    <section
+      class="oq-card my-card"
+      [class.my-card--hidden]="!lb.myPosition.isLeaderboardVisible"
+      aria-label="Your leaderboard position"
+    >
+      @if (lb.myPosition.isLeaderboardVisible && lb.myPosition.rank !== null) {
+        <div class="my-card__row">
+          <div>
+            <span class="my-card__label">Your Current Rank</span>
+            <strong class="my-card__rank">
+              #{{ lb.myPosition.rank }}
+              <span>of {{ lb.myPosition.totalParticipants }} learners</span>
+            </strong>
+          </div>
+          <div class="my-card__stats">
+            <div>
+              <span>Active Streak</span>
+              <strong>{{ lb.myPosition.currentStreak }}d</strong>
+            </div>
+            <div>
+              <span>Best Streak</span>
+              <strong>{{ lb.myPosition.longestStreak }}d</strong>
+            </div>
+          </div>
+        </div>
+      } @else {
+        <div class="my-card__row">
+          <div>
+            <span class="my-card__label">Private Mode Enabled</span>
+            <p class="my-card__note">
+              You have opted out of the public leaderboard. Your streak ({{
+                lb.myPosition.currentStreak
+              }}d active · {{ lb.myPosition.longestStreak }}d best) remains private.
+            </p>
+          </div>
+          <a routerLink="/settings" class="oq-btn oq-btn--primary">Update Visibility</a>
+        </div>
+      }
+    </section>
+
+    <section class="oq-card list-card" aria-label="Public streak leaderboard">
+      @if (lb.items.length === 0) {
+        <p class="empty-msg">
+          No public learners on the leaderboard yet. Opt in from Settings to appear first!
+        </p>
+      } @else {
+        <ul class="rank-list">
+          @for (entry of lb.items; track entry.userId) {
+            <li class="rank-row" [class.rank-row--self]="entry.isCurrentUser">
+              <div class="rank-row__left">
+                <span class="rank-num" [class.rank-num--top]="entry.rank <= 3">
+                  #{{ entry.rank }}
+                </span>
+                @if (entry.avatarUrl) {
+                  <img
+                    class="avatar"
+                    [src]="entry.avatarUrl"
+                    [alt]="entry.displayName"
+                    width="36"
+                    height="36"
+                  />
+                } @else {
+                  <span class="avatar avatar--fallback" aria-hidden="true">
+                    {{ initialOf(entry.displayName) }}
+                  </span>
+                }
+                <div class="learner-name">
+                  <strong>{{ entry.displayName }}</strong>
+                  @if (entry.isCurrentUser) {
+                    <span class="you-pill">You</span>
+                  }
+                </div>
+              </div>
+
+              <div class="rank-row__right">
+                <span class="streak-metric">
+                  <strong>{{ entry.currentStreak }}</strong>
+                  <span>day streak</span>
+                </span>
+                <span class="best-metric">Best: {{ entry.longestStreak }}d</span>
+              </div>
+            </li>
+          }
+        </ul>
+
+        @if (lb.meta.totalPages > 1) {
+          <nav class="pager" aria-label="Leaderboard pagination">
+            <button
+              type="button"
+              class="oq-btn oq-btn--secondary"
+              [disabled]="lb.meta.page <= 1"
+              (click)="loadPage(lb.meta.page - 1)"
+            >
+              Previous
+            </button>
+            <span>Page {{ lb.meta.page }} of {{ lb.meta.totalPages }}</span>
+            <button
+              type="button"
+              class="oq-btn oq-btn--secondary"
+              [disabled]="lb.meta.page >= lb.meta.totalPages"
+              (click)="loadPage(lb.meta.page + 1)"
+            >
+              Next
+            </button>
+          </nav>
+        }
+      }
+    </section>
+  }
+</div>

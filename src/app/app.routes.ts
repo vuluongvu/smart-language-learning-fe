@@ -56,6 +56,20 @@ export const routes: Routes = [
       { path: 'quizzes/:id/history', component: QuizHistoryComponent },
       { path: 'attempts', component: QuizHistoryComponent },
       { path: 'attempts/:attemptId', component: QuizResultComponent },
+      {
+        path: 'progress',
+        loadComponent: () =>
+          import('./features/progress/progress-streak.component').then(
+            (m) => m.ProgressStreakComponent,
+          ),
+      },
+      {
+        path: 'leaderboard',
+        loadComponent: () =>
+          import('./features/leaderboard/leaderboard.component').then(
+            (m) => m.LeaderboardComponent,
+          ),
+      },
       { path: 'settings', component: SettingsComponent },
     ],
   },

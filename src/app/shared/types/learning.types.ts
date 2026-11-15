@@ -380,3 +380,141 @@ export interface RecordFlashcardReviewResponse {
   session: FlashcardSessionDetail;
   updatedProgress: VocabularyProgressSummary;
 }
+
+export type StreakTodayStatus = 'active_today' | 'at_risk' | 'inactive';
+
+export interface StreakSummary {
+  currentStreak: number;
+  longestStreak: number;
+  status: StreakTodayStatus;
+  isActiveToday: boolean;
+  isAtRiskToday: boolean;
+  lastActivityDate: string | null;
+  currentStreakStartedAt: string | null;
+  todayDate: string;
+  timezone: string;
+}
+
+export type StreakCalendarDayStatus =
+  'active' | 'missed' | 'inactive_today' | 'future' | 'before_registration';
+
+export interface StreakCalendarDay {
+  date: string;
+  dayOfMonth: number;
+  weekday: number;
+  status: StreakCalendarDayStatus;
+  activityCount: number;
+  quizCompletions: number;
+  flashcardCompletions: number;
+}
+
+export interface StreakCalendarResponse {
+  month: string;
+  year: number;
+  monthNumber: number;
+  firstDayWeekday: number;
+  timezone: string;
+  todayDate: string;
+  registeredDate: string;
+  totalActiveDays: number;
+  totalMissedDays: number;
+  days: StreakCalendarDay[];
+}
+
+export interface ProgressVocabularyMetrics {
+  total: number;
+  newCount: number;
+  learningCount: number;
+  masteredCount: number;
+  dueFlashcardsCount: number;
+  hardFlashcardsCount: number;
+  topicCount: number;
+}
+
+export interface ProgressQuizMetrics {
+  totalAttempts: number;
+  completedAttempts: number;
+  averageScore: number;
+  totalQuestionsAnswered: number;
+  correctAnswers: number;
+  accuracyRate: number;
+}
+
+export interface ProgressFlashcardMetrics {
+  completedSessions: number;
+  streakEligibleSessions: number;
+}
+
+export interface DailyActivityPoint {
+  date: string;
+  activityCount: number;
+  quizCompletions: number;
+  flashcardCompletions: number;
+}
+
+export interface RecentQuizAttemptSummary {
+  id: number;
+  quizId: number;
+  quizTitleSnapshot: string;
+  score: number;
+  correctCount: number;
+  totalQuestions: number;
+  completedAt: string | null;
+}
+
+export interface WeakVocabularyItem {
+  vocabularyId: number;
+  term: string;
+  pronunciation: string | null;
+  partOfSpeech: string | null;
+  definition: string;
+  wrongCount: number;
+  lastRating: ReviewRating | null;
+  progressStatus: VocabularyProgressStatus;
+}
+
+export interface ProgressOverview {
+  streak: StreakSummary;
+  vocabulary: ProgressVocabularyMetrics;
+  quizzes: ProgressQuizMetrics;
+  flashcards: ProgressFlashcardMetrics;
+  recentActivity14d: DailyActivityPoint[];
+  weakVocabulary: WeakVocabularyItem[];
+  recentQuizAttempts: RecentQuizAttemptSummary[];
+}
+
+export interface ProgressHistory {
+  days: number;
+  timezone: string;
+  todayDate: string;
+  dailyActivities: DailyActivityPoint[];
+  recentAttempts: RecentQuizAttemptSummary[];
+  weakVocabulary: WeakVocabularyItem[];
+}
+
+export interface LeaderboardEntry {
+  rank: number;
+  userId: number;
+  displayName: string;
+  avatarUrl: string | null;
+  currentStreak: number;
+  longestStreak: number;
+  isCurrentUser: boolean;
+}
+
+export interface LeaderboardMyPosition {
+  userId: number;
+  displayName: string;
+  avatarUrl: string | null;
+  isLeaderboardVisible: boolean;
+  rank: number | null;
+  currentStreak: number;
+  longestStreak: number;
+  totalParticipants: number;
+}
+
+export interface StreakLeaderboardResponse {
+  items: LeaderboardEntry[];
+  meta: PaginationMeta;
+  myPosition: LeaderboardMyPosition;
+}
