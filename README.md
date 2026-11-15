@@ -22,6 +22,7 @@ npm ci
 ```
 
 2. Đảm bảo Backend đang chạy tại `http://localhost:3000/api/v1` (cấu hình trong `src/environments/environment.development.ts`).
+   - Để bật Google Sign-In ở frontend, điền `googleClientId` (khớp với `GOOGLE_CLIENT_ID` của backend và cấu hình `http://localhost:4200` trong Authorized JavaScript origins của Google Cloud Console). Không bao giờ đặt `GOOGLE_CLIENT_SECRET` ở frontend.
 
 3. Khởi động dev server:
 

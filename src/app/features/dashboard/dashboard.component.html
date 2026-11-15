@@ -1,0 +1,76 @@
+<section class="page-head">
+  <div>
+    <h1>
+      @if (authService.user(); as user) {
+        Hello, {{ user.displayName }}
+      } @else {
+        Dashboard
+      }
+    </h1>
+    <p class="page-head__sub">Your personal English self-learning workspace.</p>
+  </div>
+  <a routerLink="/settings" class="oq-btn oq-btn--secondary">Profile &amp; Settings</a>
+</section>
+
+@if (authService.user(); as user) {
+  <div class="dash-grid">
+    <article class="oq-card">
+      <div class="stat-label">Active Timezone</div>
+      <div class="stat-value">{{ user.timezone }}</div>
+      <p class="stat-note">Used to determine daily streak boundaries.</p>
+    </article>
+
+    <article class="oq-card">
+      <div class="stat-label">Leaderboard Privacy</div>
+      <div class="stat-value">
+        {{ user.isLeaderboardVisible ? 'Visible' : 'Hidden' }}
+      </div>
+      <p class="stat-note">Manage visibility anytime in Settings.</p>
+    </article>
+
+    <article class="oq-card">
+      <div class="stat-label">Sign-in Methods</div>
+      <div class="stat-value">
+        {{ user.hasPassword ? 'Password' : 'OAuth Only' }}
+        @if (user.linkedProviders.length > 0) {
+          + {{ user.linkedProviders.join(', ') }}
+        }
+      </div>
+      <p class="stat-note">Account ID #{{ user.id }}</p>
+    </article>
+  </div>
+}
+
+<section class="oq-card dash-section">
+  <div class="dash-section__head">
+    <h2>Active Learning Languages</h2>
+    <button
+      type="button"
+      class="oq-btn oq-btn--secondary"
+      (click)="loadLanguages()"
+      [disabled]="isLoading()"
+    >
+      Refresh
+    </button>
+  </div>
+
+  @if (isLoading()) {
+    <p class="muted">Loading languages...</p>
+  } @else if (errorMessage()) {
+    <div class="oq-alert oq-alert--error" role="alert">
+      {{ errorMessage() }}
+    </div>
+  } @else if (languages().length === 0) {
+    <p class="muted">No active languages configured yet.</p>
+  } @else {
+    <ul class="lang-list">
+      @for (lang of languages(); track lang.id) {
+        <li class="lang-item">
+          <span class="lang-item__code">{{ lang.code.toUpperCase() }}</span>
+          <span class="lang-item__name">{{ lang.name }}</span>
+          <span class="lang-item__status">Active</span>
+        </li>
+      }
+    </ul>
+  }
+</section>
