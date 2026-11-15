@@ -1,0 +1,148 @@
+.page-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--oq-space-4);
+  margin-bottom: var(--oq-space-6);
+
+  h1 {
+    margin: 0 0 var(--oq-space-1);
+    font-size: 1.5rem;
+  }
+}
+
+.page-sub {
+  margin: 0;
+  color: var(--oq-text-secondary);
+}
+
+.search-bar,
+.form-panel,
+.delete-panel {
+  margin-bottom: var(--oq-space-6);
+}
+
+.search-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--oq-space-3);
+
+  input {
+    flex: 1;
+    min-width: 200px;
+    min-height: 42px;
+    padding: 10px 12px;
+    border-radius: var(--oq-radius-sm);
+    border: 1px solid var(--oq-border-strong);
+    background: var(--oq-bg-surface);
+    color: var(--oq-text-primary);
+    font: inherit;
+  }
+}
+
+.actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--oq-space-3);
+}
+
+.delete-panel {
+  border-color: rgba(185, 28, 28, 0.35);
+
+  h2 {
+    margin: 0 0 var(--oq-space-2);
+    font-size: 1.125rem;
+  }
+
+  p {
+    margin: 0 0 var(--oq-space-4);
+    color: var(--oq-text-secondary);
+  }
+}
+
+.topics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--oq-space-4);
+}
+
+.topic-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oq-space-3);
+
+  &__top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--oq-space-2);
+  }
+
+  &__title {
+    font-size: 1.0625rem;
+    font-weight: 700;
+    color: var(--oq-text-primary);
+    text-decoration: none;
+
+    &:hover {
+      color: var(--oq-accent);
+    }
+  }
+
+  &__count {
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: var(--oq-accent-soft);
+    color: var(--oq-accent);
+  }
+
+  &__desc {
+    margin: 0;
+    color: var(--oq-text-secondary);
+    font-size: 0.9375rem;
+    flex: 1;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--oq-space-2);
+  }
+}
+
+.state-box {
+  text-align: center;
+  padding: var(--oq-space-8) var(--oq-space-4);
+
+  h3 {
+    margin: 0 0 var(--oq-space-2);
+  }
+
+  p {
+    margin: 0 0 var(--oq-space-4);
+    color: var(--oq-text-secondary);
+  }
+}
+
+.inline-retry {
+  margin-left: var(--oq-space-3);
+  background: transparent;
+  border: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--oq-space-4);
+  margin-top: var(--oq-space-6);
+}
