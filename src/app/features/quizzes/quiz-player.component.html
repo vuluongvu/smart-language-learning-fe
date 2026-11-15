@@ -1,153 +1,172 @@
 @if (errorMessage()) {
   <div class="oq-alert oq-alert--error" role="alert">
-    {{ errorMessage() }}
-    <div class="error-back">
-      <a routerLink="/quizzes" class="oq-btn oq-btn--secondary">Back to Quizzes</a>
-    </div>
+    <span>{{ errorMessage() }}</span>
+    <a routerLink="/quizzes" class="oq-btn oq-btn--secondary oq-btn--sm">Back to Quizzes</a>
   </div>
 }
 
 @if (isLoading()) {
-  <div class="oq-card"><p class="muted">Preparing your quiz session...</p></div>
+  <oq-page-header backLink="/quizzes" backLabel="Back to Quizzes" title="Loading Quiz..." />
+  <div class="oq-card state-box">Preparing your quiz session...</div>
 } @else if (attempt(); as att) {
-  <section class="page-head">
-    <div>
-      <h1>{{ att.quizTitle }}</h1>
-      <p class="page-sub">
-        Answered {{ answeredCount() }} of {{ att.questions.length }} question{{
-          att.questions.length === 1 ? '' : 's'
-        }}
-      </p>
-    </div>
-    <button
-      type="button"
-      class="oq-btn oq-btn--secondary"
-      [disabled]="isSavingProgress() || isSubmitting()"
-      (click)="saveAndExit()"
+  <div class="player-shell">
+    <oq-page-header
+      backLink="/quizzes"
+      backLabel="Back to Quizzes"
+      eyebrow="Quiz Session"
+      [title]="att.quizTitle"
+      [subtitle]="
+        'Answered ' +
+        answeredCount() +
+        ' of ' +
+        att.questions.length +
+        ' question' +
+        (att.questions.length === 1 ? '' : 's')
+      "
     >
-      {{ isSavingProgress() ? 'Saving...' : 'Save & Exit' }}
-    </button>
-  </section>
+      <button
+        actions
+        type="button"
+        class="oq-btn oq-btn--secondary"
+        [disabled]="isSavingProgress() || isSubmitting()"
+        (click)="saveAndExit()"
+      >
+        {{ isSavingProgress() ? 'Saving...' : 'Save & Exit' }}
+      </button>
+    </oq-page-header>
 
-  <div class="progress-track" aria-hidden="true">
-    <div
-      class="progress-fill"
-      [style.width.%]="att.questions.length ? (answeredCount() / att.questions.length) * 100 : 0"
-    ></div>
-  </div>
+    <section class="oq-card progress-card">
+      <oq-progress-bar
+        [value]="answeredCount()"
+        [max]="att.questions.length"
+        label="Completion"
+        [showPercent]="true"
+        tone="primary"
+        size="sm"
+      />
+    </section>
 
-  <nav class="stepper" aria-label="Question navigation">
-    @for (q of att.questions; track q.id; let i = $index) {
+    <nav class="stepper" aria-label="Question navigation">
+      @for (q of att.questions; track q.id; let i = $index) {
+        <button
+          type="button"
+          class="step-btn"
+          [class.step-btn--current]="i === currentIndex()"
+          [class.step-btn--answered]="isQuestionAnswered(q.id, q.questionType)"
+          (click)="goToQuestion(i)"
+        >
+          {{ i + 1 }}
+        </button>
+      }
+    </nav>
+
+    @if (currentQuestion(); as q) {
+      <article class="oq-card player-card">
+        <div class="player-card__head">
+          <span class="oq-badge">
+            Question {{ currentIndex() + 1 }} of {{ att.questions.length }}
+          </span>
+          <span class="oq-badge oq-badge--accent">{{ questionTypeLabel(q.questionType) }}</span>
+        </div>
+
+        <h2 class="player-card__prompt">{{ q.questionText }}</h2>
+
+        @if (q.questionType === 'fill_blank') {
+          <div class="oq-field blank-field">
+            <label for="blankInput">Your Answer</label>
+            <input
+              id="blankInput"
+              type="text"
+              [ngModel]="blankTexts()[q.id] ?? ''"
+              (ngModelChange)="updateBlankText(q.id, $event)"
+              placeholder="Type the missing word or phrase..."
+              autocomplete="off"
+            />
+          </div>
+        } @else {
+          <div class="options-list" role="radiogroup" [aria-label]="q.questionText">
+            @for (opt of q.options; track opt.id) {
+              <button
+                type="button"
+                role="radio"
+                class="option-choice"
+                [attr.aria-checked]="selectedOptions()[q.id] === opt.id"
+                [class.option-choice--selected]="selectedOptions()[q.id] === opt.id"
+                (click)="selectOption(q.id, opt.id)"
+              >
+                <span class="option-choice__dot"></span>
+                <span>{{ opt.optionText }}</span>
+              </button>
+            }
+          </div>
+        }
+      </article>
+    }
+
+    @if (confirmPartialSubmit()) {
+      <oq-modal
+        [open]="true"
+        size="sm"
+        title="Submit incomplete quiz?"
+        [description]="
+          'You have ' +
+          (att.questions.length - answeredCount()) +
+          ' unanswered question(s). Submit now anyway?'
+        "
+        (closed)="confirmPartialSubmit.set(false)"
+      >
+        <div class="modal-actions">
+          <button
+            type="button"
+            class="oq-btn oq-btn--secondary"
+            (click)="confirmPartialSubmit.set(false)"
+          >
+            Keep Answering
+          </button>
+          <button
+            type="button"
+            class="oq-btn oq-btn--primary"
+            [disabled]="isSubmitting()"
+            (click)="submitNow()"
+          >
+            {{ isSubmitting() ? 'Submitting...' : 'Confirm Submit' }}
+          </button>
+        </div>
+      </oq-modal>
+    }
+
+    <div class="player-footer">
       <button
         type="button"
-        class="step-btn"
-        [class.step-btn--current]="i === currentIndex()"
-        [class.step-btn--answered]="isQuestionAnswered(q.id, q.questionType)"
-        (click)="goToQuestion(i)"
+        class="oq-btn oq-btn--secondary"
+        [disabled]="currentIndex() === 0"
+        (click)="goToQuestion(currentIndex() - 1)"
       >
-        {{ i + 1 }}
+        <oq-icon name="arrow-left" [size]="15" />
+        <span>Previous</span>
       </button>
-    }
-  </nav>
 
-  @if (currentQuestion(); as q) {
-    <article class="oq-card player-card">
-      <div class="player-card__head">
-        <span class="q-counter">
-          Question {{ currentIndex() + 1 }} of {{ att.questions.length }}
-        </span>
-        <span class="q-badge">{{ questionTypeLabel(q.questionType) }}</span>
-      </div>
+      <div class="player-footer__right">
+        @if (currentIndex() < att.questions.length - 1) {
+          <button
+            type="button"
+            class="oq-btn oq-btn--secondary"
+            (click)="goToQuestion(currentIndex() + 1)"
+          >
+            <span>Next</span>
+            <oq-icon name="arrow-right" [size]="15" />
+          </button>
+        }
 
-      <h2 class="player-card__prompt">{{ q.questionText }}</h2>
-
-      @if (q.questionType === 'fill_blank') {
-        <div class="oq-field blank-field">
-          <label for="blankInput">Your Answer</label>
-          <input
-            id="blankInput"
-            type="text"
-            [ngModel]="blankTexts()[q.id] ?? ''"
-            (ngModelChange)="updateBlankText(q.id, $event)"
-            placeholder="Type the missing word or phrase..."
-            autocomplete="off"
-          />
-        </div>
-      } @else {
-        <div class="options-list" role="radiogroup" [aria-label]="q.questionText">
-          @for (opt of q.options; track opt.id) {
-            <button
-              type="button"
-              role="radio"
-              class="option-choice"
-              [attr.aria-checked]="selectedOptions()[q.id] === opt.id"
-              [class.option-choice--selected]="selectedOptions()[q.id] === opt.id"
-              (click)="selectOption(q.id, opt.id)"
-            >
-              <span class="option-choice__dot"></span>
-              <span>{{ opt.optionText }}</span>
-            </button>
-          }
-        </div>
-      }
-    </article>
-  }
-
-  @if (confirmPartialSubmit()) {
-    <section class="oq-card oq-alert oq-alert--info partial-warning" role="dialog">
-      <p>
-        You have {{ att.questions.length - answeredCount() }} unanswered question(s). Submit now
-        anyway?
-      </p>
-      <div class="warning-actions">
         <button
           type="button"
           class="oq-btn oq-btn--primary"
           [disabled]="isSubmitting()"
-          (click)="submitNow()"
+          (click)="requestSubmit()"
         >
-          {{ isSubmitting() ? 'Submitting...' : 'Confirm Submit' }}
-        </button>
-        <button
-          type="button"
-          class="oq-btn oq-btn--secondary"
-          (click)="confirmPartialSubmit.set(false)"
-        >
-          Keep Answering
+          {{ isSubmitting() ? 'Submitting...' : 'Submit Quiz' }}
         </button>
       </div>
-    </section>
-  }
-
-  <div class="player-footer">
-    <button
-      type="button"
-      class="oq-btn oq-btn--secondary"
-      [disabled]="currentIndex() === 0"
-      (click)="goToQuestion(currentIndex() - 1)"
-    >
-      Previous
-    </button>
-
-    <div class="player-footer__right">
-      @if (currentIndex() < att.questions.length - 1) {
-        <button
-          type="button"
-          class="oq-btn oq-btn--secondary"
-          (click)="goToQuestion(currentIndex() + 1)"
-        >
-          Next
-        </button>
-      }
-
-      <button
-        type="button"
-        class="oq-btn oq-btn--primary"
-        [disabled]="isSubmitting()"
-        (click)="requestSubmit()"
-      >
-        {{ isSubmitting() ? 'Submitting...' : 'Submit Quiz' }}
-      </button>
     </div>
   </div>
 }

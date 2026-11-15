@@ -2,16 +2,31 @@
   <section class="oq-card auth-card">
     <div class="auth-header">
       <div class="auth-header__brand">
-        <span class="auth-header__dot" aria-hidden="true"></span>
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <rect width="28" height="28" rx="8" fill="var(--oq-accent)" />
+          <circle cx="13.5" cy="13.5" r="5.25" stroke="#fff" stroke-width="2.2" />
+          <path d="M17.5 17.5 21 21" stroke="#fff" stroke-width="2.2" stroke-linecap="round" />
+        </svg>
         <span>OpenQuiz</span>
       </div>
-      <button type="button" class="oq-btn oq-btn--secondary" (click)="themeService.toggleTheme()">
-        {{ themeService.theme() === 'light' ? 'Dark' : 'Light' }}
+      <button
+        type="button"
+        class="oq-btn oq-btn--secondary oq-btn--sm"
+        (click)="themeService.toggleTheme()"
+        [attr.aria-label]="
+          'Switch to ' + (themeService.theme() === 'light' ? 'dark' : 'light') + ' theme'
+        "
+      >
+        <oq-icon [name]="themeService.theme() === 'light' ? 'moon' : 'sun'" [size]="15" />
+        <span>{{ themeService.theme() === 'light' ? 'Dark' : 'Light' }}</span>
       </button>
     </div>
 
-    <h1 class="auth-title">Welcome back</h1>
-    <p class="auth-subtitle">Sign in to continue your English learning streak.</p>
+    <div class="auth-intro">
+      <span class="auth-eyebrow">Language Workspace</span>
+      <h1 class="auth-title">Welcome back</h1>
+      <p class="auth-subtitle">Sign in to continue your English learning streak.</p>
+    </div>
 
     @if (errorMessage()) {
       <div class="oq-alert oq-alert--error" role="alert">
@@ -58,7 +73,7 @@
     @if (googleClientId) {
       <div #googleBtnContainer class="auth-google-slot"></div>
     } @else {
-      <div class="oq-alert oq-alert--info">
+      <div class="oq-alert oq-alert--info auth-google-note">
         Google Sign-In is disabled until <code>googleClientId</code> is configured in environment.
       </div>
     }

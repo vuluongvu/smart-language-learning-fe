@@ -2,6 +2,12 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
+  OqEmptyStateComponent,
+  OqIconComponent,
+  OqModalComponent,
+  OqPageHeaderComponent,
+} from '../../shared/components';
+import {
   DuplicateCheckResult,
   PaginationMeta,
   TopicSummary,
@@ -16,7 +22,15 @@ import { VocabularyApiService } from './vocabulary-api.service';
 
 @Component({
   selector: 'app-vocabulary-list',
-  imports: [FormsModule, ReactiveFormsModule, RouterLink],
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    RouterLink,
+    OqPageHeaderComponent,
+    OqModalComponent,
+    OqEmptyStateComponent,
+    OqIconComponent,
+  ],
   templateUrl: './vocabulary-list.component.html',
   styleUrl: './vocabulary-list.component.scss',
 })

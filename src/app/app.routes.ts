@@ -1,28 +1,18 @@
 import { Routes } from '@angular/router';
 import { authGuard, guestGuard } from './features/auth/auth.guards';
-import { LoginComponent } from './features/auth/login/login.component';
-import { RegisterComponent } from './features/auth/register/register.component';
-import { DashboardComponent } from './features/dashboard/dashboard.component';
-import { QuizBuilderComponent } from './features/quizzes/quiz-builder.component';
-import { QuizHistoryComponent } from './features/quizzes/quiz-history.component';
-import { QuizPlayerComponent } from './features/quizzes/quiz-player.component';
-import { QuizResultComponent } from './features/quizzes/quiz-result.component';
-import { QuizzesListComponent } from './features/quizzes/quizzes-list.component';
-import { SettingsComponent } from './features/settings/settings.component';
-import { TopicDetailComponent } from './features/topics/topic-detail.component';
-import { TopicsListComponent } from './features/topics/topics-list.component';
-import { VocabularyListComponent } from './features/vocabulary/vocabulary-list.component';
 import { AppShellComponent } from './shared/layouts/app-shell/app-shell.component';
 
 export const routes: Routes = [
   {
     path: 'login',
-    component: LoginComponent,
+    loadComponent: () =>
+      import('./features/auth/login/login.component').then((m) => m.LoginComponent),
     canActivate: [guestGuard],
   },
   {
     path: 'register',
-    component: RegisterComponent,
+    loadComponent: () =>
+      import('./features/auth/register/register.component').then((m) => m.RegisterComponent),
     canActivate: [guestGuard],
   },
   {
@@ -31,10 +21,28 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
-      { path: 'dashboard', component: DashboardComponent },
-      { path: 'vocabulary', component: VocabularyListComponent },
-      { path: 'topics', component: TopicsListComponent },
-      { path: 'topics/:id', component: TopicDetailComponent },
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
+      },
+      {
+        path: 'vocabulary',
+        loadComponent: () =>
+          import('./features/vocabulary/vocabulary-list.component').then(
+            (m) => m.VocabularyListComponent,
+          ),
+      },
+      {
+        path: 'topics',
+        loadComponent: () =>
+          import('./features/topics/topics-list.component').then((m) => m.TopicsListComponent),
+      },
+      {
+        path: 'topics/:id',
+        loadComponent: () =>
+          import('./features/topics/topic-detail.component').then((m) => m.TopicDetailComponent),
+      },
       {
         path: 'flashcards',
         loadComponent: () =>
@@ -49,13 +57,41 @@ export const routes: Routes = [
             (m) => m.FlashcardSessionComponent,
           ),
       },
-      { path: 'quizzes', component: QuizzesListComponent },
-      { path: 'quizzes/new', component: QuizBuilderComponent },
-      { path: 'quizzes/:id/edit', component: QuizBuilderComponent },
-      { path: 'quizzes/:id/take', component: QuizPlayerComponent },
-      { path: 'quizzes/:id/history', component: QuizHistoryComponent },
-      { path: 'attempts', component: QuizHistoryComponent },
-      { path: 'attempts/:attemptId', component: QuizResultComponent },
+      {
+        path: 'quizzes',
+        loadComponent: () =>
+          import('./features/quizzes/quizzes-list.component').then((m) => m.QuizzesListComponent),
+      },
+      {
+        path: 'quizzes/new',
+        loadComponent: () =>
+          import('./features/quizzes/quiz-builder.component').then((m) => m.QuizBuilderComponent),
+      },
+      {
+        path: 'quizzes/:id/edit',
+        loadComponent: () =>
+          import('./features/quizzes/quiz-builder.component').then((m) => m.QuizBuilderComponent),
+      },
+      {
+        path: 'quizzes/:id/take',
+        loadComponent: () =>
+          import('./features/quizzes/quiz-player.component').then((m) => m.QuizPlayerComponent),
+      },
+      {
+        path: 'quizzes/:id/history',
+        loadComponent: () =>
+          import('./features/quizzes/quiz-history.component').then((m) => m.QuizHistoryComponent),
+      },
+      {
+        path: 'attempts',
+        loadComponent: () =>
+          import('./features/quizzes/quiz-history.component').then((m) => m.QuizHistoryComponent),
+      },
+      {
+        path: 'attempts/:attemptId',
+        loadComponent: () =>
+          import('./features/quizzes/quiz-result.component').then((m) => m.QuizResultComponent),
+      },
       {
         path: 'progress',
         loadComponent: () =>
@@ -70,7 +106,11 @@ export const routes: Routes = [
             (m) => m.LeaderboardComponent,
           ),
       },
-      { path: 'settings', component: SettingsComponent },
+      {
+        path: 'settings',
+        loadComponent: () =>
+          import('./features/settings/settings.component').then((m) => m.SettingsComponent),
+      },
     ],
   },
   { path: '**', redirectTo: 'dashboard' },

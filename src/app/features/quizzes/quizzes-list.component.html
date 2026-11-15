@@ -1,16 +1,19 @@
-<section class="page-head">
-  <div>
-    <h1>Quizzes</h1>
-    <p class="page-sub">
-      Create manual or vocabulary-assisted quizzes with Multiple Choice, Word Meaning, and Fill in
-      the Blank questions.
-    </p>
+<oq-page-header
+  eyebrow="Practice"
+  title="Quizzes"
+  subtitle="Create manual or vocabulary-assisted quizzes with Multiple Choice, Word Meaning, and Fill in the Blank questions."
+>
+  <div actions class="head-actions">
+    <a routerLink="/attempts" class="oq-btn oq-btn--secondary">
+      <oq-icon name="clock" [size]="16" />
+      <span>Attempt History</span>
+    </a>
+    <a routerLink="/quizzes/new" class="oq-btn oq-btn--primary">
+      <oq-icon name="plus" [size]="16" />
+      <span>Create Quiz</span>
+    </a>
   </div>
-  <div class="head-actions">
-    <a routerLink="/attempts" class="oq-btn oq-btn--secondary">Attempt History</a>
-    <a routerLink="/quizzes/new" class="oq-btn oq-btn--primary">+ Create Quiz</a>
-  </div>
-</section>
+</oq-page-header>
 
 @if (successMessage()) {
   <div class="oq-alert oq-alert--success" role="status">{{ successMessage() }}</div>
@@ -89,27 +92,21 @@
 
     <div class="filter-actions">
       <button type="submit" class="oq-btn oq-btn--secondary">Apply</button>
-      <button type="button" class="oq-btn oq-btn--secondary" (click)="resetFilters()">Reset</button>
+      <button type="button" class="oq-btn oq-btn--ghost" (click)="resetFilters()">Reset</button>
     </div>
   </form>
 </section>
 
 @if (confirmDeleteQuiz(); as target) {
-  <section class="oq-card delete-panel" role="dialog" aria-label="Confirm delete quiz">
-    <h2>Delete "{{ target.title }}"?</h2>
-    <p>
-      This removes the quiz, its questions, and its attempt records. Your Vocabulary Bank items
-      remain safe.
-    </p>
-    <div class="actions-row">
-      <button
-        type="button"
-        class="oq-btn oq-btn--danger"
-        [disabled]="isDeleting()"
-        (click)="deleteSelectedQuiz()"
-      >
-        {{ isDeleting() ? 'Deleting...' : 'Confirm Delete' }}
-      </button>
+  <oq-modal
+    [open]="true"
+    size="sm"
+    role="alertdialog"
+    [title]="'Delete &quot;' + target.title + '&quot;?'"
+    description="This removes the quiz, its questions, and its attempt records. Your Vocabulary Bank items remain safe."
+    (closed)="confirmDeleteQuiz.set(null)"
+  >
+    <div class="modal-actions">
       <button
         type="button"
         class="oq-btn oq-btn--secondary"
@@ -118,38 +115,48 @@
       >
         Cancel
       </button>
+      <button
+        type="button"
+        class="oq-btn oq-btn--danger"
+        [disabled]="isDeleting()"
+        (click)="deleteSelectedQuiz()"
+      >
+        {{ isDeleting() ? 'Deleting...' : 'Confirm Delete' }}
+      </button>
     </div>
-  </section>
+  </oq-modal>
 }
 
 @if (isLoading()) {
-  <div class="oq-card"><p class="muted">Loading quizzes...</p></div>
+  <div class="oq-card state-box">Loading quizzes...</div>
 } @else if (quizzes().length === 0) {
-  <div class="oq-card empty-state">
-    <h2>No quizzes found</h2>
-    <p>
-      Create your first quiz manually or generate editable draft questions from your existing
-      Vocabulary Bank.
-    </p>
-    <a routerLink="/quizzes/new" class="oq-btn oq-btn--primary">+ Create Quiz</a>
-  </div>
+  <oq-empty-state
+    icon="help-circle"
+    title="No quizzes found"
+    description="Create your first quiz manually or generate editable draft questions from your existing Vocabulary Bank."
+  >
+    <a actions routerLink="/quizzes/new" class="oq-btn oq-btn--primary">
+      <oq-icon name="plus" [size]="16" />
+      <span>Create Quiz</span>
+    </a>
+  </oq-empty-state>
 } @else {
   <div class="quiz-grid">
     @for (quiz of quizzes(); track quiz.id) {
-      <article class="oq-card quiz-card">
+      <article class="oq-card oq-card--interactive quiz-card">
         <div class="quiz-card__badges">
           <span
-            class="badge"
-            [class.badge--published]="quiz.status === 'published'"
-            [class.badge--draft]="quiz.status === 'draft'"
+            class="oq-badge"
+            [class.oq-badge--success]="quiz.status === 'published'"
+            [class.oq-badge--warning]="quiz.status === 'draft'"
           >
             {{ quiz.status === 'published' ? 'Published' : 'Draft' }}
           </span>
           @if (quiz.difficulty) {
-            <span class="badge badge--neutral">{{ quiz.difficulty }}</span>
+            <span class="oq-badge">{{ quiz.difficulty }}</span>
           }
           @if (quiz.topicName) {
-            <span class="badge badge--topic">{{ quiz.topicName }}</span>
+            <span class="oq-badge oq-badge--accent">{{ quiz.topicName }}</span>
           }
         </div>
 
@@ -168,19 +175,28 @@
 
         <div class="quiz-card__actions">
           @if (quiz.status === 'published' && quiz.questionCount > 0) {
-            <a [routerLink]="['/quizzes', quiz.id, 'take']" class="oq-btn oq-btn--primary">
+            <a
+              [routerLink]="['/quizzes', quiz.id, 'take']"
+              class="oq-btn oq-btn--primary oq-btn--sm"
+            >
               {{ quiz.inProgressAttemptId ? 'Resume Attempt' : 'Take Quiz' }}
             </a>
           }
-          <a [routerLink]="['/quizzes', quiz.id, 'edit']" class="oq-btn oq-btn--secondary">
+          <a
+            [routerLink]="['/quizzes', quiz.id, 'edit']"
+            class="oq-btn oq-btn--secondary oq-btn--sm"
+          >
             Edit
           </a>
-          <a [routerLink]="['/quizzes', quiz.id, 'history']" class="oq-btn oq-btn--secondary">
+          <a
+            [routerLink]="['/quizzes', quiz.id, 'history']"
+            class="oq-btn oq-btn--ghost oq-btn--sm"
+          >
             History
           </a>
           <button
             type="button"
-            class="oq-btn oq-btn--secondary quiz-card__del-btn"
+            class="oq-btn oq-btn--ghost oq-btn--sm quiz-card__del-btn"
             (click)="confirmDeleteQuiz.set(quiz)"
           >
             Delete
@@ -191,19 +207,19 @@
   </div>
 
   @if (meta().totalPages > 1) {
-    <nav class="pagination" aria-label="Quizzes pagination">
+    <nav class="oq-pagination" aria-label="Quizzes pagination">
       <button
         type="button"
-        class="oq-btn oq-btn--secondary"
+        class="oq-btn oq-btn--secondary oq-btn--sm"
         [disabled]="meta().page <= 1"
         (click)="loadQuizzes(meta().page - 1)"
       >
         Previous
       </button>
-      <span class="pagination__info">Page {{ meta().page }} of {{ meta().totalPages }}</span>
+      <span>Page {{ meta().page }} of {{ meta().totalPages }}</span>
       <button
         type="button"
-        class="oq-btn oq-btn--secondary"
+        class="oq-btn oq-btn--secondary oq-btn--sm"
         [disabled]="meta().page >= meta().totalPages"
         (click)="loadQuizzes(meta().page + 1)"
       >

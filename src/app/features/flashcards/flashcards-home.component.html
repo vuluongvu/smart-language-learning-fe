@@ -1,47 +1,36 @@
-<section class="page-head">
-  <div>
-    <h1>Flashcards &amp; Spaced Review</h1>
-    <p class="page-sub">Review due words and strengthen recall with spaced repetition.</p>
-  </div>
-  <div class="head-actions">
-    <a routerLink="/vocabulary" class="oq-btn oq-btn--secondary">Browse Vocabulary</a>
-  </div>
-</section>
+<oq-page-header
+  eyebrow="Spaced Repetition"
+  title="Flashcards &amp; Spaced Review"
+  subtitle="Review due words and strengthen long-term recall with smart intervals."
+>
+  <a actions routerLink="/vocabulary" class="oq-btn oq-btn--secondary">
+    <oq-icon name="book-open" [size]="16" />
+    <span>Browse Vocabulary</span>
+  </a>
+</oq-page-header>
 
 @if (errorMessage()) {
   <div class="oq-alert oq-alert--error" role="alert">
-    {{ errorMessage() }}
-    <button type="button" class="inline-retry" (click)="refreshQueue()">Retry</button>
+    <span>{{ errorMessage() }}</span>
+    <button type="button" class="oq-inline-retry" (click)="refreshQueue()">Retry</button>
   </div>
 }
 
 <section class="stats-grid" aria-label="Review queue metrics">
-  <article class="oq-card stat-tile">
-    <span class="stat-tile__label">Due Now</span>
-    <strong class="stat-tile__value stat-tile__value--due">{{ summary().dueCount }}</strong>
-  </article>
-  <article class="oq-card stat-tile">
-    <span class="stat-tile__label">New</span>
-    <strong class="stat-tile__value">{{ summary().newCount }}</strong>
-  </article>
-  <article class="oq-card stat-tile">
-    <span class="stat-tile__label">Learning</span>
-    <strong class="stat-tile__value">{{ summary().learningCount }}</strong>
-  </article>
-  <article class="oq-card stat-tile">
-    <span class="stat-tile__label">Mastered</span>
-    <strong class="stat-tile__value stat-tile__value--mastered">{{
-      summary().masteredCount
-    }}</strong>
-  </article>
+  <oq-stat-card label="Due Now" [value]="summary().dueCount" icon="clock" tone="accent" />
+  <oq-stat-card label="New" [value]="summary().newCount" icon="sparkles" />
+  <oq-stat-card label="Learning" [value]="summary().learningCount" icon="layers" />
+  <oq-stat-card label="Mastered" [value]="summary().masteredCount" icon="check" tone="success" />
 </section>
 
 <section class="oq-card setup-card">
-  <h2>Start a Review Session</h2>
-  <p class="setup-card__hint">
-    Sessions count toward your daily Streak once you review at least 5 distinct cards (or all cards
-    in smaller decks).
-  </p>
+  <div class="setup-card__head">
+    <h2>Start a Review Session</h2>
+    <p class="setup-card__hint">
+      Sessions count toward your daily Streak once you review at least 5 distinct cards (or all
+      cards in smaller decks).
+    </p>
+  </div>
 
   <div class="setup-grid">
     <div class="oq-field">
@@ -91,7 +80,8 @@
       [disabled]="isStarting() || isLoading()"
       (click)="startSession()"
     >
-      {{ isStarting() ? 'Starting...' : 'Start Review Session' }}
+      <oq-icon name="layers" [size]="16" />
+      <span>{{ isStarting() ? 'Starting...' : 'Start Review Session' }}</span>
     </button>
 
     @if (summary().hardCount > 0) {
@@ -111,26 +101,35 @@
   <section class="oq-card panel">
     <div class="panel__head">
       <h2>Queue Preview</h2>
-      <span class="panel__count">{{ dueCards().length }} ready</span>
+      <span class="oq-badge">{{ dueCards().length }} ready</span>
     </div>
 
     @if (isLoading()) {
-      <p class="muted">Loading flashcards queue...</p>
+      <p class="oq-muted">Loading flashcards queue...</p>
     } @else if (dueCards().length === 0) {
-      <div class="empty-inline">
-        <p>No flashcards match "{{ formatMode(selectedMode) }}" in this scope.</p>
+      <oq-empty-state
+        [compact]="true"
+        icon="layers"
+        title="No cards match this filter"
+        [description]="
+          'No flashcards match &quot;' + formatMode(selectedMode) + '&quot; in this scope.'
+        "
+      >
         @if (summary().totalCount === 0) {
-          <a routerLink="/vocabulary" class="oq-btn oq-btn--secondary">Add Vocabulary First</a>
+          <a actions routerLink="/vocabulary" class="oq-btn oq-btn--secondary oq-btn--sm">
+            Add Vocabulary First
+          </a>
         } @else {
           <button
+            actions
             type="button"
-            class="oq-btn oq-btn--secondary"
+            class="oq-btn oq-btn--secondary oq-btn--sm"
             (click)="selectedMode = 'all'; refreshQueue()"
           >
             Show All Cards
           </button>
         }
-      </div>
+      </oq-empty-state>
     } @else {
       <ul class="queue-list">
         @for (card of dueCards(); track card.id) {
@@ -139,28 +138,28 @@
               <div class="queue-item__term">
                 <strong>{{ card.term }}</strong>
                 @if (card.partOfSpeech) {
-                  <span class="tag">{{ card.partOfSpeech }}</span>
+                  <span class="oq-badge">{{ card.partOfSpeech }}</span>
                 }
               </div>
               <div class="queue-item__def">{{ card.definition }}</div>
             </div>
             <div class="queue-item__meta">
               <span
-                class="status-pill"
-                [class.status-pill--due]="card.progress.isDue"
-                [class.status-pill--learning]="
+                class="oq-badge"
+                [class.oq-badge--warning]="card.progress.isDue"
+                [class.oq-badge--accent]="
                   !card.progress.isDue && card.progress.status === 'learning'
                 "
-                [class.status-pill--mastered]="
+                [class.oq-badge--success]="
                   !card.progress.isDue && card.progress.status === 'mastered'
                 "
               >
                 {{ formatStatus(card.progress.status, card.progress.isDue) }}
               </span>
               @if (card.progress.repetitions > 0) {
-                <span class="muted-small"
-                  >Interval: {{ formatInterval(card.progress.intervalDays) }}</span
-                >
+                <span class="muted-small">
+                  Interval: {{ formatInterval(card.progress.intervalDays) }}
+                </span>
               }
             </div>
           </li>
@@ -172,13 +171,18 @@
   <section class="oq-card panel">
     <div class="panel__head">
       <h2>Recent Review Sessions</h2>
-      <span class="panel__count">{{ sessions().length }} recent</span>
+      <span class="oq-badge">{{ sessions().length }} recent</span>
     </div>
 
     @if (isLoading()) {
-      <p class="muted">Loading sessions...</p>
+      <p class="oq-muted">Loading sessions...</p>
     } @else if (sessions().length === 0) {
-      <p class="muted">No review sessions yet. Start your first deck on the left.</p>
+      <oq-empty-state
+        [compact]="true"
+        icon="clock"
+        title="No review sessions yet"
+        description="Start your first deck above to build recall momentum."
+      />
     } @else {
       <ul class="sessions-list">
         @for (session of sessions(); track session.id) {
@@ -187,27 +191,30 @@
               <div class="session-row__top">
                 <strong>{{ formatMode(session.mode) }}</strong>
                 @if (session.topicName) {
-                  <span class="tag">{{ session.topicName }}</span>
+                  <span class="oq-badge">{{ session.topicName }}</span>
                 }
                 <span
-                  class="status-pill"
-                  [class.status-pill--mastered]="
+                  class="oq-badge"
+                  [class.oq-badge--success]="
                     session.status === 'completed' && session.isStreakEligible
                   "
-                  [class.status-pill--learning]="session.status === 'in_progress'"
+                  [class.oq-badge--accent]="session.status === 'in_progress'"
                 >
                   {{ session.status === 'completed' ? 'Completed' : 'In Progress' }}
                 </span>
               </div>
               <div class="muted-small">
-                Reviewed {{ session.reviewedCount }} / {{ session.targetCount }} &middot;
+                Reviewed {{ session.reviewedCount }} / {{ session.targetCount }} ·
                 {{ session.startedAt | date: 'mediumDate' }}
                 @if (session.isStreakEligible) {
-                  &middot; Streak eligible
+                  · Streak eligible
                 }
               </div>
             </div>
-            <a [routerLink]="['/flashcards/sessions', session.id]" class="oq-btn oq-btn--secondary">
+            <a
+              [routerLink]="['/flashcards/sessions', session.id]"
+              class="oq-btn oq-btn--secondary oq-btn--sm"
+            >
               {{ session.status === 'in_progress' ? 'Resume' : 'Summary' }}
             </a>
           </li>

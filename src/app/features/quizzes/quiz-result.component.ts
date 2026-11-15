@@ -3,6 +3,12 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
+  OqEmptyStateComponent,
+  OqIconComponent,
+  OqPageHeaderComponent,
+  OqProgressBarComponent,
+} from '../../shared/components';
+import {
   AttemptCompletedAnswer,
   AttemptDetail,
   DuplicateCheckResult,
@@ -15,7 +21,15 @@ import { QuizzesApiService } from './quizzes-api.service';
 
 @Component({
   selector: 'app-quiz-result',
-  imports: [DatePipe, FormsModule, RouterLink],
+  imports: [
+    DatePipe,
+    FormsModule,
+    RouterLink,
+    OqPageHeaderComponent,
+    OqProgressBarComponent,
+    OqEmptyStateComponent,
+    OqIconComponent,
+  ],
   templateUrl: './quiz-result.component.html',
   styleUrl: './quiz-result.component.scss',
 })

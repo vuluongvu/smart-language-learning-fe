@@ -1,6 +1,11 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import {
+  OqEmptyStateComponent,
+  OqIconComponent,
+  OqPageHeaderComponent,
+} from '../../shared/components';
 import { TopicDetail, VocabularyItem } from '../../shared/types/learning.types';
 import { extractApiError } from '../../shared/utils/api-error.util';
 import { VocabularyApiService } from '../vocabulary/vocabulary-api.service';
@@ -8,7 +13,7 @@ import { TopicsApiService } from './topics-api.service';
 
 @Component({
   selector: 'app-topic-detail',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, OqPageHeaderComponent, OqEmptyStateComponent, OqIconComponent],
   templateUrl: './topic-detail.component.html',
   styleUrl: './topic-detail.component.scss',
 })

@@ -1,6 +1,11 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import {
+  OqEmptyStateComponent,
+  OqIconComponent,
+  OqPageHeaderComponent,
+} from '../../shared/components';
 import {
   QuestionType,
   QuizDifficulty,
@@ -32,7 +37,13 @@ interface EditableQuestion {
 
 @Component({
   selector: 'app-quiz-builder',
-  imports: [FormsModule, ReactiveFormsModule, RouterLink],
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    OqPageHeaderComponent,
+    OqEmptyStateComponent,
+    OqIconComponent,
+  ],
   templateUrl: './quiz-builder.component.html',
   styleUrl: './quiz-builder.component.scss',
 })
