@@ -1,0 +1,344 @@
+<section class="page-head">
+  <div>
+    <h1>{{ editingQuizId() ? 'Edit Quiz' : 'Create Quiz' }}</h1>
+    <p class="page-sub">
+      Build manual questions across Multiple Choice, Word Meaning, and Fill in the Blank.
+    </p>
+  </div>
+  <a routerLink="/quizzes" class="oq-btn oq-btn--secondary">Back to Quizzes</a>
+</section>
+
+@if (successMessage()) {
+  <div class="oq-alert oq-alert--success" role="status">{{ successMessage() }}</div>
+}
+
+@if (errorMessage()) {
+  <div class="oq-alert oq-alert--error" role="alert">{{ errorMessage() }}</div>
+}
+
+@if (isLoading()) {
+  <div class="oq-card"><p class="muted">Loading quiz...</p></div>
+} @else {
+  <section class="oq-card meta-card">
+    <form [formGroup]="metaForm" class="meta-grid">
+      <div class="oq-field meta-grid__full">
+        <label for="quizTitle">Quiz Title *</label>
+        <input
+          id="quizTitle"
+          type="text"
+          formControlName="title"
+          placeholder="e.g., Business Meetings Vocabulary Check"
+        />
+        @if (metaForm.controls.title.touched && metaForm.controls.title.invalid) {
+          <span class="oq-field-error">Title is required (max 160 characters).</span>
+        }
+      </div>
+
+      <div class="oq-field">
+        <label for="quizTopic">Topic (Optional)</label>
+        <select id="quizTopic" formControlName="topicId">
+          <option [ngValue]="null">No specific topic</option>
+          @for (topic of topics(); track topic.id) {
+            <option [ngValue]="topic.id">{{ topic.name }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="oq-field">
+        <label for="quizDifficulty">Difficulty (Optional)</label>
+        <select id="quizDifficulty" formControlName="difficulty">
+          <option value="">Unspecified</option>
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+      </div>
+
+      <div class="oq-field meta-grid__full">
+        <label for="quizDescription">Description (Optional)</label>
+        <textarea
+          id="quizDescription"
+          rows="2"
+          formControlName="description"
+          placeholder="Notes or instructions for yourself..."
+        ></textarea>
+      </div>
+    </form>
+  </section>
+
+  <section class="oq-card gen-card">
+    <div class="gen-card__head">
+      <div>
+        <h2>Build from Your Vocabulary Bank</h2>
+        <p class="gen-card__sub">
+          Quickly draft editable questions from your saved English words (zero AI, zero cost).
+        </p>
+      </div>
+      <button
+        type="button"
+        class="oq-btn oq-btn--secondary"
+        (click)="showGenerator.set(!showGenerator())"
+      >
+        {{ showGenerator() ? 'Hide Helper' : 'Generate Draft Questions' }}
+      </button>
+    </div>
+
+    @if (showGenerator()) {
+      <div class="gen-card__body">
+        <div class="gen-grid">
+          <div class="oq-field">
+            <label for="genTopic">Source Topic</label>
+            <select id="genTopic" [(ngModel)]="genTopicId" name="genTopicId">
+              <option [ngValue]="null">All Vocabulary Items</option>
+              @for (topic of topics(); track topic.id) {
+                <option [ngValue]="topic.id">{{ topic.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="oq-field">
+            <label for="genCount">Question Count</label>
+            <input
+              id="genCount"
+              type="number"
+              min="1"
+              max="20"
+              [(ngModel)]="genCount"
+              name="genCount"
+            />
+          </div>
+        </div>
+
+        <div class="gen-types">
+          <label class="check-label">
+            <input type="checkbox" [(ngModel)]="genIncludeMcq" name="genIncludeMcq" />
+            Multiple Choice
+          </label>
+          <label class="check-label">
+            <input
+              type="checkbox"
+              [(ngModel)]="genIncludeWordMeaning"
+              name="genIncludeWordMeaning"
+            />
+            Word Meaning
+          </label>
+          <label class="check-label">
+            <input type="checkbox" [(ngModel)]="genIncludeFillBlank" name="genIncludeFillBlank" />
+            Fill in the Blank
+          </label>
+        </div>
+
+        <button
+          type="button"
+          class="oq-btn oq-btn--primary"
+          [disabled]="isGenerating()"
+          (click)="generateDraftQuestions()"
+        >
+          {{ isGenerating() ? 'Generating...' : 'Append Draft Questions' }}
+        </button>
+      </div>
+    }
+  </section>
+
+  <section class="questions-header">
+    <h2>Questions ({{ questions().length }})</h2>
+    <div class="add-btns">
+      <button
+        type="button"
+        class="oq-btn oq-btn--secondary"
+        (click)="addQuestion('multiple_choice')"
+      >
+        + Multiple Choice
+      </button>
+      <button type="button" class="oq-btn oq-btn--secondary" (click)="addQuestion('word_meaning')">
+        + Word Meaning
+      </button>
+      <button type="button" class="oq-btn oq-btn--secondary" (click)="addQuestion('fill_blank')">
+        + Fill in the Blank
+      </button>
+    </div>
+  </section>
+
+  @if (questions().length === 0) {
+    <div class="oq-card empty-questions">
+      <p>No questions added yet. Add a question manually above or use the Vocabulary helper.</p>
+    </div>
+  }
+
+  <div class="questions-list">
+    @for (q of questions(); track q.localKey; let qi = $index) {
+      <article class="oq-card question-card">
+        <div class="question-card__head">
+          <div class="question-card__title">
+            <span class="q-index">Q{{ qi + 1 }}</span>
+            <span class="q-type-badge">{{ questionTypeLabel(q.questionType) }}</span>
+          </div>
+          <div class="question-card__controls">
+            <button
+              type="button"
+              class="oq-btn oq-btn--secondary btn-sm"
+              [disabled]="qi === 0"
+              (click)="moveQuestion(qi, -1)"
+            >
+              Up
+            </button>
+            <button
+              type="button"
+              class="oq-btn oq-btn--secondary btn-sm"
+              [disabled]="qi === questions().length - 1"
+              (click)="moveQuestion(qi, 1)"
+            >
+              Down
+            </button>
+            <button
+              type="button"
+              class="oq-btn oq-btn--secondary btn-sm btn-danger-text"
+              (click)="removeQuestion(qi)"
+            >
+              Remove
+            </button>
+          </div>
+        </div>
+
+        <div class="question-meta-row">
+          <div class="oq-field">
+            <label [for]="'qType-' + q.localKey">Question Type</label>
+            <select
+              [id]="'qType-' + q.localKey"
+              [ngModel]="q.questionType"
+              (ngModelChange)="onQuestionTypeChange(qi, $event)"
+            >
+              <option value="multiple_choice">Multiple Choice</option>
+              <option value="word_meaning">Word Meaning</option>
+              <option value="fill_blank">Fill in the Blank</option>
+            </select>
+          </div>
+
+          <div class="oq-field">
+            <label [for]="'qVocab-' + q.localKey">Link Vocabulary Item (Optional)</label>
+            <select
+              [id]="'qVocab-' + q.localKey"
+              [ngModel]="q.vocabularyId"
+              (ngModelChange)="onVocabularySelect(qi, $event)"
+            >
+              <option [ngValue]="null">None</option>
+              @for (v of vocabularyItems(); track v.id) {
+                <option [ngValue]="v.id">{{ v.term }} — {{ v.definition }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="oq-field">
+            <label [for]="'qTerm-' + q.localKey">Related Term Tag (Optional)</label>
+            <input
+              [id]="'qTerm-' + q.localKey"
+              type="text"
+              [(ngModel)]="q.vocabularyTerm"
+              placeholder="e.g., mitigate"
+            />
+          </div>
+        </div>
+
+        <div class="oq-field">
+          <label [for]="'qText-' + q.localKey">Question Prompt *</label>
+          <textarea
+            [id]="'qText-' + q.localKey"
+            rows="2"
+            [(ngModel)]="q.questionText"
+            [placeholder]="
+              q.questionType === 'fill_blank'
+                ? 'e.g., Early testing helps _____ production risk.'
+                : 'Enter the question prompt...'
+            "
+          ></textarea>
+        </div>
+
+        <div class="options-block">
+          <div class="options-block__head">
+            <span>
+              {{
+                q.questionType === 'fill_blank'
+                  ? 'Accepted Answers * (case and extra spaces ignored)'
+                  : 'Answer Options * (select the 1 correct option)'
+              }}
+            </span>
+            <button
+              type="button"
+              class="oq-btn oq-btn--secondary btn-sm"
+              [disabled]="
+                q.questionType === 'fill_blank' ? q.options.length >= 5 : q.options.length >= 6
+              "
+              (click)="addOption(qi)"
+            >
+              {{ q.questionType === 'fill_blank' ? '+ Accepted Answer' : '+ Option' }}
+            </button>
+          </div>
+
+          @for (opt of q.options; track opt.localKey; let oi = $index) {
+            <div class="option-row">
+              @if (q.questionType !== 'fill_blank') {
+                <input
+                  type="radio"
+                  [name]="'correct-' + q.localKey"
+                  [checked]="opt.isCorrect"
+                  (change)="setCorrectOption(qi, oi)"
+                  [aria-label]="'Mark option ' + (oi + 1) + ' as correct'"
+                />
+              }
+              <input
+                type="text"
+                class="option-row__input"
+                [(ngModel)]="opt.optionText"
+                [placeholder]="
+                  q.questionType === 'fill_blank'
+                    ? 'Accepted answer (e.g., mitigate)'
+                    : 'Option ' + (oi + 1)
+                "
+                [aria-label]="'Option ' + (oi + 1) + ' text'"
+              />
+              <button
+                type="button"
+                class="oq-btn oq-btn--secondary btn-sm"
+                [disabled]="
+                  q.questionType === 'fill_blank' ? q.options.length <= 1 : q.options.length <= 2
+                "
+                (click)="removeOption(qi, oi)"
+              >
+                Remove
+              </button>
+            </div>
+          }
+        </div>
+
+        <div class="oq-field explanation-field">
+          <label [for]="'qExp-' + q.localKey">Explanation (Shown after submission, Optional)</label>
+          <input
+            [id]="'qExp-' + q.localKey"
+            type="text"
+            [(ngModel)]="q.explanation"
+            placeholder="Why this answer is correct or usage notes..."
+          />
+        </div>
+      </article>
+    }
+  </div>
+
+  <div class="oq-card save-bar">
+    <button
+      type="button"
+      class="oq-btn oq-btn--secondary"
+      [disabled]="isSaving()"
+      (click)="saveQuiz('draft')"
+    >
+      {{ isSaving() ? 'Saving...' : 'Save as Draft' }}
+    </button>
+    <button
+      type="button"
+      class="oq-btn oq-btn--primary"
+      [disabled]="isSaving()"
+      (click)="saveQuiz('published')"
+    >
+      {{ isSaving() ? 'Saving...' : 'Save & Publish' }}
+    </button>
+  </div>
+}

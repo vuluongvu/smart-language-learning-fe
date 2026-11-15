@@ -1,0 +1,242 @@
+<section class="page-head">
+  <div>
+    <h1>Quiz Result</h1>
+    @if (attempt(); as att) {
+      <p class="page-sub">{{ att.quizTitle }}</p>
+    }
+  </div>
+  <div class="head-actions">
+    @if (attempt(); as att) {
+      <a
+        [routerLink]="['/quizzes', att.quizId, 'take']"
+        [queryParams]="{ new: '1' }"
+        class="oq-btn oq-btn--primary"
+      >
+        Retake Quiz
+      </a>
+      <a [routerLink]="['/quizzes', att.quizId, 'history']" class="oq-btn oq-btn--secondary">
+        Quiz History
+      </a>
+    }
+    <a routerLink="/quizzes" class="oq-btn oq-btn--secondary">All Quizzes</a>
+  </div>
+</section>
+
+@if (errorMessage()) {
+  <div class="oq-alert oq-alert--error" role="alert">{{ errorMessage() }}</div>
+}
+
+@if (isLoading()) {
+  <div class="oq-card"><p class="muted">Loading quiz result...</p></div>
+} @else if (attempt(); as att) {
+  @if (att.status === 'in_progress') {
+    <div class="oq-card empty-state">
+      <h2>This attempt is still in progress</h2>
+      <p>Continue answering and submit your quiz to see your score and answer breakdown.</p>
+      <a [routerLink]="['/quizzes', att.quizId, 'take']" class="oq-btn oq-btn--primary">
+        Resume Attempt
+      </a>
+    </div>
+  } @else {
+    <section class="oq-card summary-card">
+      <div class="summary-score">
+        <div class="summary-score__pct">{{ att.score }}%</div>
+        <div class="summary-score__sub">
+          {{ att.correctCount }} / {{ att.totalQuestions }} correct
+        </div>
+      </div>
+
+      <div class="summary-meta">
+        <div>
+          <strong>Completed:</strong>
+          {{ att.completedAt ? (att.completedAt | date: 'medium') : 'Just now' }}
+        </div>
+        <div><strong>Attempt ID:</strong> #{{ att.id }}</div>
+      </div>
+    </section>
+
+    <h2 class="section-title">Answer Breakdown ({{ att.answers.length }})</h2>
+
+    <div class="answers-list">
+      @for (ans of att.answers; track ans.id; let i = $index) {
+        <article
+          class="oq-card answer-card"
+          [class.answer-card--correct]="ans.isCorrect"
+          [class.answer-card--wrong]="!ans.isCorrect"
+        >
+          <div class="answer-card__head">
+            <div class="answer-card__badges">
+              <span class="q-num">Q{{ i + 1 }}</span>
+              <span
+                class="result-badge"
+                [class.result-badge--correct]="ans.isCorrect"
+                [class.result-badge--wrong]="!ans.isCorrect"
+              >
+                {{ ans.isCorrect ? 'Correct' : 'Incorrect' }}
+              </span>
+              @if (ans.vocabularyTerm) {
+                <span class="term-tag">Term: {{ ans.vocabularyTerm }}</span>
+              }
+            </div>
+
+            @if (activeAnswerId() !== ans.id) {
+              <button
+                type="button"
+                class="oq-btn oq-btn--secondary btn-sm"
+                (click)="openSaveVocab(ans)"
+              >
+                + Save Word to Vocabulary
+              </button>
+            }
+          </div>
+
+          <h3 class="answer-card__prompt">{{ ans.questionText }}</h3>
+
+          <div class="answer-compare">
+            <div>
+              <span class="compare-label">Your answer:</span>
+              <span class="compare-value">{{ ans.answerText || '(No answer)' }}</span>
+            </div>
+            <div>
+              <span class="compare-label">Correct answer:</span>
+              <span class="compare-value compare-value--correct">{{ ans.correctAnswer }}</span>
+            </div>
+          </div>
+
+          @if (ans.explanation) {
+            <p class="answer-explanation"><strong>Explanation:</strong> {{ ans.explanation }}</p>
+          }
+
+          @if (savedMessages()[ans.id]; as msg) {
+            <div class="oq-alert oq-alert--success save-banner" role="status">{{ msg }}</div>
+          }
+
+          @if (activeAnswerId() === ans.id) {
+            <div class="save-vocab-panel">
+              <h4>Save Vocabulary Item from Question #{{ i + 1 }}</h4>
+
+              @if (saveError()) {
+                <div class="oq-alert oq-alert--error" role="alert">{{ saveError() }}</div>
+              }
+
+              <div class="save-grid">
+                <div class="oq-field">
+                  <label [for]="'saveTerm-' + ans.id">Word / Phrase *</label>
+                  <input
+                    [id]="'saveTerm-' + ans.id"
+                    type="text"
+                    [(ngModel)]="saveTerm"
+                    (blur)="checkDuplicateTerm()"
+                  />
+                </div>
+
+                <div class="oq-field">
+                  <label [for]="'savePos-' + ans.id">Part of Speech</label>
+                  <input
+                    [id]="'savePos-' + ans.id"
+                    type="text"
+                    [(ngModel)]="savePartOfSpeech"
+                    placeholder="noun, verb, adjective..."
+                  />
+                </div>
+              </div>
+
+              @if (duplicateCheck(); as dup) {
+                <div class="oq-alert oq-alert--info dup-box">
+                  <p>
+                    <strong>Already in your Vocabulary Bank:</strong> attach an existing item
+                    directly to selected topics instead of creating a duplicate.
+                  </p>
+                  @for (match of dup.matches; track match.id) {
+                    <div class="dup-item">
+                      <span
+                        ><strong>{{ match.term }}</strong> — {{ match.definition }}</span
+                      >
+                      <button
+                        type="button"
+                        class="oq-btn oq-btn--secondary btn-sm"
+                        [disabled]="isSavingVocab()"
+                        (click)="attachExistingItem(match.id, ans.id)"
+                      >
+                        Attach Existing to Topics
+                      </button>
+                    </div>
+                  }
+                </div>
+              }
+
+              <div class="oq-field">
+                <label [for]="'saveDef-' + ans.id">Definition *</label>
+                <input
+                  [id]="'saveDef-' + ans.id"
+                  type="text"
+                  [(ngModel)]="saveDefinition"
+                  placeholder="Enter meaning or definition..."
+                />
+              </div>
+
+              <div class="save-grid">
+                <div class="oq-field">
+                  <label [for]="'savePron-' + ans.id">Pronunciation (Optional)</label>
+                  <input [id]="'savePron-' + ans.id" type="text" [(ngModel)]="savePronunciation" />
+                </div>
+
+                <div class="oq-field">
+                  <label [for]="'saveNewTopic-' + ans.id">Or Create New Topic (Optional)</label>
+                  <input
+                    [id]="'saveNewTopic-' + ans.id"
+                    type="text"
+                    [(ngModel)]="newTopicName"
+                    placeholder="e.g., Quiz Review"
+                  />
+                </div>
+              </div>
+
+              <div class="oq-field">
+                <label [for]="'saveExample-' + ans.id">Example Sentence (Optional)</label>
+                <input [id]="'saveExample-' + ans.id" type="text" [(ngModel)]="saveExample" />
+              </div>
+
+              @if (topics().length > 0) {
+                <div class="topic-picker">
+                  <span class="topic-picker__label">Assign to existing Topics:</span>
+                  <div class="topic-chips">
+                    @for (t of topics(); track t.id) {
+                      <button
+                        type="button"
+                        class="topic-chip"
+                        [class.topic-chip--selected]="selectedTopicIds().includes(t.id)"
+                        (click)="toggleTopic(t.id)"
+                      >
+                        {{ t.name }}
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
+
+              <div class="save-actions">
+                <button
+                  type="button"
+                  class="oq-btn oq-btn--primary"
+                  [disabled]="isSavingVocab()"
+                  (click)="saveNewVocabItem(ans.id)"
+                >
+                  {{ isSavingVocab() ? 'Saving...' : 'Save New Word' }}
+                </button>
+                <button
+                  type="button"
+                  class="oq-btn oq-btn--secondary"
+                  [disabled]="isSavingVocab()"
+                  (click)="closeSaveVocab()"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          }
+        </article>
+      }
+    </div>
+  }
+}

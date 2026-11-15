@@ -3,6 +3,11 @@ import { authGuard, guestGuard } from './features/auth/auth.guards';
 import { LoginComponent } from './features/auth/login/login.component';
 import { RegisterComponent } from './features/auth/register/register.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
+import { QuizBuilderComponent } from './features/quizzes/quiz-builder.component';
+import { QuizHistoryComponent } from './features/quizzes/quiz-history.component';
+import { QuizPlayerComponent } from './features/quizzes/quiz-player.component';
+import { QuizResultComponent } from './features/quizzes/quiz-result.component';
+import { QuizzesListComponent } from './features/quizzes/quizzes-list.component';
 import { SettingsComponent } from './features/settings/settings.component';
 import { TopicDetailComponent } from './features/topics/topic-detail.component';
 import { TopicsListComponent } from './features/topics/topics-list.component';
@@ -30,6 +35,13 @@ export const routes: Routes = [
       { path: 'vocabulary', component: VocabularyListComponent },
       { path: 'topics', component: TopicsListComponent },
       { path: 'topics/:id', component: TopicDetailComponent },
+      { path: 'quizzes', component: QuizzesListComponent },
+      { path: 'quizzes/new', component: QuizBuilderComponent },
+      { path: 'quizzes/:id/edit', component: QuizBuilderComponent },
+      { path: 'quizzes/:id/take', component: QuizPlayerComponent },
+      { path: 'quizzes/:id/history', component: QuizHistoryComponent },
+      { path: 'attempts', component: QuizHistoryComponent },
+      { path: 'attempts/:attemptId', component: QuizResultComponent },
       { path: 'settings', component: SettingsComponent },
     ],
   },

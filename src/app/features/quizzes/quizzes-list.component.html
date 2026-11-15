@@ -1,0 +1,214 @@
+<section class="page-head">
+  <div>
+    <h1>Quizzes</h1>
+    <p class="page-sub">
+      Create manual or vocabulary-assisted quizzes with Multiple Choice, Word Meaning, and Fill in
+      the Blank questions.
+    </p>
+  </div>
+  <div class="head-actions">
+    <a routerLink="/attempts" class="oq-btn oq-btn--secondary">Attempt History</a>
+    <a routerLink="/quizzes/new" class="oq-btn oq-btn--primary">+ Create Quiz</a>
+  </div>
+</section>
+
+@if (successMessage()) {
+  <div class="oq-alert oq-alert--success" role="status">{{ successMessage() }}</div>
+}
+
+@if (errorMessage()) {
+  <div class="oq-alert oq-alert--error" role="alert">{{ errorMessage() }}</div>
+}
+
+<section class="oq-card filter-card">
+  <form class="filter-grid" (ngSubmit)="loadQuizzes(1)">
+    <div class="oq-field filter-card__search">
+      <label for="quizSearch">Search quizzes</label>
+      <input
+        id="quizSearch"
+        type="search"
+        [(ngModel)]="search"
+        name="search"
+        placeholder="Search title or description..."
+      />
+    </div>
+
+    <div class="oq-field">
+      <label for="quizTopicFilter">Topic</label>
+      <select
+        id="quizTopicFilter"
+        [(ngModel)]="selectedTopicId"
+        name="topicId"
+        (ngModelChange)="loadQuizzes(1)"
+      >
+        <option [ngValue]="null">All Topics</option>
+        @for (t of topics(); track t.id) {
+          <option [ngValue]="t.id">{{ t.name }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="oq-field">
+      <label for="quizStatusFilter">Status</label>
+      <select
+        id="quizStatusFilter"
+        [(ngModel)]="statusFilter"
+        name="status"
+        (ngModelChange)="loadQuizzes(1)"
+      >
+        <option value="">All Statuses</option>
+        <option value="published">Published</option>
+        <option value="draft">Draft</option>
+      </select>
+    </div>
+
+    <div class="oq-field">
+      <label for="quizDifficultyFilter">Difficulty</label>
+      <select
+        id="quizDifficultyFilter"
+        [(ngModel)]="difficultyFilter"
+        name="difficulty"
+        (ngModelChange)="loadQuizzes(1)"
+      >
+        <option value="">Any Difficulty</option>
+        <option value="easy">Easy</option>
+        <option value="medium">Medium</option>
+        <option value="hard">Hard</option>
+      </select>
+    </div>
+
+    <div class="oq-field">
+      <label for="quizSortBy">Sort</label>
+      <select id="quizSortBy" [(ngModel)]="sortBy" name="sortBy" (ngModelChange)="loadQuizzes(1)">
+        <option value="newest">Newest</option>
+        <option value="oldest">Oldest</option>
+        <option value="title_asc">Title A-Z</option>
+        <option value="title_desc">Title Z-A</option>
+      </select>
+    </div>
+
+    <div class="filter-actions">
+      <button type="submit" class="oq-btn oq-btn--secondary">Apply</button>
+      <button type="button" class="oq-btn oq-btn--secondary" (click)="resetFilters()">Reset</button>
+    </div>
+  </form>
+</section>
+
+@if (confirmDeleteQuiz(); as target) {
+  <section class="oq-card delete-panel" role="dialog" aria-label="Confirm delete quiz">
+    <h2>Delete "{{ target.title }}"?</h2>
+    <p>
+      This removes the quiz, its questions, and its attempt records. Your Vocabulary Bank items
+      remain safe.
+    </p>
+    <div class="actions-row">
+      <button
+        type="button"
+        class="oq-btn oq-btn--danger"
+        [disabled]="isDeleting()"
+        (click)="deleteSelectedQuiz()"
+      >
+        {{ isDeleting() ? 'Deleting...' : 'Confirm Delete' }}
+      </button>
+      <button
+        type="button"
+        class="oq-btn oq-btn--secondary"
+        [disabled]="isDeleting()"
+        (click)="confirmDeleteQuiz.set(null)"
+      >
+        Cancel
+      </button>
+    </div>
+  </section>
+}
+
+@if (isLoading()) {
+  <div class="oq-card"><p class="muted">Loading quizzes...</p></div>
+} @else if (quizzes().length === 0) {
+  <div class="oq-card empty-state">
+    <h2>No quizzes found</h2>
+    <p>
+      Create your first quiz manually or generate editable draft questions from your existing
+      Vocabulary Bank.
+    </p>
+    <a routerLink="/quizzes/new" class="oq-btn oq-btn--primary">+ Create Quiz</a>
+  </div>
+} @else {
+  <div class="quiz-grid">
+    @for (quiz of quizzes(); track quiz.id) {
+      <article class="oq-card quiz-card">
+        <div class="quiz-card__badges">
+          <span
+            class="badge"
+            [class.badge--published]="quiz.status === 'published'"
+            [class.badge--draft]="quiz.status === 'draft'"
+          >
+            {{ quiz.status === 'published' ? 'Published' : 'Draft' }}
+          </span>
+          @if (quiz.difficulty) {
+            <span class="badge badge--neutral">{{ quiz.difficulty }}</span>
+          }
+          @if (quiz.topicName) {
+            <span class="badge badge--topic">{{ quiz.topicName }}</span>
+          }
+        </div>
+
+        <h2 class="quiz-card__title">{{ quiz.title }}</h2>
+        <p class="quiz-card__desc">
+          {{ quiz.description || 'No description provided.' }}
+        </p>
+
+        <div class="quiz-card__stats">
+          <span>{{ quiz.questionCount }} question{{ quiz.questionCount === 1 ? '' : 's' }}</span>
+          <span>{{ quiz.attemptCount }} attempt{{ quiz.attemptCount === 1 ? '' : 's' }}</span>
+          @if (quiz.lastScore !== null) {
+            <span class="quiz-card__score">Last score: {{ quiz.lastScore }}%</span>
+          }
+        </div>
+
+        <div class="quiz-card__actions">
+          @if (quiz.status === 'published' && quiz.questionCount > 0) {
+            <a [routerLink]="['/quizzes', quiz.id, 'take']" class="oq-btn oq-btn--primary">
+              {{ quiz.inProgressAttemptId ? 'Resume Attempt' : 'Take Quiz' }}
+            </a>
+          }
+          <a [routerLink]="['/quizzes', quiz.id, 'edit']" class="oq-btn oq-btn--secondary">
+            Edit
+          </a>
+          <a [routerLink]="['/quizzes', quiz.id, 'history']" class="oq-btn oq-btn--secondary">
+            History
+          </a>
+          <button
+            type="button"
+            class="oq-btn oq-btn--secondary quiz-card__del-btn"
+            (click)="confirmDeleteQuiz.set(quiz)"
+          >
+            Delete
+          </button>
+        </div>
+      </article>
+    }
+  </div>
+
+  @if (meta().totalPages > 1) {
+    <nav class="pagination" aria-label="Quizzes pagination">
+      <button
+        type="button"
+        class="oq-btn oq-btn--secondary"
+        [disabled]="meta().page <= 1"
+        (click)="loadQuizzes(meta().page - 1)"
+      >
+        Previous
+      </button>
+      <span class="pagination__info">Page {{ meta().page }} of {{ meta().totalPages }}</span>
+      <button
+        type="button"
+        class="oq-btn oq-btn--secondary"
+        [disabled]="meta().page >= meta().totalPages"
+        (click)="loadQuizzes(meta().page + 1)"
+      >
+        Next
+      </button>
+    </nav>
+  }
+}
