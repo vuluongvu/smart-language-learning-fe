@@ -8,6 +8,7 @@ import {
   OqPageHeaderComponent,
   OqStatCardComponent,
 } from '../../shared/components';
+import { I18nService, TranslatePipe } from '../../shared/i18n';
 import {
   ProgressHistory,
   StreakCalendarDay,
@@ -27,12 +28,14 @@ import { ProgressApiService } from './progress-api.service';
     OqStatCardComponent,
     OqEmptyStateComponent,
     OqIconComponent,
+    TranslatePipe,
   ],
   templateUrl: './progress-streak.component.html',
   styleUrl: './progress-streak.component.scss',
 })
 export class ProgressStreakComponent implements OnInit {
   private readonly progressApi = inject(ProgressApiService);
+  protected readonly i18n = inject(I18nService);
 
   protected readonly loading = signal(true);
   protected readonly calendarLoading = signal(false);
@@ -44,7 +47,11 @@ export class ProgressStreakComponent implements OnInit {
   protected readonly historyDays = signal<number>(14);
   protected readonly activeMonth = signal<string | undefined>(undefined);
 
-  protected readonly weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  protected readonly weekdays = computed(() =>
+    this.i18n.lang() === 'vi'
+      ? ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7']
+      : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+  );
 
   protected readonly leadingSpacers = computed(() => {
     const count = this.calendar()?.firstDayWeekday ?? 0;
@@ -77,7 +84,12 @@ export class ProgressStreakComponent implements OnInit {
       },
       error: (err) => {
         this.errorMessage.set(
-          extractApiError(err, 'Unable to load your progress and streak calendar.'),
+          extractApiError(
+            err,
+            this.i18n.lang() === 'vi'
+              ? 'Không thể tải lịch sử tiến độ và chuỗi ngày học.'
+              : 'Unable to load your progress and streak calendar.',
+          ),
         );
         this.loading.set(false);
       },
@@ -101,7 +113,14 @@ export class ProgressStreakComponent implements OnInit {
         this.calendarLoading.set(false);
       },
       error: (err) => {
-        this.errorMessage.set(extractApiError(err, 'Failed to load month calendar.'));
+        this.errorMessage.set(
+          extractApiError(
+            err,
+            this.i18n.lang() === 'vi'
+              ? 'Không thể tải dữ liệu tháng.'
+              : 'Failed to load month calendar.',
+          ),
+        );
         this.calendarLoading.set(false);
       },
     });
@@ -115,23 +134,35 @@ export class ProgressStreakComponent implements OnInit {
     this.progressApi.getHistory(days).subscribe({
       next: (res) => this.history.set(res),
       error: (err) =>
-        this.errorMessage.set(extractApiError(err, 'Failed to update activity window.')),
+        this.errorMessage.set(
+          extractApiError(
+            err,
+            this.i18n.lang() === 'vi'
+              ? 'Không thể cập nhật khoảng thời gian.'
+              : 'Failed to update activity window.',
+          ),
+        ),
     });
   }
 
   dayTitle(day: StreakCalendarDay): string {
+    const isVi = this.i18n.lang() === 'vi';
     if (day.status === 'active') {
-      return `${day.date}: ${day.activityCount} activities (${day.quizCompletions} quizzes, ${day.flashcardCompletions} flashcards)`;
+      return isVi
+        ? `${day.date}: ${day.activityCount} hoạt động (${day.quizCompletions} bài kiểm tra, ${day.flashcardCompletions} phiên thẻ)`
+        : `${day.date}: ${day.activityCount} activities (${day.quizCompletions} quizzes, ${day.flashcardCompletions} flashcards)`;
     }
     if (day.status === 'inactive_today') {
-      return `${day.date}: Today — no qualified activity yet`;
+      return isVi
+        ? `${day.date}: Hôm nay — chưa hoàn thành hoạt động đạt chuẩn`
+        : `${day.date}: Today — no qualified activity yet`;
     }
     if (day.status === 'missed') {
-      return `${day.date}: Missed day`;
+      return isVi ? `${day.date}: Ngày bỏ lỡ` : `${day.date}: Missed day`;
     }
     if (day.status === 'before_registration') {
-      return `${day.date}: Before account signup`;
+      return isVi ? `${day.date}: Trước khi đăng ký` : `${day.date}: Before account signup`;
     }
-    return `${day.date}: Upcoming date`;
+    return isVi ? `${day.date}: Ngày sắp tới` : `${day.date}: Upcoming date`;
   }
 }

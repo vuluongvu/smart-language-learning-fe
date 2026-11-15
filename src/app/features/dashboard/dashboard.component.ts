@@ -10,10 +10,12 @@ import {
   OqStatCardComponent,
   OqStreakCardComponent,
 } from '../../shared/components';
+import { I18nService, TranslatePipe } from '../../shared/i18n';
 import { LanguageItem } from '../../shared/types/auth.types';
 import { DailyActivityPoint, ProgressOverview } from '../../shared/types/learning.types';
 import { extractApiError } from '../../shared/utils/api-error.util';
 import { AuthService } from '../auth/auth.service';
+import { formatReviewRatingLabel } from '../flashcards/flashcard-labels';
 import { ProgressApiService } from '../progress/progress-api.service';
 
 @Component({
@@ -28,6 +30,7 @@ import { ProgressApiService } from '../progress/progress-api.service';
     OqProgressBarComponent,
     OqEmptyStateComponent,
     OqIconComponent,
+    TranslatePipe,
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
@@ -36,6 +39,8 @@ export class DashboardComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly progressApi = inject(ProgressApiService);
   private readonly languagesApi = inject(LanguagesApiService);
+  protected readonly i18n = inject(I18nService);
+  protected readonly formatRating = formatReviewRatingLabel;
 
   protected readonly user = this.authService.user;
   protected readonly loading = signal(true);
@@ -67,9 +72,7 @@ export class DashboardComponent implements OnInit {
         this.loading.set(false);
       },
       error: (err) => {
-        this.errorMessage.set(
-          extractApiError(err, 'Unable to load your learning overview right now.'),
-        );
+        this.errorMessage.set(extractApiError(err, this.i18n.t('dashboard.loadError')));
         this.loading.set(false);
       },
     });

@@ -1,17 +1,17 @@
 <div class="shell">
-  <a class="oq-skip-link" href="#main-content">Skip to main content</a>
+  <a class="oq-skip-link" href="#main-content">{{ 'common.skipToContent' | t }}</a>
 
   <header class="shell__topbar">
     <button
       type="button"
       class="shell__menu-btn"
       (click)="toggleDrawer()"
-      aria-label="Toggle navigation menu"
+      [attr.aria-label]="'common.openMenu' | t"
       [attr.aria-expanded]="drawerOpen()"
       aria-controls="app-sidebar-nav"
     >
       <oq-icon name="menu" [size]="18" />
-      <span>Menu</span>
+      <span>{{ 'common.menu' | t }}</span>
     </button>
 
     <a class="shell__brand" routerLink="/dashboard">
@@ -23,17 +23,38 @@
       <span>OpenQuiz</span>
     </a>
 
-    <button
-      type="button"
-      class="oq-btn oq-btn--secondary oq-btn--sm shell__theme-btn"
-      (click)="themeService.toggleTheme()"
-      [attr.aria-label]="
-        'Switch to ' + (themeService.theme() === 'light' ? 'dark' : 'light') + ' theme'
-      "
-    >
-      <oq-icon [name]="themeService.theme() === 'light' ? 'moon' : 'sun'" [size]="15" />
-      <span>{{ themeService.theme() === 'light' ? 'Dark' : 'Light' }}</span>
-    </button>
+    <div class="shell__topbar-actions">
+      <button
+        type="button"
+        class="oq-btn oq-btn--secondary oq-btn--sm shell__lang-btn"
+        (click)="i18n.toggleLang()"
+        [attr.aria-label]="'common.switchLangAria' | t"
+      >
+        <oq-icon name="globe" [size]="15" />
+        <span>{{ 'common.langCode' | t }}</span>
+      </button>
+
+      <button
+        type="button"
+        class="oq-btn oq-btn--secondary oq-btn--sm shell__theme-btn"
+        (click)="themeService.toggleTheme()"
+        [attr.aria-label]="
+          'common.switchToTheme'
+            | t
+              : {
+                  mode:
+                    themeService.theme() === 'light'
+                      ? ('common.darkShort' | t)
+                      : ('common.lightShort' | t),
+                }
+        "
+      >
+        <oq-icon [name]="themeService.theme() === 'light' ? 'moon' : 'sun'" [size]="15" />
+        <span>{{
+          (themeService.theme() === 'light' ? 'common.darkShort' : 'common.lightShort') | t
+        }}</span>
+      </button>
+    </div>
   </header>
 
   @if (drawerOpen()) {
@@ -44,8 +65,10 @@
     [drawerOpen]="drawerOpen()"
     [user]="authService.user()"
     [theme]="themeService.theme()"
+    [lang]="i18n.lang()"
     (closeDrawer)="closeDrawer()"
     (toggleTheme)="themeService.toggleTheme()"
+    (toggleLang)="i18n.toggleLang()"
     (logout)="logout()"
   />
 
@@ -63,7 +86,7 @@
       class="shell__bottom-link"
     >
       <oq-icon name="layout-dashboard" [size]="18" />
-      <span>Home</span>
+      <span>{{ 'nav.mobileHome' | t }}</span>
     </a>
     <a
       routerLink="/vocabulary"
@@ -72,7 +95,7 @@
       class="shell__bottom-link"
     >
       <oq-icon name="book-open" [size]="18" />
-      <span>Vocab</span>
+      <span>{{ 'nav.mobileVocab' | t }}</span>
     </a>
     <a
       routerLink="/flashcards"
@@ -81,7 +104,7 @@
       class="shell__bottom-link"
     >
       <oq-icon name="layers" [size]="18" />
-      <span>Cards</span>
+      <span>{{ 'nav.mobileCards' | t }}</span>
     </a>
     <a
       routerLink="/quizzes"
@@ -90,7 +113,7 @@
       class="shell__bottom-link"
     >
       <oq-icon name="help-circle" [size]="18" />
-      <span>Quizzes</span>
+      <span>{{ 'nav.mobileQuizzes' | t }}</span>
     </a>
     <a
       routerLink="/progress"
@@ -99,7 +122,7 @@
       class="shell__bottom-link"
     >
       <oq-icon name="bar-chart" [size]="18" />
-      <span>Streak</span>
+      <span>{{ 'nav.mobileStreak' | t }}</span>
     </a>
   </nav>
 </div>

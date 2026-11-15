@@ -29,6 +29,12 @@
     letter-spacing: -0.02em;
     color: var(--oq-text-primary);
   }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
 }
 
 .auth-intro {

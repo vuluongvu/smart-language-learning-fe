@@ -1,8 +1,9 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { ThemeService } from '../../../shared/services/theme.service';
 import { OqIconComponent } from '../../../shared/components';
+import { I18nService, TranslatePipe } from '../../../shared/i18n';
+import { ThemeService } from '../../../shared/services/theme.service';
 import {
   COMMON_TIMEZONES,
   detectBrowserTimezone,
@@ -12,7 +13,7 @@ import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule, RouterLink, OqIconComponent],
+  imports: [ReactiveFormsModule, RouterLink, OqIconComponent, TranslatePipe],
   templateUrl: './register.component.html',
   styleUrl: '../auth-page.scss',
 })
@@ -21,6 +22,7 @@ export class RegisterComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   protected readonly themeService = inject(ThemeService);
+  protected readonly i18n = inject(I18nService);
 
   private readonly detectedTimezone = detectBrowserTimezone();
   protected readonly timezoneOptions = Array.from(
@@ -53,7 +55,12 @@ export class RegisterComponent {
       },
       error: (err: unknown) => {
         this.isSubmitting.set(false);
-        this.errorMessage.set(extractApiError(err, 'Unable to create account'));
+        this.errorMessage.set(
+          extractApiError(
+            err,
+            this.i18n.lang() === 'vi' ? 'Không thể tạo tài khoản' : 'Unable to create account',
+          ),
+        );
       },
     });
   }

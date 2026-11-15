@@ -1,30 +1,33 @@
 import { Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '../../i18n';
 import { OqIconComponent } from '../icon/icon.component';
 
 @Component({
   selector: 'oq-streak-card',
-  imports: [RouterLink, OqIconComponent],
+  imports: [RouterLink, OqIconComponent, TranslatePipe],
   template: `
     <section
       class="oq-card oq-streak-card"
       [class.oq-streak-card--active]="isActiveToday()"
       [class.oq-streak-card--risk]="isAtRiskToday()"
-      aria-label="Daily learning streak"
+      [attr.aria-label]="'streak.eyebrow' | t"
     >
       <div class="oq-streak-card__main">
         <div class="oq-streak-card__flame" [class.oq-streak-card__flame--active]="isActiveToday()">
           <oq-icon name="flame" [size]="24" />
         </div>
         <div>
-          <span class="oq-streak-card__eyebrow">Daily Streak</span>
+          <span class="oq-streak-card__eyebrow">{{ 'streak.eyebrow' | t }}</span>
           <div class="oq-streak-card__count">
             <strong>{{ currentStreak() }}</strong>
-            <span>{{ currentStreak() === 1 ? 'day' : 'days' }}</span>
+            <span>{{
+              currentStreak() === 1 ? ('streak.dayUnitSingular' | t) : ('streak.dayUnitPlural' | t)
+            }}</span>
           </div>
           <p class="oq-streak-card__meta">
-            Longest streak: <strong>{{ longestStreak() }} days</strong> · Timezone:
-            <code>{{ timezone() }}</code>
+            <strong>{{ 'streak.longest' | t: { days: longestStreak() } }}</strong> ·
+            {{ 'streak.timezone' | t }} <code>{{ timezone() }}</code>
           </p>
         </div>
       </div>
@@ -33,26 +36,26 @@ import { OqIconComponent } from '../icon/icon.component';
         @if (isActiveToday()) {
           <span class="oq-badge oq-badge--success">
             <oq-icon name="check" [size]="13" />
-            Qualified activity completed today
+            {{ 'streak.activeToday' | t }}
           </span>
         } @else if (isAtRiskToday()) {
           <span class="oq-badge oq-badge--warning">
             <oq-icon name="clock" [size]="13" />
-            Streak at risk — finish a quiz or 5 flashcards today
+            {{ 'streak.riskToday' | t }}
           </span>
         } @else {
-          <span class="oq-badge"> Complete a quiz or flashcard session to start your streak </span>
+          <span class="oq-badge">{{ 'streak.startToday' | t }}</span>
         }
 
         @if (showLinks()) {
           <div class="oq-streak-card__links">
             <a routerLink="/progress" class="oq-btn oq-btn--secondary oq-btn--sm">
               <oq-icon name="calendar" [size]="15" />
-              <span>Streak Calendar &amp; History</span>
+              <span>{{ 'streak.calendarLink' | t }}</span>
             </a>
             <a routerLink="/leaderboard" class="oq-btn oq-btn--secondary oq-btn--sm">
               <oq-icon name="trophy" [size]="15" />
-              <span>Streak Leaderboard</span>
+              <span>{{ 'streak.leaderboardLink' | t }}</span>
             </a>
           </div>
         }

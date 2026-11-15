@@ -7,6 +7,7 @@ import {
   OqModalComponent,
   OqPageHeaderComponent,
 } from '../../shared/components';
+import { I18nService, TranslatePipe, TxKey } from '../../shared/i18n';
 import {
   PaginationMeta,
   QuizDifficulty,
@@ -28,6 +29,7 @@ import { QuizzesApiService } from './quizzes-api.service';
     OqModalComponent,
     OqEmptyStateComponent,
     OqIconComponent,
+    TranslatePipe,
   ],
   templateUrl: './quizzes-list.component.html',
   styleUrl: './quizzes-list.component.scss',
@@ -35,6 +37,7 @@ import { QuizzesApiService } from './quizzes-api.service';
 export class QuizzesListComponent implements OnInit {
   private readonly quizzesApi = inject(QuizzesApiService);
   private readonly topicsApi = inject(TopicsApiService);
+  private readonly i18n = inject(I18nService);
 
   protected readonly quizzes = signal<QuizSummary[]>([]);
   protected readonly topics = signal<TopicSummary[]>([]);
@@ -86,7 +89,14 @@ export class QuizzesListComponent implements OnInit {
           this.isLoading.set(false);
         },
         error: (err: unknown) => {
-          this.errorMessage.set(extractApiError(err, 'Failed to load quizzes'));
+          this.errorMessage.set(
+            extractApiError(
+              err,
+              this.i18n.lang() === 'vi'
+                ? 'Không thể tải danh sách bài kiểm tra'
+                : 'Failed to load quizzes',
+            ),
+          );
           this.isLoading.set(false);
         },
       });
@@ -113,13 +123,33 @@ export class QuizzesListComponent implements OnInit {
       next: () => {
         this.isDeleting.set(false);
         this.confirmDeleteQuiz.set(null);
-        this.successMessage.set(`Deleted quiz "${target.title}".`);
+        this.successMessage.set(
+          this.i18n.lang() === 'vi'
+            ? `Đã xóa bài kiểm tra "${target.title}".`
+            : `Deleted quiz "${target.title}".`,
+        );
         this.loadQuizzes(this.meta().page);
       },
       error: (err: unknown) => {
         this.isDeleting.set(false);
-        this.errorMessage.set(extractApiError(err, 'Failed to delete quiz'));
+        this.errorMessage.set(
+          extractApiError(
+            err,
+            this.i18n.lang() === 'vi' ? 'Không thể xóa bài kiểm tra' : 'Failed to delete quiz',
+          ),
+        );
       },
     });
+  }
+
+  difficultyKey(diff: QuizDifficulty): TxKey {
+    switch (diff) {
+      case 'easy':
+        return 'quizzes.easy';
+      case 'medium':
+        return 'quizzes.medium';
+      case 'hard':
+        return 'quizzes.hard';
+    }
   }
 }

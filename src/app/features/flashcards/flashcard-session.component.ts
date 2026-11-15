@@ -5,6 +5,7 @@ import {
   OqPageHeaderComponent,
   OqProgressBarComponent,
 } from '../../shared/components';
+import { I18nService, TranslatePipe, TxKey } from '../../shared/i18n';
 import {
   FlashcardCardView,
   FlashcardSessionDetail,
@@ -22,7 +23,13 @@ import { FlashcardsApiService } from './flashcards-api.service';
 @Component({
   selector: 'app-flashcard-session',
   standalone: true,
-  imports: [RouterLink, OqPageHeaderComponent, OqProgressBarComponent, OqIconComponent],
+  imports: [
+    RouterLink,
+    OqPageHeaderComponent,
+    OqProgressBarComponent,
+    OqIconComponent,
+    TranslatePipe,
+  ],
   templateUrl: './flashcard-session.component.html',
   styleUrl: './flashcard-session.component.scss',
   host: {
@@ -33,6 +40,7 @@ export class FlashcardSessionComponent implements OnInit {
   private readonly api = inject(FlashcardsApiService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  protected readonly i18n = inject(I18nService);
 
   readonly session = signal<FlashcardSessionDetail | null>(null);
   readonly currentIndex = signal(0);
@@ -64,36 +72,41 @@ export class FlashcardSessionComponent implements OnInit {
   readonly ratingButtons: Array<{
     rating: ReviewRating;
     keyHint: string;
-    label: string;
-    hint: string;
+    labelKey: TxKey;
+    hintEn: string;
+    hintVi: string;
     tone: 'danger' | 'warning' | 'primary' | 'success';
   }> = [
     {
       rating: 'again',
       keyHint: '1',
-      label: 'Again',
-      hint: 'Reset (< 1 day)',
+      labelKey: 'fc.ratingAgain',
+      hintEn: 'Reset (< 1 day)',
+      hintVi: 'Đặt lại (< 1 ngày)',
       tone: 'danger',
     },
     {
       rating: 'hard',
       keyHint: '2',
-      label: 'Hard',
-      hint: 'Shorter interval',
+      labelKey: 'fc.ratingHard',
+      hintEn: 'Shorter interval',
+      hintVi: 'Rút ngắn khoảng ôn',
       tone: 'warning',
     },
     {
       rating: 'good',
       keyHint: '3',
-      label: 'Good',
-      hint: 'Standard step',
+      labelKey: 'fc.ratingGood',
+      hintEn: 'Standard step',
+      hintVi: 'Mức tiêu chuẩn',
       tone: 'primary',
     },
     {
       rating: 'easy',
       keyHint: '4',
-      label: 'Easy',
-      hint: 'Boosted interval',
+      labelKey: 'fc.ratingEasy',
+      hintEn: 'Boosted interval',
+      hintVi: 'Tăng khoảng ôn',
       tone: 'success',
     },
   ];
@@ -126,7 +139,14 @@ export class FlashcardSessionComponent implements OnInit {
         this.isLoading.set(false);
       },
       error: (err: unknown) => {
-        this.errorMessage.set(extractApiError(err, 'Could not load flashcard session.'));
+        this.errorMessage.set(
+          extractApiError(
+            err,
+            this.i18n.lang() === 'vi'
+              ? 'Không thể tải phiên thẻ ghi nhớ.'
+              : 'Could not load flashcard session.',
+          ),
+        );
         this.isLoading.set(false);
       },
     });
@@ -177,8 +197,11 @@ export class FlashcardSessionComponent implements OnInit {
       next: ({ session, updatedProgress }) => {
         this.session.set(session);
         this.isSubmitting.set(false);
+        const lang = this.i18n.lang();
         this.feedbackMessage.set(
-          `Saved "${card.term}" as ${this.formatRating(rating)} — next review in ${this.formatInterval(updatedProgress.intervalDays)}.`,
+          lang === 'vi'
+            ? `Đã lưu "${card.term}" ở mức ${this.formatRating(rating, lang)} — ôn lại sau ${this.formatInterval(updatedProgress.intervalDays, lang)}.`
+            : `Saved "${card.term}" as ${this.formatRating(rating, lang)} — next review in ${this.formatInterval(updatedProgress.intervalDays, lang)}.`,
         );
 
         const nextUnreviewedIdx = session.cards.findIndex(
@@ -195,7 +218,14 @@ export class FlashcardSessionComponent implements OnInit {
         }
       },
       error: (err: unknown) => {
-        this.errorMessage.set(extractApiError(err, 'Could not save card rating.'));
+        this.errorMessage.set(
+          extractApiError(
+            err,
+            this.i18n.lang() === 'vi'
+              ? 'Không thể lưu đánh giá thẻ.'
+              : 'Could not save card rating.',
+          ),
+        );
         this.isSubmitting.set(false);
       },
     });
@@ -217,7 +247,14 @@ export class FlashcardSessionComponent implements OnInit {
         this.isFlipped.set(false);
       },
       error: (err: unknown) => {
-        this.errorMessage.set(extractApiError(err, 'Could not complete review session.'));
+        this.errorMessage.set(
+          extractApiError(
+            err,
+            this.i18n.lang() === 'vi'
+              ? 'Không thể hoàn thành phiên ôn tập.'
+              : 'Could not complete review session.',
+          ),
+        );
         this.isCompleting.set(false);
       },
     });
@@ -243,7 +280,14 @@ export class FlashcardSessionComponent implements OnInit {
           void this.router.navigate(['/flashcards/sessions', nextSession.id]);
         },
         error: (err: unknown) => {
-          this.errorMessage.set(extractApiError(err, 'Could not start forgotten cards deck.'));
+          this.errorMessage.set(
+            extractApiError(
+              err,
+              this.i18n.lang() === 'vi'
+                ? 'Không thể bắt đầu bộ thẻ cần ôn lại.'
+                : 'Could not start forgotten cards deck.',
+            ),
+          );
           this.isSubmitting.set(false);
         },
       });

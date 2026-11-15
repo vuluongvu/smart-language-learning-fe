@@ -1,17 +1,18 @@
 import { Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '../../i18n';
 import { OqIconComponent } from '../icon/icon.component';
 
 @Component({
   selector: 'oq-page-header',
-  imports: [RouterLink, OqIconComponent],
+  imports: [RouterLink, OqIconComponent, TranslatePipe],
   template: `
     <header class="oq-page-header">
       <div class="oq-page-header__left">
         @if (backLink()) {
           <a [routerLink]="backLink()" class="oq-page-header__back">
             <oq-icon name="arrow-left" [size]="15" />
-            <span>{{ backLabel() }}</span>
+            <span>{{ backLabel() ?? ('common.back' | t) }}</span>
           </a>
         }
         @if (eyebrow()) {
@@ -99,5 +100,5 @@ export class OqPageHeaderComponent {
   readonly subtitle = input<string | null>(null);
   readonly eyebrow = input<string | null>(null);
   readonly backLink = input<string | unknown[] | null>(null);
-  readonly backLabel = input<string>('Back');
+  readonly backLabel = input<string | null>(null);
 }
