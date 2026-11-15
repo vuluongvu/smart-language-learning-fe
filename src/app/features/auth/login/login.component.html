@@ -1,0 +1,71 @@
+<div class="auth-page">
+  <section class="oq-card auth-card">
+    <div class="auth-header">
+      <div class="auth-header__brand">
+        <span class="auth-header__dot" aria-hidden="true"></span>
+        <span>OpenQuiz</span>
+      </div>
+      <button type="button" class="oq-btn oq-btn--secondary" (click)="themeService.toggleTheme()">
+        {{ themeService.theme() === 'light' ? 'Dark' : 'Light' }}
+      </button>
+    </div>
+
+    <h1 class="auth-title">Welcome back</h1>
+    <p class="auth-subtitle">Sign in to continue your English learning streak.</p>
+
+    @if (errorMessage()) {
+      <div class="oq-alert oq-alert--error" role="alert">
+        {{ errorMessage() }}
+      </div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="oq-field">
+        <label for="login-email">Email</label>
+        <input
+          id="login-email"
+          type="email"
+          formControlName="email"
+          autocomplete="email"
+          placeholder="you@example.com"
+        />
+        @if (form.controls.email.touched && form.controls.email.invalid) {
+          <span class="oq-field-error">Please enter a valid email address.</span>
+        }
+      </div>
+
+      <div class="oq-field">
+        <label for="login-password">Password</label>
+        <input
+          id="login-password"
+          type="password"
+          formControlName="password"
+          autocomplete="current-password"
+          placeholder="Enter your password"
+        />
+        @if (form.controls.password.touched && form.controls.password.invalid) {
+          <span class="oq-field-error">Password is required.</span>
+        }
+      </div>
+
+      <button type="submit" class="oq-btn oq-btn--primary oq-btn--full" [disabled]="isSubmitting()">
+        {{ isSubmitting() ? 'Signing in...' : 'Sign in' }}
+      </button>
+    </form>
+
+    <div class="auth-divider">or</div>
+
+    @if (googleClientId) {
+      <div #googleBtnContainer class="auth-google-slot"></div>
+    } @else {
+      <div class="oq-alert oq-alert--info">
+        Google Sign-In is disabled until <code>googleClientId</code> is configured in environment.
+      </div>
+    }
+
+    <p class="auth-footer">
+      New to OpenQuiz?
+      <a routerLink="/register">Create an account</a>
+    </p>
+  </section>
+</div>
