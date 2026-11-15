@@ -1,0 +1,68 @@
+.oq-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.oq-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--oq-space-4) var(--oq-space-6);
+  background: var(--oq-bg-surface);
+  border-bottom: 1px solid var(--oq-border-subtle);
+}
+
+.oq-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--oq-space-3);
+
+  &__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--oq-accent);
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+}
+
+.oq-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: var(--oq-space-1) var(--oq-space-3);
+  border-radius: 999px;
+  color: var(--oq-accent);
+  background: var(--oq-accent-soft);
+}
+
+.oq-main {
+  width: 100%;
+  max-width: 960px;
+  margin: var(--oq-space-8) auto;
+  padding: 0 var(--oq-space-4);
+}
+
+.oq-card {
+  background: var(--oq-bg-surface);
+  border: 1px solid var(--oq-border-subtle);
+  border-radius: var(--oq-radius-lg);
+  padding: var(--oq-space-6);
+  box-shadow: var(--oq-shadow-sm);
+
+  h2 {
+    margin: 0 0 var(--oq-space-2);
+    font-size: 1.25rem;
+  }
+
+  p {
+    margin: 0;
+    color: var(--oq-text-secondary);
+  }
+}

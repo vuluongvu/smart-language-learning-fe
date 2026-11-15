@@ -1,59 +1,62 @@
-# SmartLanguageLearningFe
+# OpenQuiz Frontend (`smart-language-learning-fe`)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.30.
+Frontend web application cho nền tảng tự học tiếng Anh cá nhân hóa **OpenQuiz**, xây dựng bằng **Angular 21 + TypeScript + SCSS**.
 
-## Development server
+## Stack
 
-To start a local development server, run:
+- **Framework:** Angular `21` (Standalone Components, Signals, Router, `HttpClient` with `fetch`)
+- **Styling:** SCSS + CSS Custom Properties design tokens (Light Mode mặc định, hỗ trợ Dark Mode `[data-theme="dark"]`)
+- **Testing & Formatting:** Vitest (`ng test`), Prettier
 
-```bash
-ng serve
-```
+## Yêu cầu môi trường
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+- Node.js >= 24
+- npm >= 11
 
-## Code scaffolding
+## Cài đặt & Chạy local
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+1. Cài dependencies:
 
 ```bash
-ng generate --help
+npm ci
 ```
 
-## Building
+2. Đảm bảo Backend đang chạy tại `http://localhost:3000/api/v1` (cấu hình trong `src/environments/environment.development.ts`).
 
-To build the project run:
+3. Khởi động dev server:
 
 ```bash
-ng build
+npm start
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+- Ứng dụng chạy tại: `http://localhost:4200`
 
-## Running unit tests
+## Scripts chính
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+| Script | Mô tả |
+| --- | --- |
+| `npm start` | Chạy dev server (`ng serve`) |
+| `npm run build` | Build production |
+| `npm run test:ci` | Chạy unit tests một lần với Vitest |
+| `npm run format` | Format code bằng Prettier |
+| `npm run format:check` | Kiểm tra format bằng Prettier |
 
-```bash
-ng test
+## Cấu trúc thư mục dự kiến
+
+```text
+src/
+  app/
+    features/     # auth, dashboard, vocabulary, topics, quizzes, flashcards, progress, streaks, leaderboard, settings
+    shared/
+      api/        # HTTP client & response types
+      components/ # Reusable UI components
+      layouts/    # Desktop sidebar & mobile navigation shells
+      types/      # Domain interfaces
+      utils/      # Helpers
+  environments/
+  styles/         # Design tokens (_tokens.scss)
 ```
 
-## Running end-to-end tests
+## Git workflow
 
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Phát triển theo nhánh feature, kiểm tra `build`, `format:check`, `test:ci` trước khi merge vào `develop` và `master`.
