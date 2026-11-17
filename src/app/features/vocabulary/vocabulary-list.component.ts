@@ -1,16 +1,18 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
   OqEmptyStateComponent,
   OqIconComponent,
   OqModalComponent,
-  OqPageHeaderComponent,
+  OqStatCardComponent,
 } from '../../shared/components';
 import { I18nService, TranslatePipe } from '../../shared/i18n';
+import { SpeechService } from '../../shared/services/speech.service';
 import {
   BulkCreateVocabularyResult,
   DuplicateCheckResult,
+  FlashcardDueSummary,
   PaginationMeta,
   TopicSummary,
   VocabularyItem,
@@ -19,9 +21,31 @@ import {
 } from '../../shared/types/learning.types';
 import { extractApiError } from '../../shared/utils/api-error.util';
 import { formatProgressStatusLabel } from '../flashcards/flashcard-labels';
+import { FlashcardsApiService } from '../flashcards/flashcards-api.service';
 import { TopicsApiService } from '../topics/topics-api.service';
 import { AiVocabModalComponent } from './ai-vocab-modal/ai-vocab-modal.component';
 import { VocabularyApiService } from './vocabulary-api.service';
+
+export type VocabPosTone = 'lavender' | 'accent' | 'cream' | 'green' | 'sky' | 'plum';
+export type VocabStatusKey = 'new' | 'due' | 'learning' | 'mastered';
+
+const POS_TONE_MAP: Record<string, VocabPosTone> = {
+  noun: 'lavender',
+  'danh từ': 'lavender',
+  verb: 'accent',
+  'động từ': 'accent',
+  'phrasal verb': 'accent',
+  adjective: 'cream',
+  'tính từ': 'cream',
+  adverb: 'green',
+  'trạng từ': 'green',
+  phrase: 'sky',
+  idiom: 'sky',
+  'cụm từ': 'sky',
+  'thành ngữ': 'sky',
+  preposition: 'plum',
+  'giới từ': 'plum',
+};
 
 @Component({
   selector: 'app-vocabulary-list',
@@ -29,25 +53,28 @@ import { VocabularyApiService } from './vocabulary-api.service';
     FormsModule,
     ReactiveFormsModule,
     RouterLink,
-    OqPageHeaderComponent,
     OqModalComponent,
     OqEmptyStateComponent,
     OqIconComponent,
+    OqStatCardComponent,
     AiVocabModalComponent,
     TranslatePipe,
   ],
   templateUrl: './vocabulary-list.component.html',
   styleUrl: './vocabulary-list.component.scss',
 })
-export class VocabularyListComponent implements OnInit {
+export class VocabularyListComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
   private readonly vocabularyApi = inject(VocabularyApiService);
   private readonly topicsApi = inject(TopicsApiService);
+  private readonly flashcardsApi = inject(FlashcardsApiService);
+  protected readonly speech = inject(SpeechService);
   protected readonly i18n = inject(I18nService);
 
   protected readonly items = signal<VocabularyItem[]>([]);
   protected readonly topics = signal<TopicSummary[]>([]);
+  protected readonly summary = signal<FlashcardDueSummary | null>(null);
   protected readonly meta = signal<PaginationMeta>({
     page: 1,
     limit: 12,
@@ -57,6 +84,21 @@ export class VocabularyListComponent implements OnInit {
   protected readonly isLoading = signal(true);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly successMessage = signal<string | null>(null);
+
+  protected readonly totalWordsCount = computed(
+    () => this.summary()?.totalCount ?? this.meta().total,
+  );
+  protected readonly dueWordsCount = computed(() => this.summary()?.dueCount ?? 0);
+  protected readonly newWordsCount = computed(() => this.summary()?.newCount ?? 0);
+  protected readonly learningWordsCount = computed(() => this.summary()?.learningCount ?? 0);
+  protected readonly masteredWordsCount = computed(() => this.summary()?.masteredCount ?? 0);
+  protected readonly newAndLearningCount = computed(
+    () => this.newWordsCount() + this.learningWordsCount(),
+  );
+  protected readonly masteryPercent = computed(() => {
+    const total = this.totalWordsCount();
+    return total > 0 ? Math.round((this.masteredWordsCount() / total) * 100) : 0;
+  });
 
   protected search = '';
   protected selectedTopicId: number | null = null;
@@ -106,7 +148,12 @@ export class VocabularyListComponent implements OnInit {
       this.selectedTopicId = qpTopicId;
     }
     this.loadTopics();
+    this.loadSummary();
     this.loadVocabulary(1);
+  }
+
+  ngOnDestroy(): void {
+    this.speech.stopSpeaking();
   }
 
   loadTopics(): void {
@@ -114,6 +161,74 @@ export class VocabularyListComponent implements OnInit {
       next: (res) => this.topics.set(res.items),
       error: () => undefined,
     });
+  }
+
+  loadSummary(): void {
+    this.flashcardsApi.getDueQueue({ topicId: this.selectedTopicId, limit: 1 }).subscribe({
+      next: (res) => this.summary.set(res.summary),
+      error: () => undefined,
+    });
+  }
+
+  onTopicChange(): void {
+    this.loadSummary();
+    this.loadVocabulary(1);
+  }
+
+  setStatusFilter(status: VocabularyReviewStatusFilter): void {
+    if (this.reviewStatusFilter === status) {
+      return;
+    }
+    this.reviewStatusFilter = status;
+    this.loadVocabulary(1);
+  }
+
+  filterByTopic(topicId: number): void {
+    this.selectedTopicId = this.selectedTopicId === topicId ? null : topicId;
+    this.onTopicChange();
+  }
+
+  hasActiveFilters(): boolean {
+    return Boolean(
+      this.search.trim() ||
+      this.selectedTopicId !== null ||
+      this.partOfSpeechFilter ||
+      this.reviewStatusFilter !== 'all' ||
+      this.sortBy !== 'newest',
+    );
+  }
+
+  resetFilters(): void {
+    const topicChanged = this.selectedTopicId !== null;
+    this.search = '';
+    this.selectedTopicId = null;
+    this.partOfSpeechFilter = '';
+    this.reviewStatusFilter = 'all';
+    this.sortBy = 'newest';
+    if (topicChanged) {
+      this.loadSummary();
+    }
+    this.loadVocabulary(1);
+  }
+
+  speakTerm(item: VocabularyItem): void {
+    this.speech.speak(item.term, `vocab-${item.id}`);
+  }
+
+  statusKey(item: VocabularyItem): VocabStatusKey {
+    if (item.progress?.isDue) {
+      return 'due';
+    }
+    return item.progress?.status ?? 'new';
+  }
+
+  posBadgeTone(pos: string | null | undefined): VocabPosTone {
+    const normalized = pos?.trim().toLowerCase() ?? '';
+    return POS_TONE_MAP[normalized] ?? 'plum';
+  }
+
+  topicToneIndex(topicId: number): number {
+    return Math.abs(topicId) % 4;
   }
 
   loadVocabulary(page = 1): void {
@@ -176,6 +291,7 @@ export class VocabularyListComponent implements OnInit {
     this.showAiModal.set(false);
     this.successMessage.set(this.i18n.t('vocabAi.savedMsg', { count: result.createdCount }));
     this.loadTopics();
+    this.loadSummary();
     this.loadVocabulary(1);
   }
 
@@ -358,6 +474,7 @@ export class VocabularyListComponent implements OnInit {
             if (trimmedNewTopic) {
               this.loadTopics();
             }
+            this.loadSummary();
             this.loadVocabulary(1);
           },
           error: (err: unknown) => {
@@ -390,6 +507,7 @@ export class VocabularyListComponent implements OnInit {
         this.successMessage.set(
           this.i18n.lang() === 'vi' ? `Đã xóa "${target.term}".` : `Deleted "${target.term}".`,
         );
+        this.loadSummary();
         this.loadVocabulary(this.meta().page);
       },
       error: (err: unknown) => {
