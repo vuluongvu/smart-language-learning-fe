@@ -102,7 +102,44 @@ export interface CreateVocabularyPayload {
   definition: string;
   example?: string | null;
   notes?: string | null;
+  source?: 'manual' | 'quiz' | 'import' | 'ai';
   topicIds?: number[];
+  newTopicName?: string | null;
+}
+
+export type AiGenerateMode = 'topic' | 'passage';
+export type CefrLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
+
+export interface AiVocabularyDraft {
+  term: string;
+  pronunciation: string | null;
+  partOfSpeech: string | null;
+  definition: string;
+  example: string | null;
+  notes: string | null;
+  alreadyExists: boolean;
+}
+
+export interface AiEnrichVocabularyResult {
+  model: string;
+  item: AiVocabularyDraft & { existingMatchCount: number };
+}
+
+export interface AiGenerateVocabularyResult {
+  model: string;
+  items: AiVocabularyDraft[];
+}
+
+export interface BulkCreateVocabularyPayload {
+  items: CreateVocabularyPayload[];
+  topicIds?: number[];
+  newTopicName?: string | null;
+}
+
+export interface BulkCreateVocabularyResult {
+  createdCount: number;
+  createdTopic: VocabularyTopicBadge | null;
+  items: CreateVocabularyResult[];
 }
 
 export interface UpdateVocabularyPayload {

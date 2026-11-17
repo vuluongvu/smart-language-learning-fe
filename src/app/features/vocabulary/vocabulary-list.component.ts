@@ -9,6 +9,7 @@ import {
 } from '../../shared/components';
 import { I18nService, TranslatePipe } from '../../shared/i18n';
 import {
+  BulkCreateVocabularyResult,
   DuplicateCheckResult,
   PaginationMeta,
   TopicSummary,
@@ -19,6 +20,7 @@ import {
 import { extractApiError } from '../../shared/utils/api-error.util';
 import { formatProgressStatusLabel } from '../flashcards/flashcard-labels';
 import { TopicsApiService } from '../topics/topics-api.service';
+import { AiVocabModalComponent } from './ai-vocab-modal/ai-vocab-modal.component';
 import { VocabularyApiService } from './vocabulary-api.service';
 
 @Component({
@@ -31,6 +33,7 @@ import { VocabularyApiService } from './vocabulary-api.service';
     OqModalComponent,
     OqEmptyStateComponent,
     OqIconComponent,
+    AiVocabModalComponent,
     TranslatePipe,
   ],
   templateUrl: './vocabulary-list.component.html',
@@ -62,9 +65,13 @@ export class VocabularyListComponent implements OnInit {
   protected sortBy: VocabularySortKey = 'newest';
 
   protected readonly showForm = signal(false);
+  protected readonly showAiModal = signal(false);
+  protected readonly showMoreFilters = signal(false);
   protected readonly editingItem = signal<VocabularyItem | null>(null);
   protected readonly selectedTopicIds = signal<number[]>([]);
   protected readonly duplicateCheck = signal<DuplicateCheckResult | null>(null);
+  protected readonly isEnriching = signal(false);
+  protected readonly usedAiEnrich = signal(false);
   protected readonly isSaving = signal(false);
   protected readonly formError = signal<string | null>(null);
 
@@ -90,6 +97,7 @@ export class VocabularyListComponent implements OnInit {
     definition: ['', [Validators.required, Validators.maxLength(5000)]],
     example: ['', [Validators.maxLength(5000)]],
     notes: ['', [Validators.maxLength(5000)]],
+    newTopicName: ['', [Validators.maxLength(120)]],
   });
 
   ngOnInit(): void {
@@ -145,6 +153,7 @@ export class VocabularyListComponent implements OnInit {
   openCreate(): void {
     this.editingItem.set(null);
     this.duplicateCheck.set(null);
+    this.usedAiEnrich.set(false);
     this.formError.set(null);
     this.form.reset({
       term: '',
@@ -153,14 +162,27 @@ export class VocabularyListComponent implements OnInit {
       definition: '',
       example: '',
       notes: '',
+      newTopicName: '',
     });
     this.selectedTopicIds.set(this.selectedTopicId ? [this.selectedTopicId] : []);
     this.showForm.set(true);
   }
 
+  openAiModal(): void {
+    this.showAiModal.set(true);
+  }
+
+  onAiSaved(result: BulkCreateVocabularyResult): void {
+    this.showAiModal.set(false);
+    this.successMessage.set(this.i18n.t('vocabAi.savedMsg', { count: result.createdCount }));
+    this.loadTopics();
+    this.loadVocabulary(1);
+  }
+
   openEdit(item: VocabularyItem): void {
     this.editingItem.set(item);
     this.duplicateCheck.set(null);
+    this.usedAiEnrich.set(false);
     this.formError.set(null);
     this.form.reset({
       term: item.term,
@@ -169,6 +191,7 @@ export class VocabularyListComponent implements OnInit {
       definition: item.definition,
       example: item.example ?? '',
       notes: item.notes ?? '',
+      newTopicName: '',
     });
     this.selectedTopicIds.set(item.topics.map((t) => t.id));
     this.showForm.set(true);
@@ -178,7 +201,56 @@ export class VocabularyListComponent implements OnInit {
     this.showForm.set(false);
     this.editingItem.set(null);
     this.duplicateCheck.set(null);
+    this.usedAiEnrich.set(false);
+    this.isEnriching.set(false);
     this.formError.set(null);
+  }
+
+  enrichWithAi(): void {
+    const term = this.form.controls.term.value.trim();
+    if (!term || this.isEnriching()) {
+      this.form.controls.term.markAsTouched();
+      return;
+    }
+
+    this.isEnriching.set(true);
+    this.formError.set(null);
+
+    this.vocabularyApi.enrichWithAi(term).subscribe({
+      next: (res) => {
+        this.isEnriching.set(false);
+        this.usedAiEnrich.set(true);
+        this.form.patchValue({
+          term: res.item.term,
+          pronunciation: res.item.pronunciation ?? '',
+          partOfSpeech: res.item.partOfSpeech ?? '',
+          definition: res.item.definition,
+          example: res.item.example ?? '',
+          notes: res.item.notes ?? '',
+        });
+        if (!this.editingItem() && res.item.alreadyExists) {
+          this.duplicateCheck.set({
+            exists: true,
+            matches: Array.from({ length: Math.max(1, res.item.existingMatchCount) }, () => ({
+              id: 0,
+              term: res.item.term,
+              definition: res.item.definition,
+            })),
+          });
+        }
+      },
+      error: (err: unknown) => {
+        this.isEnriching.set(false);
+        this.formError.set(
+          extractApiError(
+            err,
+            this.i18n.lang() === 'vi'
+              ? 'Không thể tự điền từ vựng bằng AI.'
+              : 'Unable to auto-fill vocabulary with AI.',
+          ),
+        );
+      },
+    });
   }
 
   isTopicSelected(topicId: number): boolean {
@@ -262,34 +334,44 @@ export class VocabularyListComponent implements OnInit {
         },
       });
     } else {
-      this.vocabularyApi.create(payload).subscribe({
-        next: (created) => {
-          this.isSaving.set(false);
-          this.showForm.set(false);
-          this.duplicateCheck.set(null);
-          this.successMessage.set(
-            created.duplicateWarning
-              ? this.i18n.lang() === 'vi'
-                ? `Đã thêm "${created.term}" (lưu ý: đã có ${created.existingMatchCount} mục trùng từ này).`
-                : `Added "${created.term}" (note: ${created.existingMatchCount} existing item(s) share this term).`
-              : this.i18n.lang() === 'vi'
-                ? `Đã thêm "${created.term}" vào Kho từ vựng.`
-                : `Added "${created.term}" to your Vocabulary Bank.`,
-          );
-          this.loadVocabulary(1);
-        },
-        error: (err: unknown) => {
-          this.isSaving.set(false);
-          this.formError.set(
-            extractApiError(
-              err,
-              this.i18n.lang() === 'vi'
-                ? 'Không thể tạo từ vựng'
-                : 'Failed to create vocabulary item',
-            ),
-          );
-        },
-      });
+      const trimmedNewTopic = raw.newTopicName.trim();
+      this.vocabularyApi
+        .create({
+          ...payload,
+          ...(trimmedNewTopic ? { newTopicName: trimmedNewTopic } : {}),
+          ...(this.usedAiEnrich() ? { source: 'ai' as const } : {}),
+        })
+        .subscribe({
+          next: (created) => {
+            this.isSaving.set(false);
+            this.showForm.set(false);
+            this.duplicateCheck.set(null);
+            this.successMessage.set(
+              created.duplicateWarning
+                ? this.i18n.lang() === 'vi'
+                  ? `Đã thêm "${created.term}" (lưu ý: đã có ${created.existingMatchCount} mục trùng từ này).`
+                  : `Added "${created.term}" (note: ${created.existingMatchCount} existing item(s) share this term).`
+                : this.i18n.lang() === 'vi'
+                  ? `Đã thêm "${created.term}" vào Kho từ vựng.`
+                  : `Added "${created.term}" to your Vocabulary Bank.`,
+            );
+            if (trimmedNewTopic) {
+              this.loadTopics();
+            }
+            this.loadVocabulary(1);
+          },
+          error: (err: unknown) => {
+            this.isSaving.set(false);
+            this.formError.set(
+              extractApiError(
+                err,
+                this.i18n.lang() === 'vi'
+                  ? 'Không thể tạo từ vựng'
+                  : 'Failed to create vocabulary item',
+              ),
+            );
+          },
+        });
     }
   }
 

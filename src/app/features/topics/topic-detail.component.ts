@@ -7,8 +7,13 @@ import {
   OqPageHeaderComponent,
 } from '../../shared/components';
 import { I18nService, TranslatePipe } from '../../shared/i18n';
-import { TopicDetail, VocabularyItem } from '../../shared/types/learning.types';
+import {
+  BulkCreateVocabularyResult,
+  TopicDetail,
+  VocabularyItem,
+} from '../../shared/types/learning.types';
 import { extractApiError } from '../../shared/utils/api-error.util';
+import { AiVocabModalComponent } from '../vocabulary/ai-vocab-modal/ai-vocab-modal.component';
 import { VocabularyApiService } from '../vocabulary/vocabulary-api.service';
 import { TopicsApiService } from './topics-api.service';
 
@@ -20,6 +25,7 @@ import { TopicsApiService } from './topics-api.service';
     OqPageHeaderComponent,
     OqEmptyStateComponent,
     OqIconComponent,
+    AiVocabModalComponent,
     TranslatePipe,
   ],
   templateUrl: './topic-detail.component.html',
@@ -39,6 +45,7 @@ export class TopicDetailComponent implements OnInit {
 
   protected selectedVocabularyId: number | null = null;
   protected readonly isAttaching = signal(false);
+  protected readonly showAiModal = signal(false);
 
   protected readonly attachableVocabulary = computed(() => {
     const currentTopic = this.topic();
@@ -130,6 +137,12 @@ export class TopicDetailComponent implements OnInit {
         );
       },
     });
+  }
+
+  onAiSaved(result: BulkCreateVocabularyResult): void {
+    this.showAiModal.set(false);
+    this.statusMessage.set(this.i18n.t('vocabAi.savedMsg', { count: result.createdCount }));
+    this.loadDetail();
   }
 
   private loadAvailableVocabulary(): void {

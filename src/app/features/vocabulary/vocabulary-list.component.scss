@@ -9,21 +9,34 @@
   padding: var(--oq-space-4);
 }
 
+.filter-stack {
+  display: grid;
+  gap: var(--oq-space-3);
+}
+
 .filter-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 155px), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 175px), 1fr));
   gap: var(--oq-space-2);
+  align-items: center;
 
   select {
     width: 100%;
-    padding: 9px 11px;
-    border-radius: var(--oq-radius-sm);
-    border: 1px solid var(--oq-border-strong);
-    background: var(--oq-bg-surface);
+    min-height: 40px;
+    padding: 8px 11px;
+    border-radius: var(--oq-radius-md);
+    border: 1.5px solid var(--oq-border-strong);
+    background: var(--oq-bg-canvas);
     color: var(--oq-text-primary);
     font: inherit;
     font-size: 0.875rem;
   }
+}
+
+.filter-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--oq-space-2);
 }
 
 .search-wrap {
@@ -40,10 +53,11 @@
 
   input {
     width: 100%;
-    padding: 9px 11px 9px 33px;
-    border-radius: var(--oq-radius-sm);
-    border: 1px solid var(--oq-border-strong);
-    background: var(--oq-bg-surface);
+    min-height: 40px;
+    padding: 8px 11px 8px 33px;
+    border-radius: var(--oq-radius-md);
+    border: 1.5px solid var(--oq-border-strong);
+    background: var(--oq-bg-canvas);
     color: var(--oq-text-primary);
     font: inherit;
     font-size: 0.875rem;
@@ -56,13 +70,38 @@
   gap: var(--oq-space-4);
 }
 
-.topic-picker {
-  margin-bottom: var(--oq-space-4);
+.term-input-row,
+.term-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
+.term-input-row input {
+  flex: 1;
+  min-width: 0;
+}
+
+.topic-group {
+  display: grid;
+  gap: var(--oq-space-3);
+  padding: 12px 14px;
+  border-radius: var(--oq-radius-md);
+  border: 1px solid var(--oq-border-subtle);
+  background: var(--oq-bg-subtle);
+
+  &__new {
+    margin-bottom: 0;
+  }
+}
+
+.topic-picker {
   &__label {
     display: block;
-    font-size: 0.8125rem;
-    font-weight: 500;
+    font-size: 0.78125rem;
+    font-weight: 700;
+    letter-spacing: 0.025em;
+    color: var(--oq-text-secondary);
     margin-bottom: var(--oq-space-2);
   }
 
@@ -80,8 +119,9 @@
   padding: 6px 12px;
   border-radius: var(--oq-radius-full);
   border: 1px solid var(--oq-border-strong);
-  background: var(--oq-bg-subtle);
+  background: var(--oq-bg-surface);
   font-size: 0.8125rem;
+  font-weight: 500;
   cursor: pointer;
 
   &--active {

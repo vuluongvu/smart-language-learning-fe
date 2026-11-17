@@ -183,4 +183,77 @@ describe('VocabularyListComponent', () => {
       'Added "resilient" (note: 1 existing item(s) share this term).',
     );
   });
+
+  it('auto-fills vocabulary form via AI and submits with source=ai', () => {
+    const fixture = TestBed.createComponent(VocabularyListComponent);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
+    flushInitialLoad();
+    fixture.detectChanges();
+
+    component.openCreate();
+    component['form'].patchValue({ term: 'mitigate' });
+    component.enrichWithAi();
+
+    const enrichReq = httpTesting.expectOne(
+      (r) => r.url.endsWith('/vocabulary/ai/enrich') && r.method === 'POST',
+    );
+    expect(enrichReq.request.body).toEqual({ term: 'mitigate' });
+    enrichReq.flush({
+      data: {
+        model: 'qwen/qwen3.8-27b',
+        item: {
+          term: 'mitigate',
+          pronunciation: '/ˈmɪtɪɡeɪt/',
+          partOfSpeech: 'verb',
+          definition: 'Giảm nhẹ, làm dịu bớt',
+          example: 'Planting trees helps mitigate climate change.',
+          notes: 'Thường đi với risk, impact.',
+          alreadyExists: false,
+          existingMatchCount: 0,
+        },
+      },
+    });
+    fixture.detectChanges();
+
+    expect(component['form'].controls.definition.value).toBe('Giảm nhẹ, làm dịu bớt');
+    expect(component['form'].controls.pronunciation.value).toBe('/ˈmɪtɪɡeɪt/');
+
+    component.saveVocabulary();
+    const createReq = httpTesting.expectOne(
+      (r) => r.url.endsWith('/vocabulary') && r.method === 'POST',
+    );
+    expect(createReq.request.body).toMatchObject({
+      term: 'mitigate',
+      pronunciation: '/ˈmɪtɪɡeɪt/',
+      partOfSpeech: 'verb',
+      definition: 'Giảm nhẹ, làm dịu bớt',
+      source: 'ai',
+    });
+    createReq.flush({
+      data: {
+        id: 52,
+        languageId: 1,
+        term: 'mitigate',
+        pronunciation: '/ˈmɪtɪɡeɪt/',
+        partOfSpeech: 'verb',
+        definition: 'Giảm nhẹ, làm dịu bớt',
+        example: 'Planting trees helps mitigate climate change.',
+        notes: 'Thường đi với risk, impact.',
+        source: 'ai',
+        topics: [],
+        duplicateWarning: false,
+        existingMatchCount: 0,
+        createdAt: '2026-11-18T00:00:00.000Z',
+        updatedAt: '2026-11-18T00:00:00.000Z',
+      },
+    });
+
+    const reloadReq = httpTesting.expectOne(
+      (r) => r.url.endsWith('/vocabulary') && r.method === 'GET',
+    );
+    reloadReq.flush({
+      data: { items: [], meta: { page: 1, limit: 12, total: 0, totalPages: 1 } },
+    });
+  });
 });
