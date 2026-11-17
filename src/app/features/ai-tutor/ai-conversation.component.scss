@@ -1,0 +1,249 @@
+:host,
+.conv-setup,
+.conv-history,
+.conv-summary,
+.conv-feedback,
+.conv-turns,
+.conv-turn {
+  display: grid;
+  gap: var(--oq-space-4);
+}
+
+.conv-loading {
+  padding: var(--oq-space-6);
+  text-align: center;
+}
+
+.conv-setup__head h2,
+.conv-history__head h3,
+.conv-session-bar__meta h2,
+.conv-summary__head h3,
+.conv-summary-box h4,
+.conv-feedback__assessment,
+.conv-feedback__explain,
+.conv-summary__remark,
+.conv-vocab-card__def,
+.conv-vocab-card__ex,
+.conv-summary-list__ex,
+.conv-summary-list__tip {
+  margin: 0;
+}
+
+.conv-setup__head p {
+  margin: 4px 0 0;
+  font-size: 0.875rem;
+}
+
+.conv-setup__grid,
+.conv-summary__grid,
+.conv-vocab-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: var(--oq-space-3);
+}
+
+.conv-chips,
+.conv-pills,
+.conv-session-bar__badges,
+.conv-word-chips,
+.conv-session-item__top,
+.conv-session-bar__info,
+.conv-session-bar__right,
+.conv-error-item__diff,
+.conv-improved-box__actions,
+.conv-composer__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.conv-chips {
+  margin-top: 8px;
+}
+
+.conv-saved-topics {
+  margin-top: 10px;
+
+  &__label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--oq-text-muted);
+  }
+}
+
+.conv-session-list,
+.conv-error-list,
+.conv-summary-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.conv-session-item,
+.conv-session-bar,
+.conv-feedback__head,
+.conv-summary__head,
+.conv-improved-box__top,
+.conv-vocab-card__top,
+.conv-composer__foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.conv-session-item,
+.conv-error-item,
+.conv-improved-box,
+.conv-summary-box,
+.conv-vocab-card,
+.conv-recording-bar {
+  padding: 12px 14px;
+  border-radius: var(--oq-radius-md);
+  background: var(--oq-bg-subtle);
+}
+
+.conv-bubble {
+  padding: 14px 16px;
+  border-radius: var(--oq-radius-lg);
+  border: 1px solid var(--oq-border-subtle);
+  max-width: 88%;
+
+  &--ai {
+    background: var(--oq-pastel-lavender);
+    border-color: var(--oq-pastel-lavender-border);
+    justify-self: start;
+  }
+
+  &--user {
+    background: var(--oq-accent);
+    border-color: var(--oq-accent);
+    color: var(--oq-on-accent);
+    justify-self: end;
+  }
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  &__text {
+    margin: 0;
+  }
+
+  &--user &__text {
+    white-space: pre-wrap;
+  }
+}
+
+.conv-feedback__section,
+.conv-summary-box,
+.conv-vocab-card,
+.conv-composer {
+  display: grid;
+  gap: 8px;
+}
+
+.conv-feedback__label {
+  font-size: 0.78125rem;
+  font-weight: 700;
+  color: var(--oq-text-secondary);
+}
+
+.conv-err-old {
+  color: var(--oq-danger);
+}
+
+.conv-err-new {
+  color: var(--oq-pastel-green-ink);
+}
+
+.conv-improved-box {
+  background: var(--oq-pastel-cream);
+  border: 1px solid var(--oq-pastel-cream-border);
+
+  &__text {
+    margin: 6px 0 0;
+    font-weight: 500;
+    color: var(--oq-text-primary);
+  }
+}
+
+.conv-word-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: var(--oq-radius-md);
+  background: var(--oq-bg-subtle);
+  font-size: 0.84375rem;
+}
+
+.conv-summary-box,
+.conv-vocab-card {
+  background: var(--oq-bg-surface);
+  border: 1px solid var(--oq-border-subtle);
+}
+
+.conv-session-item__sub,
+.conv-error-item__reason,
+.conv-vocab-card__def,
+.conv-vocab-card__ex,
+.conv-summary-list__ex,
+.conv-summary-list__tip {
+  font-size: 0.84375rem;
+  color: var(--oq-text-secondary);
+}
+
+.conv-error-item__reason {
+  margin: 4px 0 0;
+}
+
+.conv-recording-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  background: var(--oq-pastel-pink);
+  border: 1px solid var(--oq-pastel-pink-border);
+  font-size: 0.84375rem;
+  font-weight: 600;
+  color: var(--oq-accent);
+
+  &--busy {
+    background: var(--oq-pastel-lavender);
+    border-color: var(--oq-pastel-lavender-border);
+    color: var(--oq-pastel-lavender-ink);
+  }
+}
+
+.conv-rec-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--oq-danger);
+  animation: oqRecPulse 1.1s ease-in-out infinite;
+}
+
+@keyframes oqRecPulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.conv-composer__field {
+  margin-bottom: 0;
+}
