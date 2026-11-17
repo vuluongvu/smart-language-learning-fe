@@ -1,489 +1,761 @@
-<oq-page-header
-  [eyebrow]="'vocab.eyebrow' | t"
-  [title]="'vocab.title' | t"
-  [subtitle]="'vocab.subtitle' | t"
->
-  <div actions class="actions-row">
-    <a
-      routerLink="/flashcards"
-      [queryParams]="selectedTopicId ? { topicId: selectedTopicId } : null"
-      class="oq-btn oq-btn--secondary"
-    >
-      <oq-icon name="layers" [size]="16" />
-      <span>{{ 'dashboard.reviewFlashcards' | t }}</span>
-    </a>
-    <button type="button" class="oq-btn oq-btn--secondary" (click)="openAiModal()">
-      <oq-icon name="sparkles" [size]="16" />
-      <span>{{ 'vocab.aiAddBtn' | t }}</span>
-    </button>
-    <button type="button" class="oq-btn oq-btn--primary" (click)="openCreate()">
-      <oq-icon name="plus" [size]="16" />
-      <span>{{ 'vocab.addBtn' | t }}</span>
-    </button>
-  </div>
-</oq-page-header>
-
-@if (successMessage()) {
-  <div class="oq-alert oq-alert--success" role="status">
-    {{ successMessage() }}
-  </div>
-}
-@if (errorMessage()) {
-  <div class="oq-alert oq-alert--error" role="alert">
-    <span>{{ errorMessage() }}</span>
-    <button type="button" class="oq-inline-retry" (click)="loadVocabulary(meta().page)">
-      {{ 'common.retry' | t }}
-    </button>
-  </div>
-}
-
-<section class="oq-card filter-panel">
-  <form (ngSubmit)="loadVocabulary(1)" class="filter-stack">
-    <div class="filter-grid">
-      <div class="search-wrap">
-        <oq-icon name="search" [size]="15" />
-        <input
-          type="search"
-          [(ngModel)]="search"
-          name="search"
-          [placeholder]="'vocab.searchPlaceholder' | t"
-          [attr.aria-label]="'vocab.searchPlaceholder' | t"
-        />
+<div class="oq-surface-stack vocab-page">
+  <section class="oq-card oq-hero">
+    <div class="oq-hero__body">
+      <div>
+        <span class="oq-hero__eyebrow">{{ 'vocab.eyebrow' | t }}</span>
+        <h1>{{ 'vocab.title' | t }}</h1>
+        <p class="oq-hero__sub">{{ 'vocab.subtitle' | t }}</p>
+        <div class="oq-hero__pills">
+          <span class="oq-badge oq-badge--lavender">
+            {{ 'vocab.heroWordsCount' | t: { count: totalWordsCount() } }}
+          </span>
+          <span class="oq-badge oq-badge--cream">
+            {{ 'vocab.heroTopicsCount' | t: { count: topics().length } }}
+          </span>
+          <span class="oq-badge oq-badge--success">
+            {{
+              'vocab.heroMasteryPill' | t: { mastered: masteredWordsCount(), pct: masteryPercent() }
+            }}
+          </span>
+        </div>
       </div>
 
-      <select
-        [(ngModel)]="selectedTopicId"
-        name="topicId"
-        (change)="loadVocabulary(1)"
-        [attr.aria-label]="'vocab.allTopics' | t"
-      >
-        <option [ngValue]="null">{{ 'vocab.allTopics' | t }}</option>
-        @for (topic of topics(); track topic.id) {
-          <option [ngValue]="topic.id">{{ topic.name }}</option>
-        }
-      </select>
-
-      <select
-        [(ngModel)]="reviewStatusFilter"
-        name="reviewStatus"
-        (change)="loadVocabulary(1)"
-        [attr.aria-label]="'vocab.allStatuses' | t"
-      >
-        <option value="all">{{ 'vocab.allStatuses' | t }}</option>
-        <option value="new">{{ 'vocab.statusNew' | t }}</option>
-        <option value="due">{{ 'vocab.statusDue' | t }}</option>
-        <option value="learning">{{ 'vocab.statusLearning' | t }}</option>
-        <option value="mastered">{{ 'vocab.statusMastered' | t }}</option>
-      </select>
-
-      <div class="filter-btns">
-        <button type="submit" class="oq-btn oq-btn--secondary">{{ 'common.search' | t }}</button>
-        <button
-          type="button"
-          class="oq-btn oq-btn--ghost"
-          [attr.aria-expanded]="showMoreFilters()"
-          (click)="showMoreFilters.set(!showMoreFilters())"
+      <div class="flex-row">
+        <a
+          routerLink="/flashcards"
+          [queryParams]="selectedTopicId ? { topicId: selectedTopicId } : null"
+          class="oq-btn oq-btn--secondary"
         >
-          <span>{{ (showMoreFilters() ? 'common.hideFilters' : 'common.moreFilters') | t }}</span>
+          <oq-icon name="layers" [size]="16" />
+          <span>{{ 'dashboard.reviewFlashcards' | t }}</span>
+        </a>
+        <button type="button" class="oq-btn oq-btn--ai" (click)="openAiModal()">
+          <oq-icon name="sparkles" [size]="16" />
+          <span>{{ 'vocab.aiAddBtn' | t }}</span>
+        </button>
+        <button type="button" class="oq-btn oq-btn--primary" (click)="openCreate()">
+          <oq-icon name="plus" [size]="16" />
+          <span>{{ 'vocab.addBtn' | t }}</span>
         </button>
       </div>
     </div>
+  </section>
 
-    @if (showMoreFilters()) {
-      <div class="filter-grid filter-grid--extra">
-        <select
-          [(ngModel)]="partOfSpeechFilter"
-          name="partOfSpeech"
-          (change)="loadVocabulary(1)"
-          [attr.aria-label]="'vocab.allPos' | t"
-        >
-          <option value="">{{ 'vocab.allPos' | t }}</option>
-          @for (pos of partOfSpeechOptions; track pos) {
-            <option [value]="pos">{{ pos }}</option>
-          }
-        </select>
+  <section class="oq-kpi-grid" aria-label="Vocabulary statistics">
+    <oq-stat-card
+      [label]="'vocab.statTotal' | t"
+      [value]="totalWordsCount()"
+      [detail]="'vocab.statTopicsDetail' | t: { count: topics().length }"
+      icon="book-open"
+      tone="lavender"
+    />
+    <oq-stat-card
+      [label]="'vocab.statDue' | t"
+      [value]="dueWordsCount()"
+      [detail]="'vocab.statDueDetail' | t"
+      icon="clock"
+      tone="accent"
+    />
+    <oq-stat-card
+      [label]="'vocab.statLearning' | t"
+      [value]="newAndLearningCount()"
+      [detail]="
+        'vocab.statLearningDetail'
+          | t: { newCount: newWordsCount(), learningCount: learningWordsCount() }
+      "
+      icon="sparkles"
+      tone="cream"
+    />
+    <oq-stat-card
+      [label]="'vocab.statMastered' | t"
+      [value]="masteredWordsCount()"
+      [detail]="'vocab.statMasteryDetail' | t: { pct: masteryPercent() }"
+      icon="check"
+      tone="success"
+    />
+  </section>
 
-        <select
-          [(ngModel)]="sortBy"
-          name="sortBy"
-          (change)="loadVocabulary(1)"
-          [attr.aria-label]="'quizzes.sortLabel' | t"
-        >
-          <option value="newest">{{ 'vocab.sortNewest' | t }}</option>
-          <option value="oldest">{{ 'vocab.sortOldest' | t }}</option>
-          <option value="term_asc">{{ 'vocab.sortTermAsc' | t }}</option>
-          <option value="term_desc">{{ 'vocab.sortTermDesc' | t }}</option>
-        </select>
-      </div>
-    }
-  </form>
-</section>
-
-@if (showForm()) {
-  <oq-modal
-    [open]="true"
-    size="lg"
-    [title]="(editingItem() ? 'vocab.editTitle' : 'vocab.createTitle') | t"
-    [description]="'vocab.modalDesc' | t"
-    (closed)="cancelForm()"
-  >
-    @if (formError()) {
-      <div class="oq-alert oq-alert--error" role="alert">{{ formError() }}</div>
-    }
-
-    @if (duplicateCheck(); as dup) {
-      <div class="oq-alert oq-alert--info" role="status">
-        {{
-          'vocab.dupNotice'
-            | t: { term: form.controls.term.value.trim(), count: dup.matches.length }
-        }}
-      </div>
-    }
-
-    <form [formGroup]="form" (ngSubmit)="saveVocabulary()" novalidate>
-      <div class="oq-field">
-        <label for="vocab-term">{{ 'vocab.termLabel' | t }}</label>
-        <div class="term-input-row">
-          <input
-            id="vocab-term"
-            type="text"
-            formControlName="term"
-            (blur)="onTermBlur()"
-            [placeholder]="'vocab.termPlaceholder' | t"
-          />
-          <button
-            type="button"
-            class="oq-btn oq-btn--secondary"
-            [disabled]="isEnriching() || !form.controls.term.value.trim()"
-            (click)="enrichWithAi()"
-          >
-            <oq-icon name="sparkles" [size]="15" />
-            <span>{{ (isEnriching() ? 'vocab.aiFilling' : 'vocab.aiFillBtn') | t }}</span>
-          </button>
-        </div>
-        @if (form.controls.term.touched && form.controls.term.invalid) {
-          <span class="oq-field-error">{{ 'vocab.termError' | t }}</span>
-        }
-      </div>
-
-      <div class="form-row-2">
-        <div class="oq-field">
-          <label for="vocab-ipa">{{ 'vocab.ipaLabel' | t }}</label>
-          <input
-            id="vocab-ipa"
-            type="text"
-            formControlName="pronunciation"
-            placeholder="/breɪk ði aɪs/"
-          />
-        </div>
-
-        <div class="oq-field">
-          <label for="vocab-pos">{{ 'vocab.posLabel' | t }}</label>
-          <input
-            id="vocab-pos"
-            type="text"
-            formControlName="partOfSpeech"
-            list="pos-suggestions"
-            [placeholder]="'vocab.posPlaceholder' | t"
-          />
-          <datalist id="pos-suggestions">
-            @for (pos of partOfSpeechOptions; track pos) {
-              <option [value]="pos"></option>
-            }
-          </datalist>
-        </div>
-      </div>
-
-      <div class="oq-field">
-        <label for="vocab-def">{{ 'vocab.defLabel' | t }}</label>
-        <textarea
-          id="vocab-def"
-          rows="2"
-          formControlName="definition"
-          [placeholder]="'vocab.defPlaceholder' | t"
-        ></textarea>
-        @if (form.controls.definition.touched && form.controls.definition.invalid) {
-          <span class="oq-field-error">{{ 'vocab.defError' | t }}</span>
-        }
-      </div>
-
-      <div class="oq-field">
-        <label for="vocab-example">{{ 'vocab.exampleLabel' | t }}</label>
-        <textarea
-          id="vocab-example"
-          rows="2"
-          formControlName="example"
-          [placeholder]="'vocab.examplePlaceholder' | t"
-        ></textarea>
-      </div>
-
-      <div class="oq-field">
-        <label for="vocab-notes">{{ 'vocab.notesLabel' | t }}</label>
-        <textarea
-          id="vocab-notes"
-          rows="2"
-          formControlName="notes"
-          [placeholder]="'vocab.notesPlaceholder' | t"
-        ></textarea>
-      </div>
-
-      @if (topics().length > 0 || !editingItem()) {
-        <div class="topic-group">
-          @if (topics().length > 0) {
-            <div class="topic-picker">
-              <span class="topic-picker__label">{{ 'vocab.topicsLabel' | t }}</span>
-              <div class="topic-picker__chips">
-                @for (topic of topics(); track topic.id) {
-                  <label class="topic-chip" [class.topic-chip--active]="isTopicSelected(topic.id)">
-                    <input
-                      type="checkbox"
-                      [checked]="isTopicSelected(topic.id)"
-                      (change)="toggleTopicSelection(topic.id)"
-                    />
-                    <span>{{ topic.name }}</span>
-                  </label>
-                }
-              </div>
-            </div>
-          }
-
-          @if (!editingItem()) {
-            <div class="oq-field topic-group__new">
-              <label for="vocab-new-topic">{{ 'vocabAi.newTopicLabel' | t }}</label>
-              <input
-                id="vocab-new-topic"
-                type="text"
-                formControlName="newTopicName"
-                [placeholder]="'vocabAi.newTopicPlaceholder' | t"
-              />
-            </div>
-          }
-        </div>
-      }
-
-      <div class="modal-actions">
-        <button type="button" class="oq-btn oq-btn--secondary" (click)="cancelForm()">
-          {{ 'common.cancel' | t }}
-        </button>
-        <button type="submit" class="oq-btn oq-btn--primary" [disabled]="isSaving()">
-          {{ isSaving() ? ('common.saving' | t) : ('vocab.saveBtn' | t) }}
-        </button>
-      </div>
-    </form>
-  </oq-modal>
-}
-
-<app-ai-vocab-modal
-  [open]="showAiModal()"
-  [topics]="topics()"
-  [defaultTopicId]="selectedTopicId"
-  (closed)="showAiModal.set(false)"
-  (saved)="onAiSaved($event)"
-/>
-
-@if (confirmDeleteItem(); as target) {
-  <oq-modal
-    [open]="true"
-    size="sm"
-    role="alertdialog"
-    [title]="'vocab.deleteTitle' | t: { term: target.term }"
-    [description]="'vocab.deleteDesc' | t"
-    (closed)="confirmDeleteItem.set(null)"
-  >
-    <div class="modal-actions">
-      <button type="button" class="oq-btn oq-btn--secondary" (click)="confirmDeleteItem.set(null)">
-        {{ 'common.cancel' | t }}
-      </button>
-      <button
-        type="button"
-        class="oq-btn oq-btn--danger"
-        [disabled]="isDeleting()"
-        (click)="deleteSelectedItem()"
-      >
-        {{ isDeleting() ? ('common.deleting' | t) : ('common.confirmDelete' | t) }}
-      </button>
+  @if (successMessage()) {
+    <div class="oq-alert oq-alert--success" role="status">
+      {{ successMessage() }}
     </div>
-  </oq-modal>
-}
-
-@if (isLoading()) {
-  <div class="oq-card state-box">{{ 'vocab.loading' | t }}</div>
-} @else if (items().length === 0) {
-  <oq-empty-state
-    icon="book-open"
-    [title]="'vocab.emptyTitle' | t"
-    [description]="'vocab.emptyDesc' | t"
-  >
-    <div actions class="actions-row">
-      <button type="button" class="oq-btn oq-btn--secondary" (click)="openAiModal()">
-        <oq-icon name="sparkles" [size]="16" />
-        <span>{{ 'vocab.aiAddBtn' | t }}</span>
-      </button>
-      <button type="button" class="oq-btn oq-btn--primary" (click)="openCreate()">
-        {{ 'vocab.addBtn' | t }}
-      </button>
-    </div>
-  </oq-empty-state>
-} @else {
-  <div class="oq-card table-wrap desktop-only">
-    <table class="vocab-table">
-      <thead>
-        <tr>
-          <th>{{ 'vocab.colTerm' | t }}</th>
-          <th>{{ 'vocab.colType' | t }}</th>
-          <th>{{ 'vocab.colDef' | t }}</th>
-          <th>{{ 'vocab.colTopics' | t }}</th>
-          <th class="col-actions">{{ 'vocab.colActions' | t }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (item of items(); track item.id) {
-          <tr>
-            <td>
-              <div class="term-head">
-                <strong>{{ item.term }}</strong>
-                @if (item.source === 'ai') {
-                  <span class="oq-badge oq-badge--accent">{{ 'vocab.aiSourceBadge' | t }}</span>
-                }
-              </div>
-              @if (item.progress; as prog) {
-                <div class="status-wrap">
-                  <span
-                    class="oq-badge"
-                    [class.oq-badge--warning]="prog.isDue"
-                    [class.oq-badge--accent]="!prog.isDue && prog.status === 'learning'"
-                    [class.oq-badge--success]="!prog.isDue && prog.status === 'mastered'"
-                  >
-                    {{ formatProgressStatus(prog.status, prog.isDue, i18n.lang()) }}
-                  </span>
-                </div>
-              }
-              @if (item.pronunciation) {
-                <div class="muted-small">{{ item.pronunciation }}</div>
-              }
-            </td>
-            <td class="pos-cell">{{ item.partOfSpeech || '—' }}</td>
-            <td>
-              <div>{{ item.definition }}</div>
-              @if (item.example) {
-                <div class="muted-small">
-                  <strong>{{ 'vocab.examplePrefix' | t }}</strong> "{{ item.example }}"
-                </div>
-              }
-            </td>
-            <td>
-              <div class="topic-tags">
-                @for (t of item.topics; track t.id) {
-                  <span class="oq-badge">{{ t.name }}</span>
-                }
-                @if (item.topics.length === 0) {
-                  <span class="muted-small">{{ 'vocab.unassigned' | t }}</span>
-                }
-              </div>
-            </td>
-            <td>
-              <div class="row-actions">
-                <button
-                  type="button"
-                  class="oq-btn oq-btn--ghost oq-btn--sm"
-                  (click)="openEdit(item)"
-                >
-                  {{ 'common.edit' | t }}
-                </button>
-                <button
-                  type="button"
-                  class="oq-btn oq-btn--ghost oq-btn--sm"
-                  (click)="confirmDeleteItem.set(item)"
-                >
-                  {{ 'common.delete' | t }}
-                </button>
-              </div>
-            </td>
-          </tr>
-        }
-      </tbody>
-    </table>
-  </div>
-
-  <div class="mobile-cards mobile-only">
-    @for (item of items(); track item.id) {
-      <article class="oq-card mobile-card">
-        <div class="mobile-card__top">
-          <div class="term-head">
-            <strong>{{ item.term }}</strong>
-            @if (item.source === 'ai') {
-              <span class="oq-badge oq-badge--accent">{{ 'vocab.aiSourceBadge' | t }}</span>
-            }
-          </div>
-          <div class="topic-tags">
-            @if (item.progress; as prog) {
-              <span
-                class="oq-badge"
-                [class.oq-badge--warning]="prog.isDue"
-                [class.oq-badge--accent]="!prog.isDue && prog.status === 'learning'"
-                [class.oq-badge--success]="!prog.isDue && prog.status === 'mastered'"
-              >
-                {{ formatProgressStatus(prog.status, prog.isDue, i18n.lang()) }}
-              </span>
-            }
-            @if (item.partOfSpeech) {
-              <span class="oq-badge">{{ item.partOfSpeech }}</span>
-            }
-          </div>
-        </div>
-        @if (item.pronunciation) {
-          <div class="muted-small">{{ item.pronunciation }}</div>
-        }
-        <p class="mobile-card__def">{{ item.definition }}</p>
-        @if (item.example) {
-          <p class="muted-small">
-            <strong>{{ 'vocab.examplePrefix' | t }}</strong> "{{ item.example }}"
-          </p>
-        }
-        <div class="topic-tags">
-          @for (t of item.topics; track t.id) {
-            <span class="oq-badge">{{ t.name }}</span>
-          }
-        </div>
-        <div class="row-actions">
-          <button
-            type="button"
-            class="oq-btn oq-btn--secondary oq-btn--sm"
-            (click)="openEdit(item)"
-          >
-            {{ 'common.edit' | t }}
-          </button>
-          <button
-            type="button"
-            class="oq-btn oq-btn--secondary oq-btn--sm"
-            (click)="confirmDeleteItem.set(item)"
-          >
-            {{ 'common.delete' | t }}
-          </button>
-        </div>
-      </article>
-    }
-  </div>
-
-  @if (meta().totalPages > 1) {
-    <div class="oq-pagination">
-      <button
-        type="button"
-        class="oq-btn oq-btn--secondary oq-btn--sm"
-        [disabled]="meta().page <= 1"
-        (click)="loadVocabulary(meta().page - 1)"
-      >
-        {{ 'common.previous' | t }}
-      </button>
-      <span>{{ 'common.pageOf' | t: { page: meta().page, total: meta().totalPages } }}</span>
-      <button
-        type="button"
-        class="oq-btn oq-btn--secondary oq-btn--sm"
-        [disabled]="meta().page >= meta().totalPages"
-        (click)="loadVocabulary(meta().page + 1)"
-      >
-        {{ 'common.next' | t }}
+  }
+  @if (errorMessage()) {
+    <div class="oq-alert oq-alert--error" role="alert">
+      <span>{{ errorMessage() }}</span>
+      <button type="button" class="oq-inline-retry" (click)="loadVocabulary(meta().page)">
+        {{ 'common.retry' | t }}
       </button>
     </div>
   }
-}
+
+  <section class="oq-card filter-panel">
+    <form (ngSubmit)="loadVocabulary(1)" class="filter-stack">
+      <div class="filter-grid">
+        <div class="search-wrap">
+          <oq-icon name="search" [size]="15" />
+          <input
+            type="search"
+            class="oq-control search-input"
+            [(ngModel)]="search"
+            name="search"
+            [placeholder]="'vocab.searchPlaceholder' | t"
+            [attr.aria-label]="'vocab.searchPlaceholder' | t"
+          />
+        </div>
+
+        <select
+          class="oq-control"
+          [(ngModel)]="selectedTopicId"
+          name="topicId"
+          (change)="onTopicChange()"
+          [attr.aria-label]="'vocab.allTopics' | t"
+        >
+          <option [ngValue]="null">{{ 'vocab.allTopics' | t }}</option>
+          @for (topic of topics(); track topic.id) {
+            <option [ngValue]="topic.id">{{ topic.name }}</option>
+          }
+        </select>
+
+        <select
+          class="oq-control"
+          [(ngModel)]="reviewStatusFilter"
+          name="reviewStatus"
+          (change)="loadVocabulary(1)"
+          [attr.aria-label]="'vocab.allStatuses' | t"
+        >
+          <option value="all">{{ 'vocab.allStatuses' | t }}</option>
+          <option value="new">{{ 'vocab.statusNew' | t }}</option>
+          <option value="due">{{ 'vocab.statusDue' | t }}</option>
+          <option value="learning">{{ 'vocab.statusLearning' | t }}</option>
+          <option value="mastered">{{ 'vocab.statusMastered' | t }}</option>
+        </select>
+
+        <div class="flex-row">
+          <button type="submit" class="oq-btn oq-btn--secondary">{{ 'common.search' | t }}</button>
+          <button
+            type="button"
+            class="oq-btn oq-btn--ghost"
+            [attr.aria-expanded]="showMoreFilters()"
+            (click)="showMoreFilters.set(!showMoreFilters())"
+          >
+            <span>{{ (showMoreFilters() ? 'common.hideFilters' : 'common.moreFilters') | t }}</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="flex-row pills-bar">
+        <div class="flex-row" role="group" [attr.aria-label]="'vocab.allStatuses' | t">
+          <button
+            type="button"
+            class="oq-pill status-pill"
+            [class.oq-pill--active]="reviewStatusFilter === 'all'"
+            [attr.aria-pressed]="reviewStatusFilter === 'all'"
+            (click)="setStatusFilter('all')"
+          >
+            <span class="status-dot"></span>
+            <span>{{ 'vocab.statusAll' | t }}</span>
+            @if (summary()) {
+              <span class="status-pill__count">{{ totalWordsCount() }}</span>
+            }
+          </button>
+          <button
+            type="button"
+            class="oq-pill status-pill"
+            [class.oq-pill--lavender]="reviewStatusFilter === 'new'"
+            [class.status-pill--selected]="reviewStatusFilter === 'new'"
+            [attr.aria-pressed]="reviewStatusFilter === 'new'"
+            (click)="setStatusFilter('new')"
+          >
+            <span class="status-dot vocab-tone--new"></span>
+            <span>{{ 'vocab.statusNew' | t }}</span>
+            @if (summary()) {
+              <span class="status-pill__count">{{ newWordsCount() }}</span>
+            }
+          </button>
+          <button
+            type="button"
+            class="oq-pill status-pill"
+            [class.oq-pill--cream]="reviewStatusFilter === 'due'"
+            [class.status-pill--selected]="reviewStatusFilter === 'due'"
+            [attr.aria-pressed]="reviewStatusFilter === 'due'"
+            (click)="setStatusFilter('due')"
+          >
+            <span class="status-dot vocab-tone--due"></span>
+            <span>{{ 'vocab.statusDue' | t }}</span>
+            @if (summary()) {
+              <span class="status-pill__count">{{ dueWordsCount() }}</span>
+            }
+          </button>
+          <button
+            type="button"
+            class="oq-pill status-pill"
+            [class.oq-pill--active]="reviewStatusFilter === 'learning'"
+            [attr.aria-pressed]="reviewStatusFilter === 'learning'"
+            (click)="setStatusFilter('learning')"
+          >
+            <span class="status-dot vocab-tone--learning"></span>
+            <span>{{ 'vocab.statusLearning' | t }}</span>
+            @if (summary()) {
+              <span class="status-pill__count">{{ learningWordsCount() }}</span>
+            }
+          </button>
+          <button
+            type="button"
+            class="oq-pill status-pill"
+            [class.oq-pill--green]="reviewStatusFilter === 'mastered'"
+            [class.status-pill--selected]="reviewStatusFilter === 'mastered'"
+            [attr.aria-pressed]="reviewStatusFilter === 'mastered'"
+            (click)="setStatusFilter('mastered')"
+          >
+            <span class="status-dot vocab-tone--mastered"></span>
+            <span>{{ 'vocab.statusMastered' | t }}</span>
+            @if (summary()) {
+              <span class="status-pill__count">{{ masteredWordsCount() }}</span>
+            }
+          </button>
+        </div>
+
+        @if (hasActiveFilters()) {
+          <button type="button" class="oq-btn oq-btn--ghost oq-btn--sm" (click)="resetFilters()">
+            {{ 'common.reset' | t }}
+          </button>
+        }
+      </div>
+
+      @if (showMoreFilters()) {
+        <div class="filter-grid">
+          <select
+            class="oq-control"
+            [(ngModel)]="partOfSpeechFilter"
+            name="partOfSpeech"
+            (change)="loadVocabulary(1)"
+            [attr.aria-label]="'vocab.allPos' | t"
+          >
+            <option value="">{{ 'vocab.allPos' | t }}</option>
+            @for (pos of partOfSpeechOptions; track pos) {
+              <option [value]="pos">{{ pos }}</option>
+            }
+          </select>
+
+          <select
+            class="oq-control"
+            [(ngModel)]="sortBy"
+            name="sortBy"
+            (change)="loadVocabulary(1)"
+            [attr.aria-label]="'quizzes.sortLabel' | t"
+          >
+            <option value="newest">{{ 'vocab.sortNewest' | t }}</option>
+            <option value="oldest">{{ 'vocab.sortOldest' | t }}</option>
+            <option value="term_asc">{{ 'vocab.sortTermAsc' | t }}</option>
+            <option value="term_desc">{{ 'vocab.sortTermDesc' | t }}</option>
+          </select>
+        </div>
+      }
+    </form>
+  </section>
+
+  @if (showForm()) {
+    <oq-modal
+      [open]="true"
+      size="lg"
+      [title]="(editingItem() ? 'vocab.editTitle' : 'vocab.createTitle') | t"
+      [description]="'vocab.modalDesc' | t"
+      (closed)="cancelForm()"
+    >
+      @if (formError()) {
+        <div class="oq-alert oq-alert--error" role="alert">{{ formError() }}</div>
+      }
+
+      @if (duplicateCheck(); as dup) {
+        <div class="oq-alert oq-alert--info" role="status">
+          {{
+            'vocab.dupNotice'
+              | t: { term: form.controls.term.value.trim(), count: dup.matches.length }
+          }}
+        </div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="saveVocabulary()" novalidate>
+        <div class="oq-field">
+          <label for="vocab-term">{{ 'vocab.termLabel' | t }}</label>
+          <div class="term-input-row">
+            <input
+              id="vocab-term"
+              type="text"
+              formControlName="term"
+              (blur)="onTermBlur()"
+              [placeholder]="'vocab.termPlaceholder' | t"
+            />
+            <button
+              type="button"
+              class="oq-btn oq-btn--ai"
+              [disabled]="isEnriching() || !form.controls.term.value.trim()"
+              (click)="enrichWithAi()"
+            >
+              <oq-icon name="sparkles" [size]="15" />
+              <span>{{ (isEnriching() ? 'vocab.aiFilling' : 'vocab.aiFillBtn') | t }}</span>
+            </button>
+          </div>
+          @if (form.controls.term.touched && form.controls.term.invalid) {
+            <span class="oq-field-error">{{ 'vocab.termError' | t }}</span>
+          }
+        </div>
+
+        <div class="filter-grid">
+          <div class="oq-field">
+            <label for="vocab-ipa">{{ 'vocab.ipaLabel' | t }}</label>
+            <input
+              id="vocab-ipa"
+              type="text"
+              formControlName="pronunciation"
+              placeholder="/breɪk ði aɪs/"
+            />
+          </div>
+
+          <div class="oq-field">
+            <label for="vocab-pos">{{ 'vocab.posLabel' | t }}</label>
+            <input
+              id="vocab-pos"
+              type="text"
+              formControlName="partOfSpeech"
+              list="pos-suggestions"
+              [placeholder]="'vocab.posPlaceholder' | t"
+            />
+            <datalist id="pos-suggestions">
+              @for (pos of partOfSpeechOptions; track pos) {
+                <option [value]="pos"></option>
+              }
+            </datalist>
+          </div>
+        </div>
+
+        <div class="oq-field">
+          <label for="vocab-def">{{ 'vocab.defLabel' | t }}</label>
+          <textarea
+            id="vocab-def"
+            rows="2"
+            formControlName="definition"
+            [placeholder]="'vocab.defPlaceholder' | t"
+          ></textarea>
+          @if (form.controls.definition.touched && form.controls.definition.invalid) {
+            <span class="oq-field-error">{{ 'vocab.defError' | t }}</span>
+          }
+        </div>
+
+        <div class="oq-field">
+          <label for="vocab-example">{{ 'vocab.exampleLabel' | t }}</label>
+          <textarea
+            id="vocab-example"
+            rows="2"
+            formControlName="example"
+            [placeholder]="'vocab.examplePlaceholder' | t"
+          ></textarea>
+        </div>
+
+        <div class="oq-field">
+          <label for="vocab-notes">{{ 'vocab.notesLabel' | t }}</label>
+          <textarea
+            id="vocab-notes"
+            rows="2"
+            formControlName="notes"
+            [placeholder]="'vocab.notesPlaceholder' | t"
+          ></textarea>
+        </div>
+
+        @if (topics().length > 0 || !editingItem()) {
+          <div class="topic-group">
+            @if (topics().length > 0) {
+              <div class="topic-picker">
+                <span class="pick-label">{{ 'vocab.topicsLabel' | t }}</span>
+                <div class="flex-row">
+                  @for (topic of topics(); track topic.id) {
+                    <label
+                      class="oq-pill topic-chip"
+                      [class.oq-pill--active]="isTopicSelected(topic.id)"
+                    >
+                      <input
+                        type="checkbox"
+                        [checked]="isTopicSelected(topic.id)"
+                        (change)="toggleTopicSelection(topic.id)"
+                      />
+                      <span>{{ topic.name }}</span>
+                    </label>
+                  }
+                </div>
+              </div>
+            }
+
+            @if (!editingItem()) {
+              <div class="oq-field topic-group__new">
+                <label for="vocab-new-topic">{{ 'vocabAi.newTopicLabel' | t }}</label>
+                <input
+                  id="vocab-new-topic"
+                  type="text"
+                  formControlName="newTopicName"
+                  [placeholder]="'vocabAi.newTopicPlaceholder' | t"
+                />
+              </div>
+            }
+          </div>
+        }
+
+        <div class="oq-modal-actions">
+          <button type="button" class="oq-btn oq-btn--secondary" (click)="cancelForm()">
+            {{ 'common.cancel' | t }}
+          </button>
+          <button type="submit" class="oq-btn oq-btn--primary" [disabled]="isSaving()">
+            {{ isSaving() ? ('common.saving' | t) : ('vocab.saveBtn' | t) }}
+          </button>
+        </div>
+      </form>
+    </oq-modal>
+  }
+
+  <app-ai-vocab-modal
+    [open]="showAiModal()"
+    [topics]="topics()"
+    [defaultTopicId]="selectedTopicId"
+    (closed)="showAiModal.set(false)"
+    (saved)="onAiSaved($event)"
+  />
+
+  @if (confirmDeleteItem(); as target) {
+    <oq-modal
+      [open]="true"
+      size="sm"
+      role="alertdialog"
+      [title]="'vocab.deleteTitle' | t: { term: target.term }"
+      [description]="'vocab.deleteDesc' | t"
+      (closed)="confirmDeleteItem.set(null)"
+    >
+      <div class="oq-modal-actions">
+        <button
+          type="button"
+          class="oq-btn oq-btn--secondary"
+          (click)="confirmDeleteItem.set(null)"
+        >
+          {{ 'common.cancel' | t }}
+        </button>
+        <button
+          type="button"
+          class="oq-btn oq-btn--danger"
+          [disabled]="isDeleting()"
+          (click)="deleteSelectedItem()"
+        >
+          {{ isDeleting() ? ('common.deleting' | t) : ('common.confirmDelete' | t) }}
+        </button>
+      </div>
+    </oq-modal>
+  }
+
+  @if (isLoading()) {
+    <div class="oq-card oq-muted state-box">{{ 'vocab.loading' | t }}</div>
+  } @else if (items().length === 0) {
+    <oq-empty-state
+      variant="warm"
+      icon="book-open"
+      [title]="'vocab.emptyTitle' | t"
+      [description]="'vocab.emptyDesc' | t"
+    >
+      <div actions class="flex-row">
+        <button type="button" class="oq-btn oq-btn--ai" (click)="openAiModal()">
+          <oq-icon name="sparkles" [size]="16" />
+          <span>{{ 'vocab.aiAddBtn' | t }}</span>
+        </button>
+        <button type="button" class="oq-btn oq-btn--primary" (click)="openCreate()">
+          <oq-icon name="plus" [size]="16" />
+          <span>{{ 'vocab.addBtn' | t }}</span>
+        </button>
+      </div>
+    </oq-empty-state>
+  } @else {
+    <div class="oq-card table-wrap desktop-only">
+      <table class="vocab-table">
+        <thead>
+          <tr>
+            <th>{{ 'vocab.colTerm' | t }}</th>
+            <th>{{ 'vocab.colType' | t }}</th>
+            <th>{{ 'vocab.colDef' | t }}</th>
+            <th>{{ 'vocab.colTopics' | t }}</th>
+            <th class="col-actions">{{ 'vocab.colActions' | t }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of items(); track item.id) {
+            <tr
+              class="vocab-row"
+              [class.vocab-tone--new]="statusKey(item) === 'new'"
+              [class.vocab-tone--due]="statusKey(item) === 'due'"
+              [class.vocab-tone--learning]="statusKey(item) === 'learning'"
+              [class.vocab-tone--mastered]="statusKey(item) === 'mastered'"
+            >
+              <td>
+                <div class="flex-row flex-row--tight">
+                  <strong class="term-title">{{ item.term }}</strong>
+                  @if (speech.isTtsSupported) {
+                    <button
+                      type="button"
+                      class="speak-btn"
+                      [class.speak-btn--active]="speech.speakingId() === 'vocab-' + item.id"
+                      [attr.aria-label]="'vocab.pronounceAria' | t: { term: item.term }"
+                      (click)="speakTerm(item)"
+                    >
+                      <oq-icon
+                        [name]="speech.speakingId() === 'vocab-' + item.id ? 'square' : 'volume-2'"
+                        [size]="13"
+                      />
+                    </button>
+                  }
+                  @if (item.source === 'ai') {
+                    <span class="oq-badge ai-badge">
+                      <oq-icon name="sparkles" [size]="11" />
+                      <span>{{ 'vocab.aiSourceBadge' | t }}</span>
+                    </span>
+                  }
+                </div>
+                <div class="flex-row flex-row--tight term-meta">
+                  <span
+                    class="oq-badge"
+                    [class.oq-badge--lavender]="statusKey(item) === 'new'"
+                    [class.oq-badge--warning]="statusKey(item) === 'due'"
+                    [class.oq-badge--accent]="statusKey(item) === 'learning'"
+                    [class.oq-badge--success]="statusKey(item) === 'mastered'"
+                  >
+                    {{
+                      formatProgressStatus(
+                        item.progress?.status,
+                        item.progress?.isDue ?? false,
+                        i18n.lang()
+                      )
+                    }}
+                  </span>
+                  @if (item.pronunciation) {
+                    <span class="ipa-pill">{{ item.pronunciation }}</span>
+                  }
+                </div>
+              </td>
+
+              <td class="pos-cell">
+                @if (item.partOfSpeech; as pos) {
+                  <span
+                    class="oq-badge pos-badge"
+                    [class.oq-badge--lavender]="posBadgeTone(pos) === 'lavender'"
+                    [class.oq-badge--accent]="posBadgeTone(pos) === 'accent'"
+                    [class.oq-badge--cream]="posBadgeTone(pos) === 'cream'"
+                    [class.oq-badge--success]="posBadgeTone(pos) === 'green'"
+                    [class.oq-badge--sky]="posBadgeTone(pos) === 'sky'"
+                    [class.oq-badge--plum]="posBadgeTone(pos) === 'plum'"
+                  >
+                    {{ pos }}
+                  </span>
+                } @else {
+                  <span class="oq-muted">—</span>
+                }
+              </td>
+
+              <td>
+                <div class="def-text">{{ item.definition }}</div>
+                @if (item.example) {
+                  <div class="ex-quote">
+                    <span>{{ 'vocab.examplePrefix' | t }}</span>
+                    "{{ item.example }}"
+                  </div>
+                }
+              </td>
+
+              <td>
+                <div class="flex-row flex-row--tight">
+                  @for (t of item.topics; track t.id) {
+                    <button
+                      type="button"
+                      class="oq-badge topic-filter-badge"
+                      [class.oq-badge--accent]="topicToneIndex(t.id) === 0"
+                      [class.oq-badge--lavender]="topicToneIndex(t.id) === 1"
+                      [class.oq-badge--cream]="topicToneIndex(t.id) === 2"
+                      [class.oq-badge--success]="topicToneIndex(t.id) === 3"
+                      [class.topic-filter-badge--selected]="selectedTopicId === t.id"
+                      [title]="'vocab.filterByTopicTitle' | t: { name: t.name }"
+                      (click)="filterByTopic(t.id)"
+                    >
+                      {{ t.name }}
+                    </button>
+                  }
+                  @if (item.topics.length === 0) {
+                    <span class="empty-pill">{{ 'vocab.unassigned' | t }}</span>
+                  }
+                </div>
+              </td>
+
+              <td>
+                <div class="flex-row flex-row--tight row-actions">
+                  <button
+                    type="button"
+                    class="oq-btn oq-btn--secondary oq-btn--sm"
+                    (click)="openEdit(item)"
+                  >
+                    <oq-icon name="edit" [size]="14" />
+                    <span>{{ 'common.edit' | t }}</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="oq-btn oq-btn--ghost oq-btn--sm del-btn"
+                    (click)="confirmDeleteItem.set(item)"
+                  >
+                    <oq-icon name="trash" [size]="14" />
+                    <span>{{ 'common.delete' | t }}</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mobile-cards mobile-only">
+      @for (item of items(); track item.id) {
+        <article
+          class="oq-card mobile-card"
+          [class.vocab-tone--new]="statusKey(item) === 'new'"
+          [class.vocab-tone--due]="statusKey(item) === 'due'"
+          [class.vocab-tone--learning]="statusKey(item) === 'learning'"
+          [class.vocab-tone--mastered]="statusKey(item) === 'mastered'"
+        >
+          <div class="flex-row m-top">
+            <div class="flex-row flex-row--tight">
+              <strong class="term-title">{{ item.term }}</strong>
+              @if (speech.isTtsSupported) {
+                <button
+                  type="button"
+                  class="speak-btn"
+                  [class.speak-btn--active]="speech.speakingId() === 'vocab-' + item.id"
+                  [attr.aria-label]="'vocab.pronounceAria' | t: { term: item.term }"
+                  (click)="speakTerm(item)"
+                >
+                  <oq-icon
+                    [name]="speech.speakingId() === 'vocab-' + item.id ? 'square' : 'volume-2'"
+                    [size]="13"
+                  />
+                </button>
+              }
+              @if (item.source === 'ai') {
+                <span class="oq-badge ai-badge">
+                  <oq-icon name="sparkles" [size]="11" />
+                  <span>{{ 'vocab.aiSourceBadge' | t }}</span>
+                </span>
+              }
+            </div>
+            <div class="flex-row flex-row--tight">
+              <span
+                class="oq-badge"
+                [class.oq-badge--lavender]="statusKey(item) === 'new'"
+                [class.oq-badge--warning]="statusKey(item) === 'due'"
+                [class.oq-badge--accent]="statusKey(item) === 'learning'"
+                [class.oq-badge--success]="statusKey(item) === 'mastered'"
+              >
+                {{
+                  formatProgressStatus(
+                    item.progress?.status,
+                    item.progress?.isDue ?? false,
+                    i18n.lang()
+                  )
+                }}
+              </span>
+              @if (item.partOfSpeech; as pos) {
+                <span
+                  class="oq-badge pos-badge"
+                  [class.oq-badge--lavender]="posBadgeTone(pos) === 'lavender'"
+                  [class.oq-badge--accent]="posBadgeTone(pos) === 'accent'"
+                  [class.oq-badge--cream]="posBadgeTone(pos) === 'cream'"
+                  [class.oq-badge--success]="posBadgeTone(pos) === 'green'"
+                  [class.oq-badge--sky]="posBadgeTone(pos) === 'sky'"
+                  [class.oq-badge--plum]="posBadgeTone(pos) === 'plum'"
+                >
+                  {{ pos }}
+                </span>
+              }
+            </div>
+          </div>
+
+          @if (item.pronunciation) {
+            <div>
+              <span class="ipa-pill">{{ item.pronunciation }}</span>
+            </div>
+          }
+
+          <p class="m-def">{{ item.definition }}</p>
+
+          @if (item.example) {
+            <p class="ex-quote">
+              <span>{{ 'vocab.examplePrefix' | t }}</span>
+              "{{ item.example }}"
+            </p>
+          }
+
+          <div class="flex-row flex-row--tight">
+            @for (t of item.topics; track t.id) {
+              <button
+                type="button"
+                class="oq-badge topic-filter-badge"
+                [class.oq-badge--accent]="topicToneIndex(t.id) === 0"
+                [class.oq-badge--lavender]="topicToneIndex(t.id) === 1"
+                [class.oq-badge--cream]="topicToneIndex(t.id) === 2"
+                [class.oq-badge--success]="topicToneIndex(t.id) === 3"
+                [class.topic-filter-badge--selected]="selectedTopicId === t.id"
+                [title]="'vocab.filterByTopicTitle' | t: { name: t.name }"
+                (click)="filterByTopic(t.id)"
+              >
+                {{ t.name }}
+              </button>
+            }
+            @if (item.topics.length === 0) {
+              <span class="empty-pill">{{ 'vocab.unassigned' | t }}</span>
+            }
+          </div>
+
+          <div class="flex-row flex-row--tight row-actions">
+            <button
+              type="button"
+              class="oq-btn oq-btn--secondary oq-btn--sm"
+              (click)="openEdit(item)"
+            >
+              <oq-icon name="edit" [size]="14" />
+              <span>{{ 'common.edit' | t }}</span>
+            </button>
+            <button
+              type="button"
+              class="oq-btn oq-btn--ghost oq-btn--sm del-btn"
+              (click)="confirmDeleteItem.set(item)"
+            >
+              <oq-icon name="trash" [size]="14" />
+              <span>{{ 'common.delete' | t }}</span>
+            </button>
+          </div>
+        </article>
+      }
+    </div>
+
+    @if (meta().totalPages > 1) {
+      <div class="oq-pagination">
+        <button
+          type="button"
+          class="oq-btn oq-btn--secondary oq-btn--sm"
+          [disabled]="meta().page <= 1"
+          (click)="loadVocabulary(meta().page - 1)"
+        >
+          {{ 'common.previous' | t }}
+        </button>
+        <span>{{ 'common.pageOf' | t: { page: meta().page, total: meta().totalPages } }}</span>
+        <button
+          type="button"
+          class="oq-btn oq-btn--secondary oq-btn--sm"
+          [disabled]="meta().page >= meta().totalPages"
+          (click)="loadVocabulary(meta().page + 1)"
+        >
+          {{ 'common.next' | t }}
+        </button>
+      </div>
+    }
+  }
+</div>
