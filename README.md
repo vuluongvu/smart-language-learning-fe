@@ -14,6 +14,8 @@ Frontend web application for the **OpenQuiz** personal English self-learning pla
   Multiple-choice & fill-in-the-blank manual quizzes, deterministic zero-AI draft generator from owned vocabulary, resumable attempts (`PATCH /attempts/:id/progress`), score grading, and one-click saving of new terms from quiz questions directly into the learner's vocabulary bank.
 - **Spaced Repetition Flashcards (`/flashcards`, `/flashcards/sessions/:id`):**
   SM-2 review scheduling (`Again` / `Hard` / `Good` / `Easy`), topic/all/due-only session filters, flip card keyboard/click interactions, live interval feedback, and session completion tracking.
+- **AI English Tutor (`/ai-tutor`):**
+  Conversational English tutor chat powered by backend Groq (`qwen/qwen3.8-27b` by default) integration (`/api/v1/ai/status`, `/api/v1/ai/chat`), starter prompts, rolling 20-turn context history, error recovery, and live server availability checks.
 - **Progress, Streak & Leaderboard (`/progress`, `/leaderboard`):**
   7-day & 30-day activity history charts, daily streak timeline, accuracy metrics, opt-in privacy-preserving leaderboard rankings, and IANA timezone sync.
 - **Settings & Accessibility (`/settings`, App Shell):**
@@ -60,7 +62,7 @@ The app runs at `http://localhost:4200`.
 src/
   app/
     core/         # App-level configuration / auth token interceptor & guards
-    features/     # auth, dashboard, vocabulary, topics, quizzes, flashcards, progress, leaderboard, settings
+    features/     # auth, dashboard, vocabulary, topics, quizzes, flashcards, ai-tutor, progress, leaderboard, settings
     shared/
       api/        # API envelope types and HTTP helpers
       components/ # Reusable UI primitives
