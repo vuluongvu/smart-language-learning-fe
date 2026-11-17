@@ -23,13 +23,15 @@
 
   input {
     width: 100%;
+    min-height: 42px;
     padding: 9px 12px 9px 36px;
-    border-radius: var(--oq-radius-sm);
-    border: 1px solid var(--oq-border-strong);
-    background: var(--oq-bg-surface);
+    border-radius: var(--oq-radius-md);
+    border: 1.5px solid var(--oq-border-strong);
+    background: var(--oq-bg-canvas);
     color: var(--oq-text-primary);
     font: inherit;
     font-size: 0.875rem;
+    font-weight: 500;
   }
 }
 
@@ -74,14 +76,29 @@
 }
 
 .topic-card__icon {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: 10px;
-  background: var(--oq-accent-soft);
+  background: var(--oq-pastel-pink);
   color: var(--oq-accent);
   display: grid;
   place-items: center;
   flex-shrink: 0;
+
+  &--lavender {
+    background: var(--oq-pastel-lavender);
+    color: var(--oq-pastel-lavender-ink);
+  }
+
+  &--cream {
+    background: var(--oq-pastel-cream);
+    color: var(--oq-pastel-cream-ink);
+  }
+
+  &--green {
+    background: var(--oq-pastel-green);
+    color: var(--oq-pastel-green-ink);
+  }
 }
 
 .topic-card__title {

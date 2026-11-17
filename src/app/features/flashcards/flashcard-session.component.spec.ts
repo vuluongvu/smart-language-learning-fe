@@ -108,11 +108,26 @@ describe('FlashcardSessionComponent', () => {
 
     const cardButton = el.querySelector('.flashcard-stage') as HTMLButtonElement | null;
     expect(cardButton).not.toBeNull();
+    expect(el.querySelector('.flashcard-flipper--flipped')).toBeNull();
+    expect(cardButton?.getAttribute('aria-pressed')).toBe('false');
     cardButton?.click();
     fixture.detectChanges();
 
+    expect(el.querySelector('.flashcard-flipper--flipped')).not.toBeNull();
+    expect(cardButton?.getAttribute('aria-pressed')).toBe('true');
     expect(el.textContent).toContain('a planned route or journey');
     expect(el.textContent).toContain('Good');
+
+    // Flipping back to front removes flipped state smoothly
+    cardButton?.click();
+    fixture.detectChanges();
+    expect(el.querySelector('.flashcard-flipper--flipped')).toBeNull();
+    expect(cardButton?.getAttribute('aria-pressed')).toBe('false');
+
+    // Flip back to reveal ratings and record rating
+    cardButton?.click();
+    fixture.detectChanges();
+    expect(el.querySelector('.flashcard-flipper--flipped')).not.toBeNull();
 
     const rateButtons = Array.from(el.querySelectorAll('.rate-btn')) as HTMLButtonElement[];
     const againBtn = rateButtons.find((b) => b.textContent?.includes('Again'));

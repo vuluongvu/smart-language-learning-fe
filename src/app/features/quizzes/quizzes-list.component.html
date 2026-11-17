@@ -24,78 +24,100 @@
 }
 
 <section class="oq-card filter-card">
-  <form class="filter-grid" (ngSubmit)="loadQuizzes(1)">
-    <div class="oq-field filter-card__search">
-      <label for="quizSearch">{{ 'quizzes.searchLabel' | t }}</label>
-      <input
-        id="quizSearch"
-        type="search"
-        [(ngModel)]="search"
-        name="search"
-        [placeholder]="'quizzes.searchPlaceholder' | t"
-      />
+  <form class="filter-stack" (ngSubmit)="loadQuizzes(1)">
+    <div class="filter-grid">
+      <div class="oq-field filter-card__search">
+        <label for="quizSearch">{{ 'quizzes.searchLabel' | t }}</label>
+        <input
+          id="quizSearch"
+          type="search"
+          [(ngModel)]="search"
+          name="search"
+          [placeholder]="'quizzes.searchPlaceholder' | t"
+        />
+      </div>
+
+      <div class="oq-field">
+        <label for="quizTopicFilter">{{ 'quizzes.topicLabel' | t }}</label>
+        <select
+          id="quizTopicFilter"
+          [(ngModel)]="selectedTopicId"
+          name="topicId"
+          (ngModelChange)="loadQuizzes(1)"
+        >
+          <option [ngValue]="null">{{ 'quizzes.allTopics' | t }}</option>
+          @for (t of topics(); track t.id) {
+            <option [ngValue]="t.id">{{ t.name }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="filter-actions">
+        <button type="submit" class="oq-btn oq-btn--secondary">{{ 'common.search' | t }}</button>
+        <button
+          type="button"
+          class="oq-btn oq-btn--ghost"
+          [attr.aria-expanded]="showMoreFilters()"
+          (click)="showMoreFilters.set(!showMoreFilters())"
+        >
+          <span>{{ (showMoreFilters() ? 'common.hideFilters' : 'common.moreFilters') | t }}</span>
+        </button>
+      </div>
     </div>
 
-    <div class="oq-field">
-      <label for="quizTopicFilter">{{ 'quizzes.topicLabel' | t }}</label>
-      <select
-        id="quizTopicFilter"
-        [(ngModel)]="selectedTopicId"
-        name="topicId"
-        (ngModelChange)="loadQuizzes(1)"
-      >
-        <option [ngValue]="null">{{ 'quizzes.allTopics' | t }}</option>
-        @for (t of topics(); track t.id) {
-          <option [ngValue]="t.id">{{ t.name }}</option>
-        }
-      </select>
-    </div>
+    @if (showMoreFilters()) {
+      <div class="filter-grid">
+        <div class="oq-field">
+          <label for="quizStatusFilter">{{ 'quizzes.statusLabel' | t }}</label>
+          <select
+            id="quizStatusFilter"
+            [(ngModel)]="statusFilter"
+            name="status"
+            (ngModelChange)="loadQuizzes(1)"
+          >
+            <option value="">{{ 'quizzes.allStatuses' | t }}</option>
+            <option value="published">{{ 'quizzes.published' | t }}</option>
+            <option value="draft">{{ 'quizzes.draft' | t }}</option>
+          </select>
+        </div>
 
-    <div class="oq-field">
-      <label for="quizStatusFilter">{{ 'quizzes.statusLabel' | t }}</label>
-      <select
-        id="quizStatusFilter"
-        [(ngModel)]="statusFilter"
-        name="status"
-        (ngModelChange)="loadQuizzes(1)"
-      >
-        <option value="">{{ 'quizzes.allStatuses' | t }}</option>
-        <option value="published">{{ 'quizzes.published' | t }}</option>
-        <option value="draft">{{ 'quizzes.draft' | t }}</option>
-      </select>
-    </div>
+        <div class="oq-field">
+          <label for="quizDifficultyFilter">{{ 'quizzes.difficultyLabel' | t }}</label>
+          <select
+            id="quizDifficultyFilter"
+            [(ngModel)]="difficultyFilter"
+            name="difficulty"
+            (ngModelChange)="loadQuizzes(1)"
+          >
+            <option value="">{{ 'quizzes.anyDifficulty' | t }}</option>
+            <option value="easy">{{ 'quizzes.easy' | t }}</option>
+            <option value="medium">{{ 'quizzes.medium' | t }}</option>
+            <option value="hard">{{ 'quizzes.hard' | t }}</option>
+          </select>
+        </div>
 
-    <div class="oq-field">
-      <label for="quizDifficultyFilter">{{ 'quizzes.difficultyLabel' | t }}</label>
-      <select
-        id="quizDifficultyFilter"
-        [(ngModel)]="difficultyFilter"
-        name="difficulty"
-        (ngModelChange)="loadQuizzes(1)"
-      >
-        <option value="">{{ 'quizzes.anyDifficulty' | t }}</option>
-        <option value="easy">{{ 'quizzes.easy' | t }}</option>
-        <option value="medium">{{ 'quizzes.medium' | t }}</option>
-        <option value="hard">{{ 'quizzes.hard' | t }}</option>
-      </select>
-    </div>
+        <div class="oq-field">
+          <label for="quizSortBy">{{ 'quizzes.sortLabel' | t }}</label>
+          <select
+            id="quizSortBy"
+            [(ngModel)]="sortBy"
+            name="sortBy"
+            (ngModelChange)="loadQuizzes(1)"
+          >
+            <option value="newest">{{ 'quizzes.sortNewest' | t }}</option>
+            <option value="oldest">{{ 'quizzes.sortOldest' | t }}</option>
+            <option value="title_asc">{{ 'quizzes.sortAsc' | t }}</option>
+            <option value="title_desc">{{ 'quizzes.sortDesc' | t }}</option>
+          </select>
+        </div>
 
-    <div class="oq-field">
-      <label for="quizSortBy">{{ 'quizzes.sortLabel' | t }}</label>
-      <select id="quizSortBy" [(ngModel)]="sortBy" name="sortBy" (ngModelChange)="loadQuizzes(1)">
-        <option value="newest">{{ 'quizzes.sortNewest' | t }}</option>
-        <option value="oldest">{{ 'quizzes.sortOldest' | t }}</option>
-        <option value="title_asc">{{ 'quizzes.sortAsc' | t }}</option>
-        <option value="title_desc">{{ 'quizzes.sortDesc' | t }}</option>
-      </select>
-    </div>
-
-    <div class="filter-actions">
-      <button type="submit" class="oq-btn oq-btn--secondary">{{ 'common.apply' | t }}</button>
-      <button type="button" class="oq-btn oq-btn--ghost" (click)="resetFilters()">
-        {{ 'common.reset' | t }}
-      </button>
-    </div>
+        <div class="filter-actions">
+          <button type="button" class="oq-btn oq-btn--ghost" (click)="resetFilters()">
+            {{ 'common.reset' | t }}
+          </button>
+        </div>
+      </div>
+    }
   </form>
 </section>
 

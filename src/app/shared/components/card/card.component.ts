@@ -7,6 +7,10 @@ import { Component, input } from '@angular/core';
       class="oq-card"
       [class.oq-card--subtle]="variant() === 'subtle'"
       [class.oq-card--danger]="variant() === 'danger'"
+      [class.oq-card--pastel-pink]="variant() === 'pastel-pink'"
+      [class.oq-card--pastel-cream]="variant() === 'pastel-cream'"
+      [class.oq-card--pastel-green]="variant() === 'pastel-green'"
+      [class.oq-card--pastel-lavender]="variant() === 'pastel-lavender'"
       [class.oq-card--compact]="padding() === 'compact'"
       [class.oq-card--none]="padding() === 'none'"
       [class.oq-card--interactive]="interactive()"
@@ -26,7 +30,15 @@ import { Component, input } from '@angular/core';
   ],
 })
 export class OqCardComponent {
-  readonly variant = input<'default' | 'subtle' | 'danger'>('default');
+  readonly variant = input<
+    | 'default'
+    | 'subtle'
+    | 'danger'
+    | 'pastel-pink'
+    | 'pastel-cream'
+    | 'pastel-green'
+    | 'pastel-lavender'
+  >('default');
   readonly padding = input<'default' | 'compact' | 'none'>('default');
   readonly interactive = input<boolean>(false);
 }

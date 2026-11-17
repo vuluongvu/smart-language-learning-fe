@@ -114,6 +114,7 @@
   <div class="oq-card state-box">{{ 'topics.loading' | t }}</div>
 } @else if (topics().length === 0) {
   <oq-empty-state
+    variant="warm"
     icon="folder"
     [title]="'topics.emptyTitle' | t"
     [description]="'topics.emptyDesc' | t"
@@ -124,11 +125,16 @@
   </oq-empty-state>
 } @else {
   <div class="topics-grid">
-    @for (topic of topics(); track topic.id) {
+    @for (topic of topics(); track topic.id; let idx = $index) {
       <article class="oq-card oq-card--interactive topic-card">
         <div class="topic-card__top">
           <div class="topic-card__title-group">
-            <span class="topic-card__icon">
+            <span
+              class="topic-card__icon"
+              [class.topic-card__icon--lavender]="idx % 4 === 1"
+              [class.topic-card__icon--cream]="idx % 4 === 2"
+              [class.topic-card__icon--green]="idx % 4 === 3"
+            >
               <oq-icon name="folder" [size]="17" />
             </span>
             <a [routerLink]="['/topics', topic.id]" class="topic-card__title">

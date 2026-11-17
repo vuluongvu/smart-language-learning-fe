@@ -25,6 +25,7 @@ import { Component, computed, input } from '@angular/core';
           class="oq-progress__fill"
           [class.oq-progress__fill--success]="tone() === 'success'"
           [class.oq-progress__fill--warning]="tone() === 'warning'"
+          [class.oq-progress__fill--lavender]="tone() === 'lavender'"
           [style.width.%]="percent()"
         ></div>
       </div>
@@ -67,7 +68,7 @@ import { Component, computed, input } from '@angular/core';
         height: 100%;
         border-radius: var(--oq-radius-full);
         background: var(--oq-accent);
-        transition: width 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+        transition: width 520ms cubic-bezier(0.22, 1, 0.36, 1);
       }
 
       .oq-progress__fill--success {
@@ -77,6 +78,10 @@ import { Component, computed, input } from '@angular/core';
       .oq-progress__fill--warning {
         background: var(--oq-warning);
       }
+
+      .oq-progress__fill--lavender {
+        background: var(--oq-pastel-lavender-ink);
+      }
     `,
   ],
 })
@@ -85,7 +90,7 @@ export class OqProgressBarComponent {
   readonly max = input<number>(100);
   readonly label = input<string>('');
   readonly showPercent = input<boolean>(false);
-  readonly tone = input<'primary' | 'success' | 'warning'>('primary');
+  readonly tone = input<'primary' | 'success' | 'warning' | 'lavender'>('primary');
   readonly size = input<'sm' | 'md'>('md');
 
   protected readonly percent = computed(() => {
