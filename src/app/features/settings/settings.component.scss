@@ -73,10 +73,14 @@
   font: inherit;
   cursor: pointer;
   text-align: left;
-  transition: border-color var(--oq-transition-fast);
+  transition:
+    border-color var(--oq-transition),
+    background-color var(--oq-transition),
+    transform var(--oq-transition);
 
   &:hover {
     border-color: var(--oq-border-strong);
+    transform: translateY(-1px);
   }
 
   &--active {
@@ -90,7 +94,7 @@
     border: 1px solid var(--oq-border-subtle);
 
     &--light {
-      background: linear-gradient(135deg, #f8f9fc 55%, #ffffff 55%);
+      background: linear-gradient(135deg, #f7f8fc 55%, #ffffff 55%);
     }
 
     &--dark {

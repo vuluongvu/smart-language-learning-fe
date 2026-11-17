@@ -53,7 +53,7 @@ interface NavGroup {
                 class="shell__nav-link"
                 (click)="closeDrawer.emit()"
               >
-                <oq-icon [name]="item.icon" [size]="17" />
+                <oq-icon [name]="item.icon" [size]="18" />
                 <span>{{ item.labelKey | t }}</span>
               </a>
             }
@@ -62,6 +62,7 @@ interface NavGroup {
       </nav>
 
       <div class="shell__sidebar-footer">
+        <span class="shell__nav-heading">{{ 'nav.settingsGroup' | t }}</span>
         <a
           routerLink="/settings"
           routerLinkActive="shell__nav-link--active"
@@ -69,7 +70,7 @@ interface NavGroup {
           class="shell__nav-link"
           (click)="closeDrawer.emit()"
         >
-          <oq-icon name="settings" [size]="17" />
+          <oq-icon name="settings" [size]="18" />
           <span>{{ 'nav.settings' | t }}</span>
         </a>
 
@@ -86,7 +87,7 @@ interface NavGroup {
                   }
           "
         >
-          <oq-icon [name]="theme() === 'light' ? 'moon' : 'sun'" [size]="17" />
+          <oq-icon [name]="theme() === 'light' ? 'moon' : 'sun'" [size]="18" />
           <span>{{ (theme() === 'light' ? 'common.darkMode' : 'common.lightMode') | t }}</span>
         </button>
 
@@ -96,7 +97,7 @@ interface NavGroup {
           (click)="toggleLang.emit()"
           [attr.aria-label]="'common.switchLangAria' | t"
         >
-          <oq-icon name="globe" [size]="17" />
+          <oq-icon name="globe" [size]="18" />
           <span>{{ 'common.langLabel' | t }}</span>
           <span class="shell__lang-pill">{{ lang().toUpperCase() }}</span>
         </button>
@@ -373,6 +374,7 @@ export class OqSidebarComponent {
       items: [
         { labelKey: 'nav.flashcards', route: '/flashcards', icon: 'layers' },
         { labelKey: 'nav.quizzes', route: '/quizzes', icon: 'help-circle' },
+        { labelKey: 'nav.aiTutor', route: '/ai-tutor', icon: 'sparkles' },
       ],
     },
     {

@@ -4,6 +4,12 @@ import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiEnvelope } from '../../shared/api/api-response.type';
 import {
+  AiEnrichVocabularyResult,
+  AiGenerateMode,
+  AiGenerateVocabularyResult,
+  BulkCreateVocabularyPayload,
+  BulkCreateVocabularyResult,
+  CefrLevel,
   CreateVocabularyPayload,
   CreateVocabularyResult,
   DuplicateCheckResult,
@@ -65,6 +71,39 @@ export class VocabularyApiService {
   create(payload: CreateVocabularyPayload): Observable<CreateVocabularyResult> {
     return this.http
       .post<ApiEnvelope<CreateVocabularyResult>>(this.baseUrl, payload)
+      .pipe(map((res) => res.data));
+  }
+
+  createBulk(payload: BulkCreateVocabularyPayload): Observable<BulkCreateVocabularyResult> {
+    return this.http
+      .post<ApiEnvelope<BulkCreateVocabularyResult>>(`${this.baseUrl}/bulk`, payload)
+      .pipe(map((res) => res.data));
+  }
+
+  enrichWithAi(term: string, context?: string): Observable<AiEnrichVocabularyResult> {
+    return this.http
+      .post<ApiEnvelope<AiEnrichVocabularyResult>>(`${this.baseUrl}/ai/enrich`, {
+        term: term.trim(),
+        ...(context?.trim() ? { context: context.trim() } : {}),
+      })
+      .pipe(map((res) => res.data));
+  }
+
+  generateWithAi(payload: {
+    prompt: string;
+    mode?: AiGenerateMode;
+    level?: CefrLevel | '';
+    count?: number;
+    topicId?: number | null;
+  }): Observable<AiGenerateVocabularyResult> {
+    return this.http
+      .post<ApiEnvelope<AiGenerateVocabularyResult>>(`${this.baseUrl}/ai/generate`, {
+        prompt: payload.prompt.trim(),
+        mode: payload.mode ?? 'topic',
+        ...(payload.level ? { level: payload.level } : {}),
+        ...(payload.count ? { count: payload.count } : {}),
+        ...(payload.topicId ? { topicId: payload.topicId } : {}),
+      })
       .pipe(map((res) => res.data));
   }
 

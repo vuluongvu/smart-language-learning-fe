@@ -1,19 +1,61 @@
 .dash-page {
   display: grid;
-  gap: var(--oq-space-5);
+  gap: var(--oq-space-6);
 }
 
-.dash-actions {
+.welcome-card {
+  border-left: 4px solid var(--oq-accent);
+  padding: var(--oq-space-6);
+
+  &__body {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--oq-space-4);
+  }
+
+  &__eyebrow {
+    display: inline-block;
+    margin-bottom: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--oq-accent);
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(1.5rem, 2.2vw, 1.875rem);
+    font-weight: 600;
+    line-height: 1.22;
+  }
+
+  &__motto {
+    margin: 6px 0 0;
+    font-size: 0.9375rem;
+    color: var(--oq-text-secondary);
+  }
+
+  &__pills {
+    margin-top: var(--oq-space-3);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--oq-space-2);
+  }
+}
+
+.dash-actions,
+.mastery-pills,
+.review-summary-pills {
   display: flex;
   flex-wrap: wrap;
   gap: var(--oq-space-2);
 }
 
-.lang-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--oq-space-2);
-  margin-top: calc(var(--oq-space-3) * -1);
+.review-summary-pills {
+  margin-bottom: var(--oq-space-3);
 }
 
 .state-card {
@@ -27,9 +69,18 @@
   gap: var(--oq-space-4);
 }
 
-.mastery-panel {
+.spotlight-grid,
+.lower-grid {
   display: grid;
-  gap: var(--oq-space-3);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  gap: var(--oq-space-5);
+}
+
+.mastery-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--oq-space-4);
 
   &__head {
     display: flex;
@@ -46,21 +97,28 @@
 
     p {
       margin: 0;
-      font-size: 0.8125rem;
+      font-size: 0.84375rem;
     }
   }
 }
 
-.lower-grid {
+.upcoming-preview {
+  margin-top: var(--oq-space-4);
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
-  gap: var(--oq-space-4);
+  gap: var(--oq-space-2);
+
+  &__label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--oq-text-secondary);
+  }
 }
 
 .panel__head {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--oq-space-2);
   margin-bottom: var(--oq-space-4);
 
@@ -69,6 +127,12 @@
     font-size: 1.0625rem;
     font-weight: 600;
   }
+}
+
+.panel__sub {
+  margin: 2px 0 0;
+  font-size: 0.8125rem;
+  color: var(--oq-text-secondary);
 }
 
 .panel__link {
@@ -82,52 +146,31 @@
   }
 }
 
-.activity-bars {
-  display: grid;
-  grid-template-columns: repeat(14, minmax(0, 1fr));
-  gap: 6px;
-  align-items: end;
-  padding-top: var(--oq-space-2);
-}
-
-.activity-bar {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-
-.activity-bar__track {
-  width: 100%;
-  height: 112px;
-  background: var(--oq-bg-subtle);
-  border-radius: var(--oq-radius-sm);
-  display: flex;
-  align-items: flex-end;
+.window-toggle {
+  display: inline-flex;
   padding: 3px;
+  border-radius: 10px;
+  background: var(--oq-bg-subtle);
+  border: 1px solid var(--oq-border-subtle);
+  gap: 2px;
 }
 
-.activity-bar__fill {
-  width: 100%;
-  border-radius: 5px;
-  background: var(--oq-border-strong);
-  transition: height 0.25s ease;
-}
-
-.activity-bar--active .activity-bar__fill {
-  background: var(--oq-success);
-}
-
-.activity-bar__count {
-  font-size: 0.72rem;
+.window-btn {
+  padding: 4px 10px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--oq-text-secondary);
+  font: inherit;
+  font-size: 0.78rem;
   font-weight: 600;
-  color: var(--oq-text-muted);
-  font-variant-numeric: tabular-nums;
-}
+  cursor: pointer;
 
-.activity-bar__date {
-  font-size: 0.68rem;
-  color: var(--oq-text-muted);
+  &--active {
+    background: var(--oq-bg-surface);
+    color: var(--oq-accent);
+    box-shadow: var(--oq-shadow-xs);
+  }
 }
 
 .compact-list {
@@ -148,26 +191,19 @@
   background: var(--oq-bg-subtle);
 }
 
+.compact-list__main {
+  min-width: 0;
+}
+
 .compact-list__sub {
   color: var(--oq-text-secondary);
   font-size: 0.8125rem;
   margin-top: 2px;
 }
 
-.compact-list__badges,
 .compact-list__right {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
-}
-
-@media (max-width: 640px) {
-  .activity-bars {
-    gap: 3px;
-  }
-
-  .activity-bar__date {
-    display: none;
-  }
 }

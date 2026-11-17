@@ -1,3 +1,4 @@
+export { OqActivityHeatmapComponent } from './activity-heatmap/activity-heatmap.component';
 export { OqButtonComponent } from './button/button.component';
 export { OqCardComponent } from './card/card.component';
 export { OqCheckboxComponent } from './checkbox/checkbox.component';

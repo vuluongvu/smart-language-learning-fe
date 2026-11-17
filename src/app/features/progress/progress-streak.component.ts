@@ -3,6 +3,7 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import {
+  OqActivityHeatmapComponent,
   OqEmptyStateComponent,
   OqIconComponent,
   OqPageHeaderComponent,
@@ -26,6 +27,7 @@ import { ProgressApiService } from './progress-api.service';
     DecimalPipe,
     OqPageHeaderComponent,
     OqStatCardComponent,
+    OqActivityHeatmapComponent,
     OqEmptyStateComponent,
     OqIconComponent,
     TranslatePipe,

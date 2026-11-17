@@ -93,6 +93,11 @@ export const routes: Routes = [
           import('./features/quizzes/quiz-result.component').then((m) => m.QuizResultComponent),
       },
       {
+        path: 'ai-tutor',
+        loadComponent: () =>
+          import('./features/ai-tutor/ai-tutor.component').then((m) => m.AiTutorComponent),
+      },
+      {
         path: 'progress',
         loadComponent: () =>
           import('./features/progress/progress-streak.component').then(
