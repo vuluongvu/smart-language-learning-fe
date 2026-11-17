@@ -88,71 +88,99 @@
 
       <button
         type="button"
-        class="oq-card flashcard-stage"
+        class="oq-flip-stage flashcard-stage"
         [class.flashcard-stage--flipped]="isFlipped()"
         [attr.aria-pressed]="isFlipped()"
         aria-label="Flashcard. Press Enter, Space, or click to flip between term and definition."
         (click)="toggleFlip()"
       >
-        <div class="flashcard-stage__meta">
-          <span class="oq-badge">
-            {{ 'fc.cardCounter' | t: { current: currentIndex() + 1, total: s.cards.length } }}
-          </span>
-          <span class="oq-badge">
-            {{ formatStatus(card.progress.status, card.progress.isDue, i18n.lang()) }}
-          </span>
-          @if (card.sessionLastRating) {
-            <span class="oq-badge oq-badge--accent">
-              {{
-                'fc.lastRating' | t: { rating: formatRating(card.sessionLastRating, i18n.lang()) }
-              }}
-            </span>
-          }
-        </div>
-
-        @if (!isFlipped()) {
-          <div class="flashcard-face">
-            <h2 class="flashcard-term">{{ card.term }}</h2>
-            @if (card.partOfSpeech) {
-              <div class="muted-small">{{ card.partOfSpeech }}</div>
-            }
-            @if (card.topics.length > 0) {
-              <div class="flashcard-topics">
-                @for (t of card.topics; track t.id) {
-                  <span class="oq-badge">{{ t.name }}</span>
-                }
-              </div>
-            }
-            <p class="flashcard-cue">{{ 'fc.flipCue' | t }}</p>
-          </div>
-        } @else {
-          <div class="flashcard-face flashcard-face--back">
-            <div class="flashcard-back-head">
-              <strong>{{ card.term }}</strong>
-              @if (card.pronunciation) {
-                <span class="muted-small">{{ card.pronunciation }}</span>
-              }
-              @if (card.partOfSpeech) {
-                <span class="oq-badge">{{ card.partOfSpeech }}</span>
+        @for (activeCard of [card]; track activeCard.id) {
+          <ng-template #cardMeta>
+            <div class="flashcard-stage__meta">
+              <span class="oq-badge">
+                {{ 'fc.cardCounter' | t: { current: currentIndex() + 1, total: s.cards.length } }}
+              </span>
+              <span class="oq-badge">
+                {{
+                  formatStatus(activeCard.progress.status, activeCard.progress.isDue, i18n.lang())
+                }}
+              </span>
+              @if (activeCard.sessionLastRating) {
+                <span class="oq-badge oq-badge--accent">
+                  {{
+                    'fc.lastRating'
+                      | t: { rating: formatRating(activeCard.sessionLastRating, i18n.lang()) }
+                  }}
+                </span>
               }
             </div>
-            <p class="flashcard-def">{{ card.definition }}</p>
-            @if (card.example) {
-              <p class="flashcard-example">"{{ card.example }}"</p>
+          </ng-template>
+
+          <div
+            class="oq-flip-inner flashcard-flipper"
+            [class.oq-flip-inner--flipped]="isFlipped()"
+            [class.flashcard-flipper--flipped]="isFlipped()"
+          >
+            <div
+              class="oq-card oq-flip-face oq-flip-face--front flashcard-face flashcard-face--front"
+              [attr.aria-hidden]="isFlipped()"
+            >
+              <ng-container *ngTemplateOutlet="cardMeta" />
+              <div class="flashcard-body">
+                <h2 class="flashcard-term">{{ activeCard.term }}</h2>
+                @if (activeCard.partOfSpeech) {
+                  <div class="muted-small">{{ activeCard.partOfSpeech }}</div>
+                }
+                @if (activeCard.topics.length > 0) {
+                  <div class="flashcard-topics">
+                    @for (t of activeCard.topics; track t.id) {
+                      <span class="oq-badge">{{ t.name }}</span>
+                    }
+                  </div>
+                }
+                <p class="flashcard-cue">{{ 'fc.flipCue' | t }}</p>
+              </div>
+            </div>
+
+            @if (isFlipped() || hasFlippedOnce()) {
+              <div
+                class="oq-card oq-flip-face oq-flip-face--back flashcard-face flashcard-face--back"
+                [attr.aria-hidden]="!isFlipped()"
+              >
+                <ng-container *ngTemplateOutlet="cardMeta" />
+                <div class="flashcard-body">
+                  <div class="flashcard-back-head">
+                    <strong>{{ activeCard.term }}</strong>
+                    @if (activeCard.pronunciation) {
+                      <span class="muted-small">{{ activeCard.pronunciation }}</span>
+                    }
+                    @if (activeCard.partOfSpeech) {
+                      <span class="oq-badge">{{ activeCard.partOfSpeech }}</span>
+                    }
+                  </div>
+                  <p class="flashcard-def">{{ activeCard.definition }}</p>
+                  @if (activeCard.example) {
+                    <p class="flashcard-example">"{{ activeCard.example }}"</p>
+                  }
+                  @if (activeCard.notes) {
+                    <p class="flashcard-notes">{{ 'fc.notePrefix' | t }} {{ activeCard.notes }}</p>
+                  }
+                  <p class="flashcard-cue">
+                    {{
+                      'fc.repsInterval'
+                        | t
+                          : {
+                              reps: activeCard.progress.repetitions,
+                              interval: formatInterval(
+                                activeCard.progress.intervalDays,
+                                i18n.lang()
+                              ),
+                            }
+                    }}
+                  </p>
+                </div>
+              </div>
             }
-            @if (card.notes) {
-              <p class="flashcard-notes">{{ 'fc.notePrefix' | t }} {{ card.notes }}</p>
-            }
-            <p class="flashcard-cue">
-              {{
-                'fc.repsInterval'
-                  | t
-                    : {
-                        reps: card.progress.repetitions,
-                        interval: formatInterval(card.progress.intervalDays, i18n.lang()),
-                      }
-              }}
-            </p>
           </div>
         }
       </button>
@@ -211,7 +239,11 @@
       </div>
     }
   } @else {
-    <section class="oq-card summary-card">
+    <section
+      class="oq-card summary-card oq-success-enter"
+      [class.oq-card--pastel-green]="s.isStreakEligible"
+      [class.oq-card--pastel-cream]="!s.isStreakEligible"
+    >
       <div class="summary-card__head">
         <h2>{{ 'fc.sessionComplete' | t }}</h2>
         @if (s.isStreakEligible) {

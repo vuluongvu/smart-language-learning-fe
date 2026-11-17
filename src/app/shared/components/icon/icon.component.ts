@@ -34,7 +34,12 @@ export type OqIconName =
   | 'sparkles'
   | 'alert-circle'
   | 'lock'
-  | 'globe';
+  | 'globe'
+  | 'send'
+  | 'copy'
+  | 'mic'
+  | 'square'
+  | 'volume-2';
 
 @Component({
   selector: 'oq-icon',
@@ -223,6 +228,29 @@ export type OqIconName =
           <circle cx="12" cy="12" r="10" />
           <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
           <path d="M2 12h20" />
+        }
+        @case ('send') {
+          <path
+            d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"
+          />
+          <path d="m21.854 2.147-10.94 10.939" />
+        }
+        @case ('copy') {
+          <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+          <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+        }
+        @case ('mic') {
+          <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+          <line x1="12" x2="12" y1="19" y2="22" />
+        }
+        @case ('square') {
+          <rect width="14" height="14" x="5" y="5" rx="2" />
+        }
+        @case ('volume-2') {
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
         }
       }
     </svg>

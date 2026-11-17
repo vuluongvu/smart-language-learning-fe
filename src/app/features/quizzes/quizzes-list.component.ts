@@ -59,6 +59,7 @@ export class QuizzesListComponent implements OnInit {
 
   protected readonly confirmDeleteQuiz = signal<QuizSummary | null>(null);
   protected readonly isDeleting = signal(false);
+  protected readonly showMoreFilters = signal(false);
 
   ngOnInit(): void {
     this.topicsApi.list({ limit: 100 }).subscribe({

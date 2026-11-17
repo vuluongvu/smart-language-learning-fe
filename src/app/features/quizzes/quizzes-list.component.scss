@@ -9,9 +9,14 @@
   padding: var(--oq-space-4);
 }
 
+.filter-stack {
+  display: grid;
+  gap: var(--oq-space-3);
+}
+
 .filter-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 155px), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 175px), 1fr));
   gap: var(--oq-space-3);
   align-items: end;
 

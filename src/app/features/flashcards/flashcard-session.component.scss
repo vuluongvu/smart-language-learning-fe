@@ -9,14 +9,19 @@
   padding: 16px 20px;
 }
 
-.deck-done-banner {
+.deck-done-banner,
+.summary-card__head {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
   gap: 12px;
+}
+
+.deck-done-banner {
   margin-bottom: 16px;
-  border-color: rgba(22, 163, 122, 0.35);
+  background: var(--oq-pastel-green);
+  border-color: var(--oq-pastel-green-border);
 
   p {
     margin: 4px 0 0;
@@ -42,7 +47,7 @@
   cursor: pointer;
 
   &--done {
-    border-color: rgba(22, 163, 122, 0.35);
+    border-color: var(--oq-pastel-green-border);
     background: var(--oq-success-soft);
     color: var(--oq-success);
   }
@@ -55,33 +60,31 @@
 }
 
 .flashcard-stage {
-  width: 100%;
   max-width: 760px;
-  min-height: 290px;
   margin: 0 auto 16px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  text-align: center;
-  cursor: pointer;
-  color: inherit;
-  font: inherit;
-  box-shadow: var(--oq-shadow-sm);
 
-  &--flipped {
-    border-color: var(--oq-accent);
-  }
-
-  &__meta {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px;
+  &:hover .flashcard-face--front {
+    border-color: var(--oq-border-strong);
+    box-shadow: var(--oq-shadow-md);
   }
 }
 
 .flashcard-face {
-  padding: 24px 16px;
+  min-height: 290px;
+  padding: 20px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: var(--oq-shadow-sm);
+
+  &--back {
+    background: var(--oq-pastel-cream);
+    border-color: var(--oq-accent);
+  }
+}
+
+.flashcard-body {
+  padding: 24px 12px;
 }
 
 .flashcard-term {
@@ -91,13 +94,26 @@
   letter-spacing: -0.02em;
 }
 
+.flashcard-stage__meta,
 .flashcard-topics,
-.flashcard-back-head {
+.flashcard-back-head,
+.controls-bar__nav,
+.summary-actions {
   display: flex;
   flex-wrap: wrap;
+  gap: 8px;
+}
+
+.flashcard-stage__meta,
+.flashcard-topics,
+.flashcard-back-head,
+.controls-bar__nav {
   justify-content: center;
   align-items: center;
-  gap: 8px;
+}
+
+.flashcard-topics,
+.flashcard-back-head {
   margin: 10px 0;
 }
 
@@ -117,8 +133,10 @@
   font-style: italic;
 }
 
-.flashcard-notes {
-  font-size: 0.875rem;
+.flashcard-notes,
+.muted-small {
+  font-size: 0.8125rem;
+  color: var(--oq-text-secondary);
 }
 
 .flashcard-cue {
@@ -132,13 +150,6 @@
   margin: 0 auto;
   display: grid;
   gap: 16px;
-
-  &__nav {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px;
-  }
 }
 
 .center-hint {
@@ -164,28 +175,29 @@
   color: var(--oq-text-primary);
   font: inherit;
   cursor: pointer;
+  transition: transform var(--oq-transition);
 
   &:hover:not(:disabled) {
     transform: translateY(-1px);
   }
 
   &--danger {
-    border-color: rgba(220, 38, 38, 0.35);
+    border-color: rgba(239, 68, 68, 0.35);
     background: var(--oq-danger-soft);
   }
 
   &--warning {
-    border-color: rgba(217, 119, 6, 0.35);
+    border-color: rgba(245, 158, 11, 0.35);
     background: var(--oq-warning-soft);
   }
 
   &--primary {
-    border-color: rgba(233, 75, 112, 0.35);
+    border-color: var(--oq-pastel-pink-border);
     background: var(--oq-accent-soft);
   }
 
   &--success {
-    border-color: rgba(22, 163, 122, 0.35);
+    border-color: var(--oq-pastel-green-border);
     background: var(--oq-success-soft);
   }
 
@@ -212,11 +224,6 @@
 }
 
 .summary-card__head {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
   margin-bottom: 20px;
 
   h2 {
@@ -232,10 +239,14 @@
   margin-bottom: 20px;
 }
 
-.metric-box {
-  padding: 12px;
+.metric-box,
+.forgotten-box {
   border-radius: 12px;
   background: var(--oq-bg-subtle);
+}
+
+.metric-box {
+  padding: 12px;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -252,8 +263,6 @@
 
 .forgotten-box {
   padding: 16px;
-  border-radius: 12px;
-  background: var(--oq-bg-subtle);
   margin-bottom: 20px;
 
   h3 {
@@ -265,15 +274,4 @@
     margin: 0 0 16px;
     padding-left: 18px;
   }
-}
-
-.summary-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.muted-small {
-  font-size: 0.8125rem;
-  color: var(--oq-text-secondary);
 }

@@ -9,6 +9,7 @@ import {
   OqProgressBarComponent,
 } from '../../shared/components';
 import { I18nService, TranslatePipe } from '../../shared/i18n';
+import { OqMarkdownPipe } from '../../shared/pipes/markdown.pipe';
 import {
   AttemptCompletedAnswer,
   AttemptDetail,
@@ -31,6 +32,7 @@ import { QuizzesApiService } from './quizzes-api.service';
     OqEmptyStateComponent,
     OqIconComponent,
     TranslatePipe,
+    OqMarkdownPipe,
   ],
   templateUrl: './quiz-result.component.html',
   styleUrl: './quiz-result.component.scss',
