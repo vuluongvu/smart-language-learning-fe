@@ -1,0 +1,235 @@
+<oq-page-header
+  [eyebrow]="'fc.eyebrow' | t"
+  [title]="'fc.title' | t"
+  [subtitle]="'fc.subtitle' | t"
+>
+  <a actions routerLink="/vocabulary" class="oq-btn oq-btn--secondary">
+    <oq-icon name="book-open" [size]="16" />
+    <span>{{ 'fc.browseVocab' | t }}</span>
+  </a>
+</oq-page-header>
+
+@if (errorMessage()) {
+  <div class="oq-alert oq-alert--error" role="alert">
+    <span>{{ errorMessage() }}</span>
+    <button type="button" class="oq-inline-retry" (click)="refreshQueue()">
+      {{ 'common.retry' | t }}
+    </button>
+  </div>
+}
+
+<section class="stats-grid" aria-label="Review queue metrics">
+  <oq-stat-card [label]="'fc.dueNow' | t" [value]="summary().dueCount" icon="clock" tone="accent" />
+  <oq-stat-card [label]="'fc.new' | t" [value]="summary().newCount" icon="sparkles" />
+  <oq-stat-card [label]="'fc.learning' | t" [value]="summary().learningCount" icon="layers" />
+  <oq-stat-card
+    [label]="'fc.mastered' | t"
+    [value]="summary().masteredCount"
+    icon="check"
+    tone="success"
+  />
+</section>
+
+<section class="oq-card setup-card">
+  <div class="setup-card__head">
+    <h2>{{ 'fc.setupTitle' | t }}</h2>
+    <p class="setup-card__hint">{{ 'fc.setupHint' | t }}</p>
+  </div>
+
+  <div class="setup-grid">
+    <div class="oq-field">
+      <label for="fc-topic">{{ 'fc.topicScope' | t }}</label>
+      <select
+        id="fc-topic"
+        [(ngModel)]="selectedTopicId"
+        (change)="refreshQueue()"
+        [attr.aria-label]="'fc.topicScope' | t"
+      >
+        <option [ngValue]="null">
+          {{ 'fc.allTopicsCount' | t: { count: summary().totalCount } }}
+        </option>
+        @for (topic of topics(); track topic.id) {
+          <option [ngValue]="topic.id">{{ topic.name }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="oq-field">
+      <label for="fc-mode">{{ 'fc.studyMode' | t }}</label>
+      <select
+        id="fc-mode"
+        [(ngModel)]="selectedMode"
+        (change)="refreshQueue()"
+        [attr.aria-label]="'fc.studyMode' | t"
+      >
+        @for (option of modeOptions; track option.value) {
+          <option [value]="option.value">{{ option.labelKey | t }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="oq-field">
+      <label for="fc-limit">{{ 'fc.deckSize' | t }}</label>
+      <select id="fc-limit" [(ngModel)]="sessionLimit" [attr.aria-label]="'fc.deckSize' | t">
+        <option [ngValue]="10">{{ 'fc.limitOption' | t: { count: 10 } }}</option>
+        <option [ngValue]="20">{{ 'fc.limitOption' | t: { count: 20 } }}</option>
+        <option [ngValue]="30">{{ 'fc.limitOption' | t: { count: 30 } }}</option>
+        <option [ngValue]="50">{{ 'fc.limitOption' | t: { count: 50 } }}</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="setup-actions">
+    <button
+      type="button"
+      class="oq-btn oq-btn--primary"
+      [disabled]="isStarting() || isLoading()"
+      (click)="startSession()"
+    >
+      <oq-icon name="layers" [size]="16" />
+      <span>{{ isStarting() ? ('fc.starting' | t) : ('fc.startSession' | t) }}</span>
+    </button>
+
+    @if (summary().hardCount > 0) {
+      <button
+        type="button"
+        class="oq-btn oq-btn--secondary"
+        [disabled]="isStarting() || isLoading()"
+        (click)="startSession('hard_only')"
+      >
+        {{ 'fc.practiceHard' | t: { count: summary().hardCount } }}
+      </button>
+    }
+  </div>
+</section>
+
+<div class="fc-columns">
+  <section class="oq-card panel">
+    <div class="panel__head">
+      <h2>{{ 'fc.queuePreview' | t }}</h2>
+      <span class="oq-badge">{{ 'fc.readyCount' | t: { count: dueCards().length } }}</span>
+    </div>
+
+    @if (isLoading()) {
+      <p class="oq-muted">{{ 'fc.loadingQueue' | t }}</p>
+    } @else if (dueCards().length === 0) {
+      <oq-empty-state
+        [compact]="true"
+        icon="layers"
+        [title]="'fc.queueEmptyTitle' | t"
+        [description]="'fc.queueEmptyDesc' | t: { mode: formatMode(selectedMode, i18n.lang()) }"
+      >
+        @if (summary().totalCount === 0) {
+          <a actions routerLink="/vocabulary" class="oq-btn oq-btn--secondary oq-btn--sm">
+            {{ 'fc.addVocabFirst' | t }}
+          </a>
+        } @else {
+          <button
+            actions
+            type="button"
+            class="oq-btn oq-btn--secondary oq-btn--sm"
+            (click)="selectedMode = 'all'; refreshQueue()"
+          >
+            {{ 'fc.showAllCards' | t }}
+          </button>
+        }
+      </oq-empty-state>
+    } @else {
+      <ul class="queue-list">
+        @for (card of dueCards(); track card.id) {
+          <li class="queue-item">
+            <div>
+              <div class="queue-item__term">
+                <strong>{{ card.term }}</strong>
+                @if (card.partOfSpeech) {
+                  <span class="oq-badge">{{ card.partOfSpeech }}</span>
+                }
+              </div>
+              <div class="queue-item__def">{{ card.definition }}</div>
+            </div>
+            <div class="queue-item__meta">
+              <span
+                class="oq-badge"
+                [class.oq-badge--warning]="card.progress.isDue"
+                [class.oq-badge--accent]="
+                  !card.progress.isDue && card.progress.status === 'learning'
+                "
+                [class.oq-badge--success]="
+                  !card.progress.isDue && card.progress.status === 'mastered'
+                "
+              >
+                {{ formatStatus(card.progress.status, card.progress.isDue, i18n.lang()) }}
+              </span>
+              @if (card.progress.repetitions > 0) {
+                <span class="muted-small">
+                  {{
+                    'fc.interval'
+                      | t: { interval: formatInterval(card.progress.intervalDays, i18n.lang()) }
+                  }}
+                </span>
+              }
+            </div>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+
+  <section class="oq-card panel">
+    <div class="panel__head">
+      <h2>{{ 'fc.recentSessions' | t }}</h2>
+      <span class="oq-badge">{{ 'fc.recentCount' | t: { count: sessions().length } }}</span>
+    </div>
+
+    @if (isLoading()) {
+      <p class="oq-muted">{{ 'fc.loadingSessions' | t }}</p>
+    } @else if (sessions().length === 0) {
+      <oq-empty-state
+        [compact]="true"
+        icon="clock"
+        [title]="'fc.sessionsEmptyTitle' | t"
+        [description]="'fc.sessionsEmptyDesc' | t"
+      />
+    } @else {
+      <ul class="sessions-list">
+        @for (session of sessions(); track session.id) {
+          <li class="session-row">
+            <div class="session-row__info">
+              <div class="session-row__top">
+                <strong>{{ formatMode(session.mode, i18n.lang()) }}</strong>
+                @if (session.topicName) {
+                  <span class="oq-badge">{{ session.topicName }}</span>
+                }
+                <span
+                  class="oq-badge"
+                  [class.oq-badge--success]="
+                    session.status === 'completed' && session.isStreakEligible
+                  "
+                  [class.oq-badge--accent]="session.status === 'in_progress'"
+                >
+                  {{ (session.status === 'completed' ? 'fc.completed' : 'fc.inProgress') | t }}
+                </span>
+              </div>
+              <div class="muted-small">
+                {{
+                  'fc.reviewedProgress'
+                    | t: { reviewed: session.reviewedCount, target: session.targetCount }
+                }}
+                · {{ session.startedAt | date: 'mediumDate' }}
+                @if (session.isStreakEligible) {
+                  · {{ 'fc.streakEligible' | t }}
+                }
+              </div>
+            </div>
+            <a
+              [routerLink]="['/flashcards/sessions', session.id]"
+              class="oq-btn oq-btn--secondary oq-btn--sm"
+            >
+              {{ (session.status === 'in_progress' ? 'fc.resume' : 'fc.summary') | t }}
+            </a>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+</div>

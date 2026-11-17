@@ -1,0 +1,228 @@
+.progress-page {
+  display: grid;
+  gap: var(--oq-space-5);
+}
+
+.page-actions,
+.cal-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--oq-space-2);
+}
+
+.state-box {
+  padding: var(--oq-space-8);
+  text-align: center;
+  color: var(--oq-text-secondary);
+}
+
+.streak-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: var(--oq-space-4);
+}
+
+.cal-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--oq-space-3);
+  margin-bottom: var(--oq-space-4);
+
+  h2 {
+    margin: 0 0 2px;
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
+}
+
+.cal-sub {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--oq-text-secondary);
+}
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.cal-weekday {
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--oq-text-muted);
+  padding-bottom: 4px;
+}
+
+.cal-day {
+  min-height: 52px;
+  padding: 6px;
+  border-radius: var(--oq-radius-sm);
+  border: 1px solid var(--oq-border-subtle);
+  background: var(--oq-bg-surface);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  &__num {
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+
+  &__cnt {
+    align-self: flex-end;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: var(--oq-radius-full);
+    background: rgba(22, 163, 122, 0.16);
+    color: var(--oq-success);
+  }
+
+  &--active {
+    background: var(--oq-success-soft);
+    border-color: rgba(22, 163, 122, 0.35);
+  }
+
+  &--today {
+    border-color: var(--oq-accent);
+    box-shadow: inset 0 0 0 1px var(--oq-accent);
+  }
+
+  &--missed {
+    background: var(--oq-bg-subtle);
+    color: var(--oq-text-muted);
+  }
+
+  &--dim {
+    opacity: 0.45;
+    background: var(--oq-bg-subtle);
+  }
+}
+
+.cal-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--oq-space-4);
+  margin-top: var(--oq-space-4);
+  font-size: 0.8125rem;
+  color: var(--oq-text-secondary);
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  display: inline-block;
+
+  &--active {
+    background: var(--oq-success);
+  }
+
+  &--today {
+    border: 2px solid var(--oq-accent);
+  }
+
+  &--missed {
+    background: var(--oq-border-strong);
+  }
+
+  &--dim {
+    background: var(--oq-bg-subtle);
+    border: 1px solid var(--oq-border-subtle);
+  }
+}
+
+.history-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  gap: var(--oq-space-4);
+}
+
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--oq-space-2);
+  margin-bottom: var(--oq-space-4);
+
+  h2 {
+    margin: 0;
+    font-size: 1.0625rem;
+    font-weight: 600;
+  }
+}
+
+.window-tabs {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: var(--oq-radius-sm);
+  background: var(--oq-bg-subtle);
+  border: 1px solid var(--oq-border-subtle);
+}
+
+.tab-btn {
+  padding: 4px 10px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--oq-text-secondary);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &--on {
+    background: var(--oq-bg-surface);
+    color: var(--oq-text-primary);
+    box-shadow: var(--oq-shadow-xs);
+  }
+}
+
+.log-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.log-item {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: var(--oq-radius-md);
+  background: var(--oq-bg-subtle);
+  font-size: 0.875rem;
+}
+
+.subhead {
+  margin: var(--oq-space-5) 0 var(--oq-space-3);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.accent-link {
+  color: var(--oq-accent);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

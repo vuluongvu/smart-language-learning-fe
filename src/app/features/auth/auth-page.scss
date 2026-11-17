@@ -1,0 +1,116 @@
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--oq-space-6) var(--oq-space-4);
+  background: var(--oq-bg-canvas);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 432px;
+  padding: var(--oq-space-8);
+  box-shadow: var(--oq-shadow-sm);
+}
+
+.auth-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--oq-space-6);
+
+  &__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 1.0625rem;
+    letter-spacing: -0.02em;
+    color: var(--oq-text-primary);
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+}
+
+.auth-intro {
+  margin-bottom: var(--oq-space-5);
+}
+
+.auth-eyebrow {
+  display: inline-block;
+  margin-bottom: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--oq-accent);
+}
+
+.auth-title {
+  margin: 0 0 4px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.auth-subtitle {
+  margin: 0;
+  color: var(--oq-text-secondary);
+  font-size: 0.875rem;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--oq-space-3);
+  margin: var(--oq-space-5) 0;
+  color: var(--oq-text-muted);
+  font-size: 0.8125rem;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--oq-border-subtle);
+  }
+}
+
+.auth-google-slot {
+  display: flex;
+  justify-content: center;
+  min-height: 42px;
+}
+
+.auth-google-note {
+  margin-bottom: 0;
+  font-size: 0.8125rem;
+}
+
+.auth-footer {
+  margin: var(--oq-space-6) 0 0;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--oq-text-secondary);
+
+  a {
+    color: var(--oq-accent);
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-card {
+    padding: var(--oq-space-6);
+  }
+}

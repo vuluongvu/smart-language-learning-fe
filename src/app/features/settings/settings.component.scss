@@ -1,0 +1,136 @@
+.settings-stack {
+  max-width: 780px;
+  display: grid;
+  gap: var(--oq-space-5);
+}
+
+.settings-section {
+  display: grid;
+  gap: var(--oq-space-4);
+
+  &__head h2 {
+    margin: 0 0 2px;
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
+}
+
+.section-desc {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--oq-text-secondary);
+}
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: var(--oq-space-3);
+}
+
+.privacy-toggle {
+  margin-bottom: var(--oq-space-4);
+}
+
+.lang-picker {
+  margin-bottom: var(--oq-space-5);
+
+  &__label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--oq-text-primary);
+  }
+
+  &__buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}
+
+.actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--oq-space-2);
+}
+
+.theme-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+  gap: var(--oq-space-3);
+}
+
+.theme-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border-radius: var(--oq-radius-md);
+  border: 1px solid var(--oq-border-subtle);
+  background: var(--oq-bg-subtle);
+  color: var(--oq-text-primary);
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color var(--oq-transition-fast);
+
+  &:hover {
+    border-color: var(--oq-border-strong);
+  }
+
+  &--active {
+    border-color: var(--oq-accent);
+    background: var(--oq-accent-soft);
+  }
+
+  &__preview {
+    height: 52px;
+    border-radius: var(--oq-radius-sm);
+    border: 1px solid var(--oq-border-subtle);
+
+    &--light {
+      background: linear-gradient(135deg, #f8f9fc 55%, #ffffff 55%);
+    }
+
+    &--dark {
+      background: linear-gradient(135deg, #0d111a 55%, #141a26 55%);
+    }
+  }
+
+  &__meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875rem;
+  }
+}
+
+.security-block {
+  padding-bottom: var(--oq-space-5);
+  border-bottom: 1px solid var(--oq-border-subtle);
+
+  h3 {
+    margin: 0 0 var(--oq-space-4);
+    font-size: 1rem;
+    font-weight: 600;
+  }
+}
+
+.danger-block {
+  padding: var(--oq-space-4);
+  border-radius: var(--oq-radius-md);
+  background: var(--oq-danger-soft);
+  border: 1px solid rgba(220, 38, 38, 0.25);
+
+  h3 {
+    margin: 0 0 4px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--oq-danger);
+  }
+
+  .section-desc {
+    margin-bottom: var(--oq-space-4);
+  }
+}

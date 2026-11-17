@@ -1,9 +1,4 @@
-export interface AppEnvironment {
-  production: boolean;
-  apiBaseUrl: string;
-  googleClientId: string;
-  aiEnabled: boolean;
-}
+import type { AppEnvironment } from './environment.type';
 
 export const environment: AppEnvironment = {
   production: true,

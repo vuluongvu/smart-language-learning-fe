@@ -1,0 +1,106 @@
+<div class="auth-page">
+  <section class="oq-card auth-card">
+    <div class="auth-header">
+      <div class="auth-header__brand">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <rect width="28" height="28" rx="8" fill="var(--oq-accent)" />
+          <circle cx="13.5" cy="13.5" r="5.25" stroke="#fff" stroke-width="2.2" />
+          <path d="M17.5 17.5 21 21" stroke="#fff" stroke-width="2.2" stroke-linecap="round" />
+        </svg>
+        <span>OpenQuiz</span>
+      </div>
+      <div class="auth-header__actions">
+        <button
+          type="button"
+          class="oq-btn oq-btn--secondary oq-btn--sm"
+          (click)="i18n.toggleLang()"
+          [attr.aria-label]="'common.switchLangAria' | t"
+        >
+          <oq-icon name="globe" [size]="15" />
+          <span>{{ 'common.langCode' | t }}</span>
+        </button>
+        <button
+          type="button"
+          class="oq-btn oq-btn--secondary oq-btn--sm"
+          (click)="themeService.toggleTheme()"
+          [attr.aria-label]="
+            'common.switchToTheme'
+              | t
+                : {
+                    mode:
+                      themeService.theme() === 'light'
+                        ? ('common.darkShort' | t)
+                        : ('common.lightShort' | t),
+                  }
+          "
+        >
+          <oq-icon [name]="themeService.theme() === 'light' ? 'moon' : 'sun'" [size]="15" />
+          <span>{{
+            (themeService.theme() === 'light' ? 'common.darkShort' : 'common.lightShort') | t
+          }}</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="auth-intro">
+      <span class="auth-eyebrow">{{ 'auth.workspace' | t }}</span>
+      <h1 class="auth-title">{{ 'auth.welcomeBack' | t }}</h1>
+      <p class="auth-subtitle">{{ 'auth.loginSubtitle' | t }}</p>
+    </div>
+
+    @if (errorMessage()) {
+      <div class="oq-alert oq-alert--error" role="alert">
+        {{ errorMessage() }}
+      </div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="oq-field">
+        <label for="login-email">{{ 'auth.email' | t }}</label>
+        <input
+          id="login-email"
+          type="email"
+          formControlName="email"
+          autocomplete="email"
+          [placeholder]="'auth.emailPlaceholder' | t"
+        />
+        @if (form.controls.email.touched && form.controls.email.invalid) {
+          <span class="oq-field-error">{{ 'auth.emailError' | t }}</span>
+        }
+      </div>
+
+      <div class="oq-field">
+        <label for="login-password">{{ 'auth.password' | t }}</label>
+        <input
+          id="login-password"
+          type="password"
+          formControlName="password"
+          autocomplete="current-password"
+          [placeholder]="'auth.passwordPlaceholder' | t"
+        />
+        @if (form.controls.password.touched && form.controls.password.invalid) {
+          <span class="oq-field-error">{{ 'auth.passwordError' | t }}</span>
+        }
+      </div>
+
+      <button type="submit" class="oq-btn oq-btn--primary oq-btn--full" [disabled]="isSubmitting()">
+        {{ isSubmitting() ? ('auth.signingIn' | t) : ('auth.signIn' | t) }}
+      </button>
+    </form>
+
+    <div class="auth-divider">{{ 'auth.or' | t }}</div>
+
+    @if (googleClientId) {
+      <div #googleBtnContainer class="auth-google-slot"></div>
+    } @else {
+      <div class="oq-alert oq-alert--info auth-google-note">
+        {{ 'auth.googleDisabled' | t }}
+      </div>
+    }
+
+    <p class="auth-footer">
+      {{ 'auth.newHere' | t }}
+      <a routerLink="/register">{{ 'auth.createAccountLink' | t }}</a>
+    </p>
+  </section>
+</div>

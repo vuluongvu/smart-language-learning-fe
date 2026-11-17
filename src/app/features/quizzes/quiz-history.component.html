@@ -1,0 +1,115 @@
+<oq-page-header
+  backLink="/quizzes"
+  [backLabel]="'qb.back' | t"
+  [eyebrow]="'qh.eyebrow' | t"
+  [title]="quiz() ? ('qh.historyOf' | t: { title: quiz()!.title }) : ('qh.title' | t)"
+  [subtitle]="'qh.subtitle' | t"
+>
+  <div actions class="head-actions">
+    @if (quizId(); as id) {
+      <a [routerLink]="['/quizzes', id, 'take']" class="oq-btn oq-btn--primary">
+        <oq-icon name="plus" [size]="16" />
+        <span>{{ 'qh.retake' | t }}</span>
+      </a>
+    }
+  </div>
+</oq-page-header>
+
+<section class="oq-card filter-panel">
+  <div class="oq-field filter-panel__select">
+    <label for="attemptStatusFilter">{{ 'qh.filterStatus' | t }}</label>
+    <select id="attemptStatusFilter" [(ngModel)]="statusFilter" (ngModelChange)="loadAttempts(1)">
+      <option value="">{{ 'qh.allAttempts' | t }}</option>
+      <option value="completed">{{ 'fc.completed' | t }}</option>
+      <option value="in_progress">{{ 'fc.inProgress' | t }}</option>
+    </select>
+  </div>
+</section>
+
+@if (errorMessage()) {
+  <div class="oq-alert oq-alert--error" role="alert">{{ errorMessage() }}</div>
+}
+
+@if (isLoading()) {
+  <div class="oq-card state-box">{{ 'qh.loading' | t }}</div>
+} @else if (attempts().length === 0) {
+  <oq-empty-state icon="clock" [title]="'qh.emptyTitle' | t" [description]="'qh.emptyDesc' | t">
+    <a actions routerLink="/quizzes" class="oq-btn oq-btn--primary">{{ 'qh.browseQuizzes' | t }}</a>
+  </oq-empty-state>
+} @else {
+  <div class="attempts-list">
+    @for (attempt of attempts(); track attempt.id) {
+      <article class="oq-card attempt-card">
+        <div class="attempt-card__main">
+          <div class="attempt-card__top">
+            <span
+              class="oq-badge"
+              [class.oq-badge--success]="attempt.status === 'completed'"
+              [class.oq-badge--accent]="attempt.status === 'in_progress'"
+            >
+              {{ (attempt.status === 'completed' ? 'fc.completed' : 'fc.inProgress') | t }}
+            </span>
+            <span class="attempt-card__date">
+              {{ 'qh.started' | t }} {{ attempt.startedAt | date: 'medium' }}
+            </span>
+          </div>
+
+          <h2 class="attempt-card__title">{{ attempt.quizTitle }}</h2>
+
+          <div class="attempt-card__metrics">
+            @if (attempt.status === 'completed') {
+              <span class="attempt-card__score">{{ attempt.score }}%</span>
+              <span>{{
+                'dashboard.questionsCorrect'
+                  | t: { correct: attempt.correctCount, total: attempt.totalQuestions }
+              }}</span>
+            } @else {
+              <span>{{
+                (attempt.totalQuestions === 1 ? 'quizzes.questionSingle' : 'quizzes.questionPlural')
+                  | t: { count: attempt.totalQuestions }
+              }}</span>
+              <span>{{ 'qh.waitingSubmission' | t }}</span>
+            }
+          </div>
+        </div>
+
+        <div class="attempt-card__actions">
+          @if (attempt.status === 'completed') {
+            <a [routerLink]="['/attempts', attempt.id]" class="oq-btn oq-btn--secondary oq-btn--sm">
+              {{ 'qh.viewResult' | t }}
+            </a>
+          } @else {
+            <a
+              [routerLink]="['/quizzes', attempt.quizId, 'take']"
+              class="oq-btn oq-btn--primary oq-btn--sm"
+            >
+              {{ 'fc.resume' | t }}
+            </a>
+          }
+        </div>
+      </article>
+    }
+  </div>
+
+  @if (meta().totalPages > 1) {
+    <nav class="oq-pagination" aria-label="Attempts pagination">
+      <button
+        type="button"
+        class="oq-btn oq-btn--secondary oq-btn--sm"
+        [disabled]="meta().page <= 1"
+        (click)="loadAttempts(meta().page - 1)"
+      >
+        {{ 'common.previous' | t }}
+      </button>
+      <span>{{ 'common.pageOf' | t: { page: meta().page, total: meta().totalPages } }}</span>
+      <button
+        type="button"
+        class="oq-btn oq-btn--secondary oq-btn--sm"
+        [disabled]="meta().page >= meta().totalPages"
+        (click)="loadAttempts(meta().page + 1)"
+      >
+        {{ 'common.next' | t }}
+      </button>
+    </nav>
+  }
+}

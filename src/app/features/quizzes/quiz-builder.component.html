@@ -1,0 +1,356 @@
+<oq-page-header
+  backLink="/quizzes"
+  [backLabel]="'qb.back' | t"
+  [eyebrow]="'qb.eyebrow' | t"
+  [title]="(editingQuizId() ? 'qb.editTitle' : 'qb.createTitle') | t"
+  [subtitle]="'qb.subtitle' | t"
+/>
+
+@if (successMessage()) {
+  <div class="oq-alert oq-alert--success" role="status">{{ successMessage() }}</div>
+}
+
+@if (errorMessage()) {
+  <div class="oq-alert oq-alert--error" role="alert">{{ errorMessage() }}</div>
+}
+
+@if (isLoading()) {
+  <div class="oq-card state-box">{{ 'qb.loading' | t }}</div>
+} @else {
+  <section class="oq-card meta-card">
+    <form [formGroup]="metaForm" class="meta-grid">
+      <div class="oq-field meta-grid__full">
+        <label for="quizTitle">{{ 'qb.titleLabel' | t }}</label>
+        <input
+          id="quizTitle"
+          type="text"
+          formControlName="title"
+          [placeholder]="'qb.titlePlaceholder' | t"
+        />
+        @if (metaForm.controls.title.touched && metaForm.controls.title.invalid) {
+          <span class="oq-field-error">{{ 'qb.titleError' | t }}</span>
+        }
+      </div>
+
+      <div class="oq-field">
+        <label for="quizTopic">{{ 'qb.topicLabel' | t }}</label>
+        <select id="quizTopic" formControlName="topicId">
+          <option [ngValue]="null">{{ 'qb.noTopic' | t }}</option>
+          @for (topic of topics(); track topic.id) {
+            <option [ngValue]="topic.id">{{ topic.name }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="oq-field">
+        <label for="quizDifficulty">{{ 'qb.difficultyLabel' | t }}</label>
+        <select id="quizDifficulty" formControlName="difficulty">
+          <option value="">{{ 'qb.unspecified' | t }}</option>
+          <option value="easy">{{ 'quizzes.easy' | t }}</option>
+          <option value="medium">{{ 'quizzes.medium' | t }}</option>
+          <option value="hard">{{ 'quizzes.hard' | t }}</option>
+        </select>
+      </div>
+
+      <div class="oq-field meta-grid__full">
+        <label for="quizDescription">{{ 'qb.descLabel' | t }}</label>
+        <textarea
+          id="quizDescription"
+          rows="2"
+          formControlName="description"
+          [placeholder]="'qb.descPlaceholder' | t"
+        ></textarea>
+      </div>
+    </form>
+  </section>
+
+  <section class="oq-card gen-card">
+    <div class="gen-card__head">
+      <div>
+        <h2>{{ 'qb.helperTitle' | t }}</h2>
+        <p class="gen-card__sub">{{ 'qb.helperSub' | t }}</p>
+      </div>
+      <button
+        type="button"
+        class="oq-btn oq-btn--secondary oq-btn--sm"
+        (click)="showGenerator.set(!showGenerator())"
+      >
+        <oq-icon name="sparkles" [size]="15" />
+        <span>{{ (showGenerator() ? 'qb.hideHelper' : 'qb.showHelper') | t }}</span>
+      </button>
+    </div>
+
+    @if (showGenerator()) {
+      <div class="gen-card__body">
+        <div class="gen-grid">
+          <div class="oq-field">
+            <label for="genTopic">{{ 'qb.sourceTopic' | t }}</label>
+            <select id="genTopic" [(ngModel)]="genTopicId" name="genTopicId">
+              <option [ngValue]="null">{{ 'qb.allVocabItems' | t }}</option>
+              @for (topic of topics(); track topic.id) {
+                <option [ngValue]="topic.id">{{ topic.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="oq-field">
+            <label for="genCount">{{ 'qb.questionCount' | t }}</label>
+            <input
+              id="genCount"
+              type="number"
+              min="1"
+              max="20"
+              [(ngModel)]="genCount"
+              name="genCount"
+            />
+          </div>
+        </div>
+
+        <div class="gen-types">
+          <label class="oq-check">
+            <input type="checkbox" [(ngModel)]="genIncludeMcq" name="genIncludeMcq" />
+            <span>{{ 'qb.typeMcq' | t }}</span>
+          </label>
+          <label class="oq-check">
+            <input
+              type="checkbox"
+              [(ngModel)]="genIncludeWordMeaning"
+              name="genIncludeWordMeaning"
+            />
+            <span>{{ 'qb.typeMeaning' | t }}</span>
+          </label>
+          <label class="oq-check">
+            <input type="checkbox" [(ngModel)]="genIncludeFillBlank" name="genIncludeFillBlank" />
+            <span>{{ 'qb.typeBlank' | t }}</span>
+          </label>
+        </div>
+
+        <div>
+          <button
+            type="button"
+            class="oq-btn oq-btn--primary"
+            [disabled]="isGenerating()"
+            (click)="generateDraftQuestions()"
+          >
+            {{ isGenerating() ? ('qb.generating' | t) : ('qb.appendDrafts' | t) }}
+          </button>
+        </div>
+      </div>
+    }
+  </section>
+
+  <section class="questions-header">
+    <h2>{{ 'qb.questionsHeading' | t: { count: questions().length } }}</h2>
+    <div class="add-btns">
+      <button
+        type="button"
+        class="oq-btn oq-btn--secondary oq-btn--sm"
+        (click)="addQuestion('multiple_choice')"
+      >
+        + {{ 'qb.typeMcq' | t }}
+      </button>
+      <button
+        type="button"
+        class="oq-btn oq-btn--secondary oq-btn--sm"
+        (click)="addQuestion('word_meaning')"
+      >
+        + {{ 'qb.typeMeaning' | t }}
+      </button>
+      <button
+        type="button"
+        class="oq-btn oq-btn--secondary oq-btn--sm"
+        (click)="addQuestion('fill_blank')"
+      >
+        + {{ 'qb.typeBlank' | t }}
+      </button>
+    </div>
+  </section>
+
+  @if (questions().length === 0) {
+    <oq-empty-state
+      [compact]="true"
+      icon="help-circle"
+      [title]="'qb.emptyQuestionsTitle' | t"
+      [description]="'qb.emptyQuestionsDesc' | t"
+    />
+  }
+
+  <div class="questions-list">
+    @for (q of questions(); track q.localKey; let qi = $index) {
+      <article class="oq-card question-card">
+        <div class="question-card__head">
+          <div class="question-card__title">
+            <span class="oq-badge oq-badge--accent">Q{{ qi + 1 }}</span>
+            <span class="oq-badge">{{ questionTypeLabel(q.questionType) }}</span>
+          </div>
+          <div class="question-card__controls">
+            <button
+              type="button"
+              class="oq-btn oq-btn--secondary oq-btn--sm"
+              [disabled]="qi === 0"
+              (click)="moveQuestion(qi, -1)"
+            >
+              {{ 'qb.up' | t }}
+            </button>
+            <button
+              type="button"
+              class="oq-btn oq-btn--secondary oq-btn--sm"
+              [disabled]="qi === questions().length - 1"
+              (click)="moveQuestion(qi, 1)"
+            >
+              {{ 'qb.down' | t }}
+            </button>
+            <button
+              type="button"
+              class="oq-btn oq-btn--ghost oq-btn--sm btn-danger-text"
+              (click)="removeQuestion(qi)"
+            >
+              {{ 'qb.remove' | t }}
+            </button>
+          </div>
+        </div>
+
+        <div class="question-meta-row">
+          <div class="oq-field">
+            <label [for]="'qType-' + q.localKey">{{ 'qb.qType' | t }}</label>
+            <select
+              [id]="'qType-' + q.localKey"
+              [ngModel]="q.questionType"
+              (ngModelChange)="onQuestionTypeChange(qi, $event)"
+            >
+              <option value="multiple_choice">{{ 'qb.typeMcq' | t }}</option>
+              <option value="word_meaning">{{ 'qb.typeMeaning' | t }}</option>
+              <option value="fill_blank">{{ 'qb.typeBlank' | t }}</option>
+            </select>
+          </div>
+
+          <div class="oq-field">
+            <label [for]="'qVocab-' + q.localKey">{{ 'qb.linkVocab' | t }}</label>
+            <select
+              [id]="'qVocab-' + q.localKey"
+              [ngModel]="q.vocabularyId"
+              (ngModelChange)="onVocabularySelect(qi, $event)"
+            >
+              <option [ngValue]="null">{{ 'common.none' | t }}</option>
+              @for (v of vocabularyItems(); track v.id) {
+                <option [ngValue]="v.id">{{ v.term }} — {{ v.definition }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="oq-field">
+            <label [for]="'qTerm-' + q.localKey">{{ 'qb.relatedTerm' | t }}</label>
+            <input
+              [id]="'qTerm-' + q.localKey"
+              type="text"
+              [(ngModel)]="q.vocabularyTerm"
+              placeholder="e.g., mitigate"
+            />
+          </div>
+        </div>
+
+        <div class="oq-field">
+          <label [for]="'qText-' + q.localKey">{{ 'qb.promptLabel' | t }}</label>
+          <textarea
+            [id]="'qText-' + q.localKey"
+            rows="2"
+            [(ngModel)]="q.questionText"
+            [placeholder]="
+              (q.questionType === 'fill_blank'
+                ? 'qb.promptBlankPlaceholder'
+                : 'qb.promptDefaultPlaceholder'
+              ) | t
+            "
+          ></textarea>
+        </div>
+
+        <div class="options-block">
+          <div class="options-block__head">
+            <span>
+              {{
+                (q.questionType === 'fill_blank'
+                  ? 'qb.acceptedAnswersHint'
+                  : 'qb.answerOptionsHint'
+                ) | t
+              }}
+            </span>
+            <button
+              type="button"
+              class="oq-btn oq-btn--secondary oq-btn--sm"
+              [disabled]="
+                q.questionType === 'fill_blank' ? q.options.length >= 5 : q.options.length >= 6
+              "
+              (click)="addOption(qi)"
+            >
+              {{ (q.questionType === 'fill_blank' ? 'qb.addAcceptedAnswer' : 'qb.addOption') | t }}
+            </button>
+          </div>
+
+          @for (opt of q.options; track opt.localKey; let oi = $index) {
+            <div class="option-row">
+              @if (q.questionType !== 'fill_blank') {
+                <input
+                  type="radio"
+                  [name]="'correct-' + q.localKey"
+                  [checked]="opt.isCorrect"
+                  (change)="setCorrectOption(qi, oi)"
+                  [aria-label]="'Mark option ' + (oi + 1) + ' as correct'"
+                />
+              }
+              <input
+                type="text"
+                class="option-row__input"
+                [(ngModel)]="opt.optionText"
+                [placeholder]="
+                  q.questionType === 'fill_blank'
+                    ? 'Accepted answer (e.g., mitigate)'
+                    : 'Option ' + (oi + 1)
+                "
+                [aria-label]="'Option ' + (oi + 1) + ' text'"
+              />
+              <button
+                type="button"
+                class="oq-btn oq-btn--ghost oq-btn--sm"
+                [disabled]="
+                  q.questionType === 'fill_blank' ? q.options.length <= 1 : q.options.length <= 2
+                "
+                (click)="removeOption(qi, oi)"
+              >
+                {{ 'qb.remove' | t }}
+              </button>
+            </div>
+          }
+        </div>
+
+        <div class="oq-field explanation-field">
+          <label [for]="'qExp-' + q.localKey">{{ 'qb.explanationLabel' | t }}</label>
+          <input
+            [id]="'qExp-' + q.localKey"
+            type="text"
+            [(ngModel)]="q.explanation"
+            [placeholder]="'qb.explanationPlaceholder' | t"
+          />
+        </div>
+      </article>
+    }
+  </div>
+
+  <div class="oq-card save-bar">
+    <button
+      type="button"
+      class="oq-btn oq-btn--secondary"
+      [disabled]="isSaving()"
+      (click)="saveQuiz('draft')"
+    >
+      {{ isSaving() ? ('common.saving' | t) : ('qb.saveDraft' | t) }}
+    </button>
+    <button
+      type="button"
+      class="oq-btn oq-btn--primary"
+      [disabled]="isSaving()"
+      (click)="saveQuiz('published')"
+    >
+      {{ isSaving() ? ('common.saving' | t) : ('qb.savePublish' | t) }}
+    </button>
+  </div>
+}

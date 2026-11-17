@@ -1,0 +1,82 @@
+.topic-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--oq-space-2);
+}
+
+.attach-card {
+  margin-bottom: var(--oq-space-5);
+  padding: var(--oq-space-4);
+}
+
+.attach-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--oq-space-3);
+
+  select {
+    flex: 1 1 260px;
+    padding: 9px 12px;
+    border-radius: var(--oq-radius-sm);
+    border: 1px solid var(--oq-border-strong);
+    background: var(--oq-bg-surface);
+    color: var(--oq-text-primary);
+    font: inherit;
+    font-size: 0.875rem;
+  }
+}
+
+.state-box {
+  padding: var(--oq-space-8);
+  text-align: center;
+  color: var(--oq-text-secondary);
+}
+
+.vocab-cards {
+  display: grid;
+  gap: var(--oq-space-3);
+}
+
+.vocab-item {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--oq-space-3);
+}
+
+.vocab-item__main {
+  min-width: 0;
+  flex: 1;
+}
+
+.vocab-item__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+
+  strong {
+    font-size: 1.0625rem;
+  }
+}
+
+.vocab-ipa {
+  color: var(--oq-text-muted);
+  font-size: 0.875rem;
+}
+
+.vocab-item__def {
+  margin: 0;
+  color: var(--oq-text-primary);
+  font-size: 0.9375rem;
+}
+
+.vocab-item__ex {
+  margin: 4px 0 0;
+  color: var(--oq-text-secondary);
+  font-style: italic;
+  font-size: 0.8125rem;
+}

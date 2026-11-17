@@ -1,0 +1,238 @@
+<oq-page-header
+  [eyebrow]="'settings.eyebrow' | t"
+  [title]="'settings.title' | t"
+  [subtitle]="'settings.subtitle' | t"
+/>
+
+<div class="settings-stack">
+  <section class="oq-card settings-section" aria-labelledby="section-profile">
+    <div class="settings-section__head">
+      <div>
+        <h2 id="section-profile">{{ 'settings.profileTitle' | t }}</h2>
+        <p class="section-desc">{{ 'settings.profileDesc' | t }}</p>
+      </div>
+    </div>
+
+    @if (profileMessage()) {
+      <div class="oq-alert oq-alert--success" role="status">
+        {{ profileMessage() }}
+      </div>
+    }
+    @if (profileError()) {
+      <div class="oq-alert oq-alert--error" role="alert">
+        {{ profileError() }}
+      </div>
+    }
+
+    <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" novalidate>
+      <div class="profile-grid">
+        <div class="oq-field">
+          <label for="settings-name">{{ 'auth.displayName' | t }}</label>
+          <input id="settings-name" type="text" formControlName="displayName" />
+        </div>
+
+        <div class="oq-field">
+          <label for="settings-timezone">{{ 'auth.timezone' | t }}</label>
+          <select id="settings-timezone" formControlName="timezone">
+            @for (tz of timezoneOptions(); track tz) {
+              <option [value]="tz">{{ tz }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="oq-field">
+        <label for="settings-avatar">{{ 'settings.avatarLabel' | t }}</label>
+        <input
+          id="settings-avatar"
+          type="url"
+          formControlName="avatarUrl"
+          placeholder="https://example.com/avatar.png"
+        />
+      </div>
+
+      <label class="oq-check privacy-toggle">
+        <input type="checkbox" formControlName="isLeaderboardVisible" />
+        <span>{{ 'settings.leaderboardToggle' | t }}</span>
+      </label>
+
+      <div class="lang-picker">
+        <span class="lang-picker__label">{{ 'settings.interfaceLang' | t }}</span>
+        <div class="lang-picker__buttons">
+          <button
+            type="button"
+            class="oq-btn oq-btn--sm"
+            [class.oq-btn--primary]="i18n.lang() === 'en'"
+            [class.oq-btn--secondary]="i18n.lang() !== 'en'"
+            (click)="i18n.setLang('en')"
+          >
+            {{ 'settings.langEn' | t }}
+          </button>
+          <button
+            type="button"
+            class="oq-btn oq-btn--sm"
+            [class.oq-btn--primary]="i18n.lang() === 'vi'"
+            [class.oq-btn--secondary]="i18n.lang() !== 'vi'"
+            (click)="i18n.setLang('vi')"
+          >
+            {{ 'settings.langVi' | t }}
+          </button>
+        </div>
+      </div>
+
+      <div class="actions-row">
+        <button type="submit" class="oq-btn oq-btn--primary" [disabled]="profileBusy()">
+          {{ profileBusy() ? ('common.saving' | t) : ('settings.saveProfile' | t) }}
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <section class="oq-card settings-section" aria-labelledby="section-appearance">
+    <div class="settings-section__head">
+      <div>
+        <h2 id="section-appearance">{{ 'settings.appearanceTitle' | t }}</h2>
+        <p class="section-desc">{{ 'settings.appearanceDesc' | t }}</p>
+      </div>
+    </div>
+
+    <div class="theme-options">
+      <button
+        type="button"
+        class="theme-tile"
+        [class.theme-tile--active]="themeService.theme() === 'light'"
+        (click)="themeService.setTheme('light')"
+      >
+        <span class="theme-tile__preview theme-tile__preview--light" aria-hidden="true"></span>
+        <span class="theme-tile__meta">
+          <oq-icon name="sun" [size]="16" />
+          <strong>{{ 'settings.lightTheme' | t }}</strong>
+        </span>
+      </button>
+
+      <button
+        type="button"
+        class="theme-tile"
+        [class.theme-tile--active]="themeService.theme() === 'dark'"
+        (click)="themeService.setTheme('dark')"
+      >
+        <span class="theme-tile__preview theme-tile__preview--dark" aria-hidden="true"></span>
+        <span class="theme-tile__meta">
+          <oq-icon name="moon" [size]="16" />
+          <strong>{{ 'settings.darkTheme' | t }}</strong>
+        </span>
+      </button>
+    </div>
+  </section>
+
+  <section class="oq-card settings-section" aria-labelledby="section-security">
+    <div class="settings-section__head">
+      <div>
+        <h2 id="section-security">{{ 'settings.securityTitle' | t }}</h2>
+        <p class="section-desc">{{ 'settings.securityDesc' | t }}</p>
+      </div>
+    </div>
+
+    <div class="security-block">
+      <h3>
+        {{
+          (authService.user()?.hasPassword ? 'settings.changePassword' : 'settings.setPassword') | t
+        }}
+      </h3>
+
+      @if (passwordMessage()) {
+        <div class="oq-alert oq-alert--success" role="status">
+          {{ passwordMessage() }}
+        </div>
+      }
+      @if (passwordError()) {
+        <div class="oq-alert oq-alert--error" role="alert">
+          {{ passwordError() }}
+        </div>
+      }
+
+      <form [formGroup]="passwordForm" (ngSubmit)="savePassword()" novalidate>
+        @if (authService.user()?.hasPassword) {
+          <div class="oq-field">
+            <label for="settings-cur-pw">{{ 'settings.currentPassword' | t }}</label>
+            <input
+              id="settings-cur-pw"
+              type="password"
+              formControlName="currentPassword"
+              autocomplete="current-password"
+            />
+          </div>
+        }
+
+        <div class="profile-grid">
+          <div class="oq-field">
+            <label for="settings-new-pw">{{ 'settings.newPassword' | t }}</label>
+            <input
+              id="settings-new-pw"
+              type="password"
+              formControlName="newPassword"
+              autocomplete="new-password"
+            />
+          </div>
+
+          <div class="oq-field">
+            <label for="settings-confirm-pw">{{ 'settings.confirmPassword' | t }}</label>
+            <input
+              id="settings-confirm-pw"
+              type="password"
+              formControlName="confirmPassword"
+              autocomplete="new-password"
+            />
+          </div>
+        </div>
+
+        <button type="submit" class="oq-btn oq-btn--primary" [disabled]="passwordBusy()">
+          {{ passwordBusy() ? ('settings.updating' | t) : ('settings.updatePassword' | t) }}
+        </button>
+      </form>
+    </div>
+
+    <div class="danger-block">
+      <h3>{{ 'settings.deleteTitle' | t }}</h3>
+      <p class="section-desc">{{ 'settings.deleteDesc' | t }}</p>
+
+      @if (deleteError()) {
+        <div class="oq-alert oq-alert--error" role="alert">
+          {{ deleteError() }}
+        </div>
+      }
+
+      @if (!showDeleteConfirm()) {
+        <button type="button" class="oq-btn oq-btn--danger" (click)="showDeleteConfirm.set(true)">
+          {{ 'settings.deleteBtn' | t }}
+        </button>
+      } @else {
+        <form [formGroup]="deleteForm" (ngSubmit)="deleteAccount()">
+          @if (authService.user()?.hasPassword) {
+            <div class="oq-field">
+              <label for="delete-password">{{ 'settings.deletePasswordPrompt' | t }}</label>
+              <input
+                id="delete-password"
+                type="password"
+                formControlName="currentPassword"
+                autocomplete="current-password"
+              />
+            </div>
+          }
+          <div class="actions-row">
+            <button type="submit" class="oq-btn oq-btn--danger" [disabled]="deleteBusy()">
+              {{ deleteBusy() ? ('common.deleting' | t) : ('settings.confirmPermanentDelete' | t) }}
+            </button>
+            <button
+              type="button"
+              class="oq-btn oq-btn--secondary"
+              (click)="showDeleteConfirm.set(false)"
+            >
+              {{ 'common.cancel' | t }}
+            </button>
+          </div>
+        </form>
+      }
+    </div>
+  </section>
+</div>

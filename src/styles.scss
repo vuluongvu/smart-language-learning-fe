@@ -1,4 +1,5 @@
 @use './styles/tokens';
+@use './styles/primitives';
 
 *,
 *::before,
@@ -11,14 +12,55 @@ body {
   margin: 0;
   padding: 0;
   min-height: 100%;
+  overflow-x: clip;
   background-color: var(--oq-bg-canvas);
-  color: var(--oq-text-primary);
+  color: var(--oq-text-body);
   font-family: var(--oq-font-sans);
-  line-height: 1.5;
+  font-size: 15px;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  color: var(--oq-text-primary);
+  letter-spacing: -0.02em;
+}
+
+.oq-skip-link {
+  position: fixed;
+  top: -100%;
+  left: 16px;
+  z-index: 100;
+  padding: 10px 16px;
+  border-radius: var(--oq-radius-md);
+  background: var(--oq-accent);
+  color: var(--oq-on-accent);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: var(--oq-shadow-md);
+
+  &:focus {
+    top: 12px;
+  }
 }
 
 :focus-visible {
   outline: 2px solid var(--oq-accent);
   outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

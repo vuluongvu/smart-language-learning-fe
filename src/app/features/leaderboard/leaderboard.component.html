@@ -1,0 +1,160 @@
+<div class="lb-page">
+  <oq-page-header
+    [eyebrow]="'lb.eyebrow' | t"
+    [title]="'lb.title' | t"
+    [subtitle]="'lb.subtitle' | t"
+  >
+    <div actions class="page-actions">
+      <a routerLink="/progress" class="oq-btn oq-btn--secondary">
+        <oq-icon name="calendar" [size]="16" />
+        <span>{{ 'lb.myCalendar' | t }}</span>
+      </a>
+      <a routerLink="/settings" class="oq-btn oq-btn--secondary">
+        <oq-icon name="settings" [size]="16" />
+        <span>{{ 'lb.privacySettings' | t }}</span>
+      </a>
+    </div>
+  </oq-page-header>
+
+  @if (errorMessage()) {
+    <div class="oq-alert oq-alert--error" role="alert">
+      <span>{{ errorMessage() }}</span>
+      <button type="button" class="oq-inline-retry" (click)="loadPage(page())">
+        {{ 'common.retry' | t }}
+      </button>
+    </div>
+  }
+
+  @if (loading()) {
+    <section class="oq-card state-box" aria-busy="true">
+      <p>{{ 'lb.loading' | t }}</p>
+    </section>
+  } @else if (data(); as lb) {
+    <section
+      class="oq-card my-card"
+      [class.my-card--hidden]="!lb.myPosition.isLeaderboardVisible"
+      aria-label="Your leaderboard position"
+    >
+      @if (lb.myPosition.isLeaderboardVisible && lb.myPosition.rank !== null) {
+        <div class="my-card__row">
+          <div>
+            <span class="my-card__label">{{ 'lb.yourRankLabel' | t }}</span>
+            <strong class="my-card__rank">
+              #{{ lb.myPosition.rank }}
+              <span>{{ 'lb.ofLearners' | t: { total: lb.myPosition.totalParticipants } }}</span>
+            </strong>
+          </div>
+          <div class="my-card__stats">
+            <div class="my-stat">
+              <span>{{ 'lb.activeLabel' | t }}</span>
+              <strong>{{ lb.myPosition.currentStreak }}d</strong>
+            </div>
+            <div class="my-stat">
+              <span>{{ 'lb.bestLabel' | t }}</span>
+              <strong>{{ lb.myPosition.longestStreak }}d</strong>
+            </div>
+          </div>
+        </div>
+      } @else {
+        <div class="my-card__row">
+          <div>
+            <span class="my-card__label">{{ 'lb.privateTitle' | t }}</span>
+            <p class="my-card__note">
+              {{
+                'lb.privateDesc'
+                  | t
+                    : {
+                        current: lb.myPosition.currentStreak,
+                        best: lb.myPosition.longestStreak,
+                      }
+              }}
+            </p>
+          </div>
+          <a routerLink="/settings" class="oq-btn oq-btn--primary">{{
+            'lb.updateVisibility' | t
+          }}</a>
+        </div>
+      }
+    </section>
+
+    <section class="oq-card list-card" aria-label="Public streak leaderboard">
+      @if (lb.items.length === 0) {
+        <oq-empty-state
+          [compact]="true"
+          icon="trophy"
+          [title]="'lb.emptyTitle' | t"
+          [description]="'lb.emptyDesc' | t"
+        >
+          <a actions routerLink="/settings" class="oq-btn oq-btn--secondary oq-btn--sm">
+            {{ 'lb.openPrivacy' | t }}
+          </a>
+        </oq-empty-state>
+      } @else {
+        <ul class="rank-list">
+          @for (entry of lb.items; track entry.userId) {
+            <li class="rank-row" [class.rank-row--self]="entry.isCurrentUser">
+              <div class="rank-row__left">
+                <span class="rank-num" [class.rank-num--top]="entry.rank <= 3">
+                  #{{ entry.rank }}
+                </span>
+                @if (entry.avatarUrl) {
+                  <img
+                    class="avatar"
+                    [src]="entry.avatarUrl"
+                    [alt]="entry.displayName"
+                    width="36"
+                    height="36"
+                  />
+                } @else {
+                  <span class="avatar avatar--fallback" aria-hidden="true">
+                    {{ initialOf(entry.displayName) }}
+                  </span>
+                }
+                <div class="learner-name">
+                  <strong>{{ entry.displayName }}</strong>
+                  @if (entry.isCurrentUser) {
+                    <span class="oq-badge oq-badge--accent">{{ 'lb.you' | t }}</span>
+                  }
+                </div>
+              </div>
+
+              <div class="rank-row__right">
+                <span class="streak-metric">
+                  <strong>{{ entry.currentStreak }}</strong>
+                  <span>{{ 'lb.dayStreakUnit' | t }}</span>
+                </span>
+                <span class="oq-badge">{{
+                  'lb.bestMetric' | t: { count: entry.longestStreak }
+                }}</span>
+              </div>
+            </li>
+          }
+        </ul>
+
+        @if (lb.meta.totalPages > 1) {
+          <nav class="oq-pagination" aria-label="Leaderboard pagination">
+            <button
+              type="button"
+              class="oq-btn oq-btn--secondary oq-btn--sm"
+              [disabled]="lb.meta.page <= 1"
+              (click)="loadPage(lb.meta.page - 1)"
+            >
+              {{ 'common.previous' | t }}
+            </button>
+            <span>{{
+              'common.pageOf' | t: { page: lb.meta.page, total: lb.meta.totalPages }
+            }}</span>
+            <button
+              type="button"
+              class="oq-btn oq-btn--secondary oq-btn--sm"
+              [disabled]="lb.meta.page >= lb.meta.totalPages"
+              (click)="loadPage(lb.meta.page + 1)"
+            >
+              {{ 'common.next' | t }}
+            </button>
+          </nav>
+        }
+      }
+    </section>
+  }
+</div>

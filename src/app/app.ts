@@ -1,5 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { I18nService } from './shared/i18n';
+import { ThemeService } from './shared/services/theme.service';
 
 @Component({
   selector: 'app-root',
@@ -8,5 +10,7 @@ import { RouterOutlet } from '@angular/router';
   styleUrl: './app.scss',
 })
 export class App {
-  protected readonly title = signal('OpenQuiz');
+  // Ensure ThemeService and I18nService initialize on app bootstrap
+  protected readonly _theme = inject(ThemeService);
+  protected readonly _i18n = inject(I18nService);
 }

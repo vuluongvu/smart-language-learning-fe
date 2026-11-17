@@ -1,0 +1,185 @@
+<oq-page-header
+  [eyebrow]="'topics.eyebrow' | t"
+  [title]="'topics.title' | t"
+  [subtitle]="'topics.subtitle' | t"
+>
+  <button type="button" actions class="oq-btn oq-btn--primary" (click)="openCreate()">
+    <oq-icon name="plus" [size]="16" />
+    <span>{{ 'topics.newBtn' | t }}</span>
+  </button>
+</oq-page-header>
+
+@if (successMessage()) {
+  <div class="oq-alert oq-alert--success" role="status">
+    {{ successMessage() }}
+  </div>
+}
+@if (errorMessage()) {
+  <div class="oq-alert oq-alert--error" role="alert">
+    <span>{{ errorMessage() }}</span>
+    <button type="button" class="oq-inline-retry" (click)="loadTopics(meta().page)">
+      {{ 'common.retry' | t }}
+    </button>
+  </div>
+}
+
+<section class="oq-card search-bar">
+  <form (ngSubmit)="loadTopics(1)" class="search-form">
+    <div class="search-input-wrap">
+      <oq-icon name="search" [size]="16" />
+      <input
+        type="search"
+        [(ngModel)]="searchTerm"
+        name="search"
+        [placeholder]="'topics.searchPlaceholder' | t"
+        [attr.aria-label]="'topics.searchPlaceholder' | t"
+      />
+    </div>
+    <button type="submit" class="oq-btn oq-btn--secondary">{{ 'common.search' | t }}</button>
+  </form>
+</section>
+
+@if (showForm()) {
+  <oq-modal
+    [open]="true"
+    [title]="(editingTopic() ? 'topics.editTitle' : 'topics.createTitle') | t"
+    [description]="'topics.modalDesc' | t"
+    (closed)="cancelForm()"
+  >
+    @if (formError()) {
+      <div class="oq-alert oq-alert--error" role="alert">{{ formError() }}</div>
+    }
+    <form [formGroup]="form" (ngSubmit)="saveTopic()" novalidate>
+      <div class="oq-field">
+        <label for="topic-name">{{ 'topics.nameLabel' | t }}</label>
+        <input
+          id="topic-name"
+          type="text"
+          formControlName="name"
+          [placeholder]="'topics.namePlaceholder' | t"
+        />
+        @if (form.controls.name.touched && form.controls.name.invalid) {
+          <span class="oq-field-error">{{ 'topics.nameError' | t }}</span>
+        }
+      </div>
+
+      <div class="oq-field">
+        <label for="topic-desc">{{ 'topics.descLabel' | t }}</label>
+        <textarea
+          id="topic-desc"
+          rows="3"
+          formControlName="description"
+          [placeholder]="'topics.descPlaceholder' | t"
+        ></textarea>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="oq-btn oq-btn--secondary" (click)="cancelForm()">
+          {{ 'common.cancel' | t }}
+        </button>
+        <button type="submit" class="oq-btn oq-btn--primary" [disabled]="isSaving()">
+          {{ isSaving() ? ('common.saving' | t) : ('topics.saveBtn' | t) }}
+        </button>
+      </div>
+    </form>
+  </oq-modal>
+}
+
+@if (confirmDeleteTopic(); as target) {
+  <oq-modal
+    [open]="true"
+    size="sm"
+    role="alertdialog"
+    [title]="'topics.deleteTitle' | t: { name: target.name }"
+    [description]="'topics.deleteDesc' | t"
+    (closed)="confirmDeleteTopic.set(null)"
+  >
+    <div class="modal-actions">
+      <button type="button" class="oq-btn oq-btn--secondary" (click)="confirmDeleteTopic.set(null)">
+        {{ 'common.cancel' | t }}
+      </button>
+      <button
+        type="button"
+        class="oq-btn oq-btn--danger"
+        [disabled]="isDeleting()"
+        (click)="deleteSelectedTopic()"
+      >
+        {{ isDeleting() ? ('common.deleting' | t) : ('common.confirmDelete' | t) }}
+      </button>
+    </div>
+  </oq-modal>
+}
+
+@if (isLoading()) {
+  <div class="oq-card state-box">{{ 'topics.loading' | t }}</div>
+} @else if (topics().length === 0) {
+  <oq-empty-state
+    icon="folder"
+    [title]="'topics.emptyTitle' | t"
+    [description]="'topics.emptyDesc' | t"
+  >
+    <button actions type="button" class="oq-btn oq-btn--primary" (click)="openCreate()">
+      {{ 'topics.emptyBtn' | t }}
+    </button>
+  </oq-empty-state>
+} @else {
+  <div class="topics-grid">
+    @for (topic of topics(); track topic.id) {
+      <article class="oq-card oq-card--interactive topic-card">
+        <div class="topic-card__top">
+          <div class="topic-card__title-group">
+            <span class="topic-card__icon">
+              <oq-icon name="folder" [size]="17" />
+            </span>
+            <a [routerLink]="['/topics', topic.id]" class="topic-card__title">
+              {{ topic.name }}
+            </a>
+          </div>
+          <span class="oq-badge">{{
+            'topics.itemsCount' | t: { count: topic.vocabularyCount }
+          }}</span>
+        </div>
+        <p class="topic-card__desc">
+          {{ topic.description || ('topics.noDesc' | t) }}
+        </p>
+        <div class="topic-card__actions">
+          <a [routerLink]="['/topics', topic.id]" class="oq-btn oq-btn--secondary oq-btn--sm">
+            {{ 'common.open' | t }}
+          </a>
+          <button type="button" class="oq-btn oq-btn--ghost oq-btn--sm" (click)="openEdit(topic)">
+            {{ 'common.edit' | t }}
+          </button>
+          <button
+            type="button"
+            class="oq-btn oq-btn--ghost oq-btn--sm"
+            (click)="confirmDeleteTopic.set(topic)"
+          >
+            {{ 'common.delete' | t }}
+          </button>
+        </div>
+      </article>
+    }
+  </div>
+
+  @if (meta().totalPages > 1) {
+    <div class="oq-pagination">
+      <button
+        type="button"
+        class="oq-btn oq-btn--secondary oq-btn--sm"
+        [disabled]="meta().page <= 1"
+        (click)="loadTopics(meta().page - 1)"
+      >
+        {{ 'common.previous' | t }}
+      </button>
+      <span>{{ 'common.pageOf' | t: { page: meta().page, total: meta().totalPages } }}</span>
+      <button
+        type="button"
+        class="oq-btn oq-btn--secondary oq-btn--sm"
+        [disabled]="meta().page >= meta().totalPages"
+        (click)="loadTopics(meta().page + 1)"
+      >
+        {{ 'common.next' | t }}
+      </button>
+    </div>
+  }
+}

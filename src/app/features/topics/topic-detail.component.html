@@ -1,0 +1,111 @@
+@if (statusMessage()) {
+  <div class="oq-alert oq-alert--success" role="status">
+    {{ statusMessage() }}
+  </div>
+}
+@if (errorMessage()) {
+  <div class="oq-alert oq-alert--error" role="alert">
+    <span>{{ errorMessage() }}</span>
+    <button type="button" class="oq-inline-retry" (click)="loadDetail()">
+      {{ 'common.retry' | t }}
+    </button>
+  </div>
+}
+
+@if (isLoading()) {
+  <oq-page-header
+    backLink="/topics"
+    [backLabel]="'topicDetail.back' | t"
+    [title]="'topicDetail.loadingTitle' | t"
+  />
+  <div class="oq-card state-box">{{ 'topicDetail.loading' | t }}</div>
+} @else if (topic(); as current) {
+  <oq-page-header
+    backLink="/topics"
+    [backLabel]="'topicDetail.back' | t"
+    [eyebrow]="'topicDetail.eyebrow' | t"
+    [title]="current.name"
+    [subtitle]="current.description || ('topics.noDesc' | t)"
+  >
+    <div actions class="topic-actions">
+      <span class="oq-badge">{{
+        'topics.itemsCount' | t: { count: current.vocabularyCount }
+      }}</span>
+      <a
+        routerLink="/vocabulary"
+        [queryParams]="{ topicId: current.id }"
+        class="oq-btn oq-btn--secondary"
+      >
+        <oq-icon name="book-open" [size]="15" />
+        <span>{{ 'topicDetail.manageVocab' | t }}</span>
+      </a>
+      <a
+        routerLink="/flashcards"
+        [queryParams]="{ topicId: current.id }"
+        class="oq-btn oq-btn--primary"
+      >
+        <oq-icon name="layers" [size]="15" />
+        <span>{{ 'dashboard.reviewFlashcards' | t }}</span>
+      </a>
+    </div>
+  </oq-page-header>
+
+  <section class="oq-card attach-card">
+    <div class="attach-bar">
+      <select
+        [(ngModel)]="selectedVocabularyId"
+        [attr.aria-label]="'topicDetail.selectPlaceholder' | t"
+      >
+        <option [ngValue]="null">{{ 'topicDetail.selectPlaceholder' | t }}</option>
+        @for (item of attachableVocabulary(); track item.id) {
+          <option [ngValue]="item.id">{{ item.term }} — {{ item.definition }}</option>
+        }
+      </select>
+      <button
+        type="button"
+        class="oq-btn oq-btn--primary"
+        [disabled]="!selectedVocabularyId || isAttaching()"
+        (click)="attachSelected()"
+      >
+        {{ isAttaching() ? ('topicDetail.adding' | t) : ('topicDetail.addBtn' | t) }}
+      </button>
+    </div>
+  </section>
+
+  @if (current.vocabularyItems.length === 0) {
+    <oq-empty-state
+      icon="book-open"
+      [title]="'topicDetail.emptyTitle' | t"
+      [description]="'topicDetail.emptyDesc' | t"
+    />
+  } @else {
+    <div class="vocab-cards">
+      @for (item of current.vocabularyItems; track item.id) {
+        <article class="oq-card vocab-item">
+          <div class="vocab-item__main">
+            <div class="vocab-item__head">
+              <strong>{{ item.term }}</strong>
+              @if (item.pronunciation) {
+                <span class="vocab-ipa">{{ item.pronunciation }}</span>
+              }
+              @if (item.partOfSpeech) {
+                <span class="oq-badge">{{ item.partOfSpeech }}</span>
+              }
+            </div>
+            <p class="vocab-item__def">{{ item.definition }}</p>
+            @if (item.example) {
+              <p class="vocab-item__ex">"{{ item.example }}"</p>
+            }
+          </div>
+          <button
+            type="button"
+            class="oq-btn oq-btn--secondary oq-btn--sm"
+            (click)="detachItem(item.id, item.term)"
+          >
+            {{ 'topicDetail.removeBtn' | t }}
+          </button>
+        </article>
+      }
+    </div>
+  }
+}

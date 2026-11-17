@@ -1,0 +1,171 @@
+@if (errorMessage()) {
+  <div class="oq-alert oq-alert--error" role="alert">
+    <span>{{ errorMessage() }}</span>
+    <a routerLink="/quizzes" class="oq-btn oq-btn--secondary oq-btn--sm">{{ 'qb.back' | t }}</a>
+  </div>
+}
+
+@if (isLoading()) {
+  <oq-page-header backLink="/quizzes" [backLabel]="'qb.back' | t" [title]="'qp.loadingTitle' | t" />
+  <div class="oq-card state-box">{{ 'qp.loadingDesc' | t }}</div>
+} @else if (attempt(); as att) {
+  <div class="player-shell">
+    <oq-page-header
+      backLink="/quizzes"
+      [backLabel]="'qb.back' | t"
+      [eyebrow]="'qp.eyebrow' | t"
+      [title]="att.quizTitle"
+      [subtitle]="
+        'qp.answeredSub'
+          | t
+            : {
+                answered: answeredCount(),
+                total: att.questions.length,
+                unit: (att.questions.length === 1 ? 'qp.unitSingle' : 'qp.unitPlural') | t,
+              }
+      "
+    >
+      <button
+        actions
+        type="button"
+        class="oq-btn oq-btn--secondary"
+        [disabled]="isSavingProgress() || isSubmitting()"
+        (click)="saveAndExit()"
+      >
+        {{ isSavingProgress() ? ('common.saving' | t) : ('qp.saveExit' | t) }}
+      </button>
+    </oq-page-header>
+
+    <section class="oq-card progress-card">
+      <oq-progress-bar
+        [value]="answeredCount()"
+        [max]="att.questions.length"
+        [label]="'qp.completion' | t"
+        [showPercent]="true"
+        tone="primary"
+        size="sm"
+      />
+    </section>
+
+    <nav class="stepper" aria-label="Question navigation">
+      @for (q of att.questions; track q.id; let i = $index) {
+        <button
+          type="button"
+          class="step-btn"
+          [class.step-btn--current]="i === currentIndex()"
+          [class.step-btn--answered]="isQuestionAnswered(q.id, q.questionType)"
+          (click)="goToQuestion(i)"
+        >
+          {{ i + 1 }}
+        </button>
+      }
+    </nav>
+
+    @if (currentQuestion(); as q) {
+      <article class="oq-card player-card">
+        <div class="player-card__head">
+          <span class="oq-badge">
+            {{
+              'qp.questionCounter' | t: { current: currentIndex() + 1, total: att.questions.length }
+            }}
+          </span>
+          <span class="oq-badge oq-badge--accent">{{ questionTypeLabel(q.questionType) }}</span>
+        </div>
+
+        <h2 class="player-card__prompt">{{ q.questionText }}</h2>
+
+        @if (q.questionType === 'fill_blank') {
+          <div class="oq-field blank-field">
+            <label for="blankInput">{{ 'qp.yourAnswer' | t }}</label>
+            <input
+              id="blankInput"
+              type="text"
+              [ngModel]="blankTexts()[q.id] ?? ''"
+              (ngModelChange)="updateBlankText(q.id, $event)"
+              [placeholder]="'qp.blankPlaceholder' | t"
+              autocomplete="off"
+            />
+          </div>
+        } @else {
+          <div class="options-list" role="radiogroup" [aria-label]="q.questionText">
+            @for (opt of q.options; track opt.id) {
+              <button
+                type="button"
+                role="radio"
+                class="option-choice"
+                [attr.aria-checked]="selectedOptions()[q.id] === opt.id"
+                [class.option-choice--selected]="selectedOptions()[q.id] === opt.id"
+                (click)="selectOption(q.id, opt.id)"
+              >
+                <span class="option-choice__dot"></span>
+                <span>{{ opt.optionText }}</span>
+              </button>
+            }
+          </div>
+        }
+      </article>
+    }
+
+    @if (confirmPartialSubmit()) {
+      <oq-modal
+        [open]="true"
+        size="sm"
+        [title]="'qp.partialTitle' | t"
+        [description]="'qp.partialDesc' | t: { count: att.questions.length - answeredCount() }"
+        (closed)="confirmPartialSubmit.set(false)"
+      >
+        <div class="modal-actions">
+          <button
+            type="button"
+            class="oq-btn oq-btn--secondary"
+            (click)="confirmPartialSubmit.set(false)"
+          >
+            {{ 'qp.keepAnswering' | t }}
+          </button>
+          <button
+            type="button"
+            class="oq-btn oq-btn--primary"
+            [disabled]="isSubmitting()"
+            (click)="submitNow()"
+          >
+            {{ isSubmitting() ? ('qp.submitting' | t) : ('qp.confirmSubmit' | t) }}
+          </button>
+        </div>
+      </oq-modal>
+    }
+
+    <div class="player-footer">
+      <button
+        type="button"
+        class="oq-btn oq-btn--secondary"
+        [disabled]="currentIndex() === 0"
+        (click)="goToQuestion(currentIndex() - 1)"
+      >
+        <oq-icon name="arrow-left" [size]="15" />
+        <span>{{ 'common.previous' | t }}</span>
+      </button>
+
+      <div class="player-footer__right">
+        @if (currentIndex() < att.questions.length - 1) {
+          <button
+            type="button"
+            class="oq-btn oq-btn--secondary"
+            (click)="goToQuestion(currentIndex() + 1)"
+          >
+            <span>{{ 'common.next' | t }}</span>
+            <oq-icon name="arrow-right" [size]="15" />
+          </button>
+        }
+
+        <button
+          type="button"
+          class="oq-btn oq-btn--primary"
+          [disabled]="isSubmitting()"
+          (click)="requestSubmit()"
+        >
+          {{ isSubmitting() ? ('qp.submitting' | t) : ('qp.submitQuiz' | t) }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
