@@ -50,6 +50,24 @@ describe('VocabularyListComponent', () => {
       },
     });
 
+    const dueReq = httpTesting.expectOne(
+      (r) => r.url.endsWith('/flashcards/due') && r.method === 'GET',
+    );
+    dueReq.flush({
+      data: {
+        items: [],
+        meta: { page: 1, limit: 1, total: 1, totalPages: 1 },
+        summary: {
+          totalCount: 1,
+          dueCount: 0,
+          newCount: 1,
+          learningCount: 0,
+          masteredCount: 0,
+          hardCount: 0,
+        },
+      },
+    });
+
     const vocabReq = httpTesting.expectOne(
       (r) => r.url.endsWith('/vocabulary') && r.method === 'GET',
     );
@@ -81,16 +99,56 @@ describe('VocabularyListComponent', () => {
     });
   }
 
-  it('renders vocabulary items with topic tags', () => {
+  it('renders vocabulary items with colorful status, part-of-speech, and topic tags plus KPI cards', () => {
     const fixture = TestBed.createComponent(VocabularyListComponent);
     fixture.detectChanges();
     flushInitialLoad();
     fixture.detectChanges();
 
-    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    const el = fixture.nativeElement as HTMLElement;
+    const text = el.textContent ?? '';
     expect(text).toContain('resilient');
     expect(text).toContain('able to recover quickly from difficulties');
     expect(text).toContain('Daily');
+    expect(text).toContain('Total Vocabulary');
+    expect(text).toContain('Due Today');
+    expect(el.querySelectorAll('oq-stat-card').length).toBe(4);
+    expect(el.querySelector('.pos-badge.oq-badge--cream')?.textContent?.trim()).toBe('adjective');
+    expect(el.querySelector('.vocab-table .oq-badge--lavender')?.textContent?.trim()).toBe('New');
+    expect(el.querySelector('.topic-filter-badge.oq-badge--lavender')?.textContent?.trim()).toBe(
+      'Daily',
+    );
+  });
+
+  it('filters vocabulary via quick status pills and resets active filters', () => {
+    const fixture = TestBed.createComponent(VocabularyListComponent);
+    fixture.detectChanges();
+    flushInitialLoad();
+    fixture.detectChanges();
+
+    const el = fixture.nativeElement as HTMLElement;
+    const duePill = Array.from(el.querySelectorAll<HTMLButtonElement>('.status-pill')).find((btn) =>
+      btn.textContent?.includes('Due'),
+    );
+    expect(duePill).toBeTruthy();
+    duePill?.click();
+
+    const filteredReq = httpTesting.expectOne(
+      (r) =>
+        r.url.endsWith('/vocabulary') &&
+        r.method === 'GET' &&
+        r.params.get('reviewStatus') === 'due',
+    );
+    filteredReq.flush({
+      data: {
+        items: [],
+        meta: { page: 1, limit: 12, total: 0, totalPages: 1 },
+      },
+    });
+    fixture.detectChanges();
+
+    expect(duePill?.classList.contains('oq-pill--cream')).toBe(true);
+    expect(duePill?.getAttribute('aria-pressed')).toBe('true');
   });
 
   it('shows non-blocking duplicate warning on blur and submits multi-topic creation', () => {
@@ -165,6 +223,24 @@ describe('VocabularyListComponent', () => {
         existingMatchCount: 1,
         createdAt: '2026-11-16T00:00:00.000Z',
         updatedAt: '2026-11-16T00:00:00.000Z',
+      },
+    });
+
+    const reloadDueReq = httpTesting.expectOne(
+      (r) => r.url.endsWith('/flashcards/due') && r.method === 'GET',
+    );
+    reloadDueReq.flush({
+      data: {
+        items: [],
+        meta: { page: 1, limit: 1, total: 2, totalPages: 1 },
+        summary: {
+          totalCount: 2,
+          dueCount: 0,
+          newCount: 2,
+          learningCount: 0,
+          masteredCount: 0,
+          hardCount: 0,
+        },
       },
     });
 
@@ -246,6 +322,24 @@ describe('VocabularyListComponent', () => {
         existingMatchCount: 0,
         createdAt: '2026-11-18T00:00:00.000Z',
         updatedAt: '2026-11-18T00:00:00.000Z',
+      },
+    });
+
+    const reloadDueReq = httpTesting.expectOne(
+      (r) => r.url.endsWith('/flashcards/due') && r.method === 'GET',
+    );
+    reloadDueReq.flush({
+      data: {
+        items: [],
+        meta: { page: 1, limit: 1, total: 2, totalPages: 1 },
+        summary: {
+          totalCount: 2,
+          dueCount: 0,
+          newCount: 2,
+          learningCount: 0,
+          masteredCount: 0,
+          hardCount: 0,
+        },
       },
     });
 
