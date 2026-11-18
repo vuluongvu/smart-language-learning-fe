@@ -4,7 +4,6 @@ import { of } from 'rxjs';
 import { vi } from 'vitest';
 import { AiApiService } from '../ai-tutor/ai-api.service';
 import { AuthService } from '../auth/auth.service';
-import { LearningLanguageService } from '../../shared/services/learning-language.service';
 import { LearningPathApiService } from './learning-path-api.service';
 import { LP_EN_TRANSLATIONS, LP_VI_TRANSLATIONS } from './learning-path.i18n';
 import { LearningPathComponent } from './learning-path.component';
@@ -193,16 +192,21 @@ describe('LearningPathComponent', () => {
     expect(Object.keys(LP_VI_TRANSLATIONS).sort()).toEqual(Object.keys(LP_EN_TRANSLATIONS).sort());
   });
 
-  it('reloads Korean learning path track when active course changes to ko', () => {
+  it('switches between English and Korean learning paths via in-page tabs', () => {
     const fixture = TestBed.createComponent(LearningPathComponent);
-    const learningLang = TestBed.inject(LearningLanguageService);
     fixture.detectChanges();
 
-    learningLang.setLanguage('ko');
+    const el = fixture.nativeElement as HTMLElement;
+    const koTab = Array.from(el.querySelectorAll<HTMLButtonElement>('.oq-course-tab')).find((btn) =>
+      btn.textContent?.includes('Korean'),
+    );
+    expect(koTab).toBeTruthy();
+
+    koTab?.click();
     TestBed.flushEffects();
     fixture.detectChanges();
 
     expect(pathApiMock.getOverview).toHaveBeenLastCalledWith(undefined, 'ko');
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Korean (한국어 · TOPIK)');
+    expect(koTab?.getAttribute('aria-pressed')).toBe('true');
   });
 });

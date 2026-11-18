@@ -24,16 +24,20 @@
   } @else if (overview(); as data) {
     <header class="lp-topbar">
       <div class="lp-selectors">
-        <button
-          type="button"
-          class="lp-pill lp-pill--lang lp-link-btn"
-          [title]="'course.switchAria' | t"
-          [attr.aria-label]="'course.switchAria' | t"
-          (click)="learningLang.toggleLanguage()"
-        >
-          <oq-icon name="globe" [size]="16" />
-          <span>{{ (learningLang.isKorean() ? 'lp.langKorean' : 'lp.langEnglish') | lpT }}</span>
-        </button>
+        <div class="oq-course-tabs" role="group" [attr.aria-label]="'course.switcherLabel' | t">
+          @for (opt of learningLang.options; track opt.code) {
+            <button
+              type="button"
+              class="oq-course-tab"
+              [class.oq-course-tab--active]="learningLang.activeLang() === opt.code"
+              [attr.aria-pressed]="learningLang.activeLang() === opt.code"
+              (click)="learningLang.setLanguage(opt.code)"
+            >
+              <span class="oq-course-tab__badge">{{ opt.badgeCode }}</span>
+              <span>{{ (opt.code === 'ko' ? 'lp.langKorean' : 'lp.langEnglish') | lpT }}</span>
+            </button>
+          }
+        </div>
 
         <label class="lp-pill lp-pill--band">
           <select
