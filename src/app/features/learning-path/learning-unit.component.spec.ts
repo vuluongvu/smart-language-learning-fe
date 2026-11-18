@@ -357,7 +357,7 @@ describe('LearningUnitComponent', () => {
     guideBtn.click();
     fixture.detectChanges();
     expect(pathApiMock.generateUnitStudyGuide).toHaveBeenCalledWith(101, {
-      focusNote: undefined,
+      focusGoal: undefined,
       explanationLang: 'en',
     });
     expect(el.textContent).toContain('Tailored study summary for describing homes.');
