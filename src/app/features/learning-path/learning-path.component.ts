@@ -1,6 +1,7 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { catchError, of } from 'rxjs';
 import {
   OqEmptyStateComponent,
   OqIconComponent,
@@ -15,6 +16,7 @@ import {
   LearningPathUnitNode,
 } from '../../shared/types/learning-path.types';
 import { extractApiError } from '../../shared/utils/api-error.util';
+import { AiApiService } from '../ai-tutor/ai-api.service';
 import { AuthService } from '../auth/auth.service';
 import { LearningPathApiService } from './learning-path-api.service';
 import { LpTranslatePipe, lpTranslate } from './learning-path.i18n';
@@ -39,24 +41,37 @@ const RING_CIRCUMFERENCE = 138.23;
 export class LearningPathComponent implements OnInit {
   private readonly pathApi = inject(LearningPathApiService);
   private readonly authService = inject(AuthService);
+  private readonly aiApi = inject(AiApiService);
   protected readonly i18n = inject(I18nService);
 
   protected readonly ringCircumference = RING_CIRCUMFERENCE;
   protected readonly cefrOptions = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
   protected readonly dailyMinuteOptions = [10, 15, 20, 30, 45];
+  protected readonly aiUnitCountOptions = [2, 3, 4];
 
   protected readonly loading = signal(true);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly overview = signal<LearningPathOverview | null>(null);
   protected readonly selectedBandView = signal<string>('');
+  protected readonly aiEnabled = signal(false);
 
   protected readonly showGoalModal = signal(false);
   protected readonly savingGoal = signal(false);
   protected readonly goalSuccess = signal<string | null>(null);
 
+  protected readonly showAiGenModal = signal(false);
+  protected readonly generatingAiPath = signal(false);
+  protected readonly deletingAiTrack = signal(false);
+
   protected draftBand: LearningGoalBand | string = 'band_45_55';
   protected draftLevel = 'B1';
   protected draftDailyMinutes = 15;
+
+  protected aiGoalTopic = '';
+  protected aiSourceMaterial = '';
+  protected aiTargetBand: LearningGoalBand | string = 'band_45_55';
+  protected aiCurrentLevel = 'B1';
+  protected aiUnitCount = 3;
 
   protected readonly totalProgressPercent = computed(() => {
     const ov = this.overview();
@@ -67,6 +82,10 @@ export class LearningPathComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.aiApi
+      .getStatus()
+      .pipe(catchError(() => of({ enabled: false, model: '' })))
+      .subscribe((st) => this.aiEnabled.set(st.enabled === true));
     this.loadOverview();
   }
 
@@ -175,5 +194,81 @@ export class LearningPathComponent implements OnInit {
   nodeTransform(index: number): string {
     const offsets = [-28, 18, 52, 26, -18];
     return `translateX(${offsets[index % offsets.length]}px)`;
+  }
+
+  openAiGenModal(): void {
+    const g = this.overview()?.goal;
+    if (g) {
+      this.aiTargetBand = g.learningGoalBand;
+      this.aiCurrentLevel = g.currentLevel;
+    }
+    this.showAiGenModal.set(true);
+  }
+
+  applyAiPreset(text: string): void {
+    this.aiGoalTopic = text;
+  }
+
+  submitAiGenerate(): void {
+    const topic = this.aiGoalTopic.trim();
+    if (!this.aiEnabled() || this.generatingAiPath() || topic.length < 3) {
+      return;
+    }
+    this.generatingAiPath.set(true);
+    this.errorMessage.set(null);
+
+    this.pathApi
+      .generateAiPath({
+        goalTopic: topic,
+        sourceMaterial: this.aiSourceMaterial.trim() || undefined,
+        targetBand: this.aiTargetBand,
+        currentLevel: this.aiCurrentLevel,
+        unitCount: Number(this.aiUnitCount),
+        explanationLang: this.i18n.lang(),
+      })
+      .subscribe({
+        next: (data) => {
+          this.overview.set(data);
+          this.selectedBandView.set(data.activeTrack.code);
+          this.generatingAiPath.set(false);
+          this.showAiGenModal.set(false);
+          this.aiGoalTopic = '';
+          this.aiSourceMaterial = '';
+          this.goalSuccess.set(lpTranslate(this.i18n.lang(), 'lp.aiTrackCreatedMsg'));
+        },
+        error: (err: unknown) => {
+          this.generatingAiPath.set(false);
+          this.errorMessage.set(
+            extractApiError(
+              err,
+              this.i18n.lang() === 'vi'
+                ? 'Không thể tạo lộ trình AI lúc này.'
+                : 'Unable to generate AI learning path.',
+            ),
+          );
+        },
+      });
+  }
+
+  deleteActiveAiTrack(): void {
+    const track = this.overview()?.activeTrack;
+    if (!track?.isAiGenerated || this.deletingAiTrack()) {
+      return;
+    }
+    this.deletingAiTrack.set(true);
+    this.errorMessage.set(null);
+
+    this.pathApi.deleteAiTrack(track.id).subscribe({
+      next: (data) => {
+        this.overview.set(data);
+        this.selectedBandView.set(data.activeTrack.code);
+        this.deletingAiTrack.set(false);
+        this.goalSuccess.set(lpTranslate(this.i18n.lang(), 'lp.aiTrackDeletedMsg'));
+      },
+      error: (err: unknown) => {
+        this.deletingAiTrack.set(false);
+        this.errorMessage.set(extractApiError(err, 'Unable to delete AI path.'));
+      },
+    });
   }
 }
