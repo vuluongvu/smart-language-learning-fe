@@ -16,7 +16,7 @@ class PipeHostComponent {
 }
 
 describe('I18nService and TranslatePipe', () => {
-  const storageKey = 'openquiz_lang';
+  const storageKey = 'argon_learning_lang';
 
   beforeEach(() => {
     localStorage.removeItem(storageKey);

@@ -84,7 +84,7 @@ export const EN_TRANSLATIONS = {
   'auth.or': 'or',
   'auth.googleDisabled':
     'Google Sign-In is disabled until googleClientId is configured in environment.',
-  'auth.newHere': 'New to OpenQuiz?',
+  'auth.newHere': 'New to Argon Learning?',
   'auth.createAccountLink': 'Create an account',
   'auth.registerTitle': 'Create your account',
   'auth.registerSubtitle': 'Start building your personal English vocabulary bank.',
@@ -643,7 +643,7 @@ export const EN_TRANSLATIONS = {
   'settings.darkTheme': 'Dark Theme',
   'settings.securityTitle': 'Account Security',
   'settings.securityDesc':
-    'Update your sign-in password or permanently remove your OpenQuiz account.',
+    'Update your sign-in password or permanently remove your Argon Learning account.',
   'settings.changePassword': 'Change Password',
   'settings.setPassword': 'Set a Password',
   'settings.currentPassword': 'Current password',
@@ -865,7 +865,7 @@ export const VI_TRANSLATIONS: Record<TxKey, string> = {
   'auth.or': 'hoặc',
   'auth.googleDisabled':
     'Đăng nhập Google đang tắt cho đến khi googleClientId được cấu hình trong environment.',
-  'auth.newHere': 'Chưa có tài khoản OpenQuiz?',
+  'auth.newHere': 'Chưa có tài khoản Argon Learning?',
   'auth.createAccountLink': 'Tạo tài khoản mới',
   'auth.registerTitle': 'Tạo tài khoản',
   'auth.registerSubtitle': 'Bắt đầu xây dựng kho từ vựng tiếng Anh cá nhân của riêng bạn.',
@@ -1412,7 +1412,7 @@ export const VI_TRANSLATIONS: Record<TxKey, string> = {
   'settings.lightTheme': 'Giao diện Sáng',
   'settings.darkTheme': 'Giao diện Tối',
   'settings.securityTitle': 'Bảo mật tài khoản',
-  'settings.securityDesc': 'Đổi mật khẩu đăng nhập hoặc xóa vĩnh viễn tài khoản OpenQuiz.',
+  'settings.securityDesc': 'Đổi mật khẩu đăng nhập hoặc xóa vĩnh viễn tài khoản Argon Learning.',
   'settings.changePassword': 'Đổi mật khẩu',
   'settings.setPassword': 'Thiết lập mật khẩu',
   'settings.currentPassword': 'Mật khẩu hiện tại',

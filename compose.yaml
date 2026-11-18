@@ -1,7 +1,7 @@
 services:
   web:
     build: .
-    container_name: openquiz-web
+    container_name: argon-learning-web
     ports:
       - '4200:80'
     healthcheck:
@@ -11,9 +11,9 @@ services:
       retries: 5
       start_period: 5s
     networks:
-      - openquiz-network
+      - argon-learning-network
     restart: unless-stopped
 
 networks:
-  openquiz-network:
+  argon-learning-network:
     external: true

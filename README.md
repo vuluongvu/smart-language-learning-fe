@@ -1,6 +1,6 @@
-# OpenQuiz Frontend (`smart-language-learning-fe`)
+# Argon Learning Frontend (`smart-language-learning-fe`)
 
-Frontend web application for the **OpenQuiz** personal English self-learning platform, built with **Angular 21**, **Standalone Components**, **Signals**, and **SCSS**.
+Frontend web application for the **Argon Learning** personal English self-learning platform, built with **Angular 21**, **Standalone Components**, **Signals**, and **SCSS**.
 
 ## Implemented Features (MVP Phases 1–6)
 
@@ -75,14 +75,14 @@ src/
 
 ## Running Frontend in Docker (Full Stack)
 
-Start `smart-language-learning-be` first (`docker compose up -d --build`) so the `openquiz-network` bridge and `openquiz-app` container are healthy, then build and run the Angular + Nginx container:
+Start `smart-language-learning-be` first (`docker compose up -d --build`) so the `argon-learning-network` bridge and `argon-learning-app` container are healthy, then build and run the Angular + Nginx container:
 
 ```bash
 docker compose up -d --build
 ```
 
 - Web UI: `http://localhost:4200`
-- Reverse proxy: Nginx serves the built Angular SPA and proxies `/api/*` to `http://openquiz-app:3000`.
+- Reverse proxy: Nginx serves the built Angular SPA and proxies `/api/*` to `http://argon-learning-app:3000`.
 
 ## Git Workflow
 

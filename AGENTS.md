@@ -1,4 +1,4 @@
-# OpenQuiz Frontend Rules
+# Argon Learning Frontend Rules
 
 ## Git & GitHub Workflow (Per Feature / Branch)
 
