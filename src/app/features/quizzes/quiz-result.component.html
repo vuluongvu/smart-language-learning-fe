@@ -158,12 +158,7 @@
 
                 <div class="oq-field">
                   <label [for]="'savePos-' + ans.id">{{ 'qr.posLabel' | t }}</label>
-                  <input
-                    [id]="'savePos-' + ans.id"
-                    type="text"
-                    [(ngModel)]="savePartOfSpeech"
-                    [placeholder]="'vocab.posPlaceholder' | t"
-                  />
+                  <input [id]="'savePos-' + ans.id" type="text" [(ngModel)]="savePartOfSpeech" />
                 </div>
               </div>
 
@@ -192,12 +187,7 @@
 
               <div class="oq-field">
                 <label [for]="'saveDef-' + ans.id">{{ 'qr.defLabel' | t }}</label>
-                <input
-                  [id]="'saveDef-' + ans.id"
-                  type="text"
-                  [(ngModel)]="saveDefinition"
-                  [placeholder]="'qr.defPlaceholder' | t"
-                />
+                <input [id]="'saveDef-' + ans.id" type="text" [(ngModel)]="saveDefinition" />
               </div>
 
               <div class="save-grid">
@@ -208,12 +198,7 @@
 
                 <div class="oq-field">
                   <label [for]="'saveNewTopic-' + ans.id">{{ 'qr.newTopicLabel' | t }}</label>
-                  <input
-                    [id]="'saveNewTopic-' + ans.id"
-                    type="text"
-                    [(ngModel)]="newTopicName"
-                    placeholder="e.g., Quiz Review"
-                  />
+                  <input [id]="'saveNewTopic-' + ans.id" type="text" [(ngModel)]="newTopicName" />
                 </div>
               </div>
 

@@ -111,13 +111,7 @@
 
         <div class="oq-field">
           <label for="ai-vocab-prompt">{{ 'vocabAi.imageFocusLabel' | t }}</label>
-          <input
-            id="ai-vocab-prompt"
-            type="text"
-            maxlength="500"
-            [(ngModel)]="prompt"
-            [placeholder]="'vocabAi.imageFocusPlaceholder' | t"
-          />
+          <input id="ai-vocab-prompt" type="text" maxlength="500" [(ngModel)]="prompt" />
         </div>
       } @else {
         <div class="oq-field">
@@ -128,12 +122,6 @@
             id="ai-vocab-prompt"
             [rows]="mode === 'passage' ? 4 : 2"
             [(ngModel)]="prompt"
-            [placeholder]="
-              (mode === 'topic'
-                ? 'vocabAi.promptTopicPlaceholder'
-                : 'vocabAi.promptPassagePlaceholder'
-              ) | t
-            "
           ></textarea>
           @if (mode === 'topic') {
             <div class="ai-presets">
@@ -195,7 +183,6 @@
             maxlength="120"
             [(ngModel)]="newTopicName"
             (ngModelChange)="onNewTopicInput()"
-            [placeholder]="'vocabAi.newTopicPlaceholder' | t"
           />
           <span class="oq-field-hint">{{ 'vocabAi.newTopicHint' | t }}</span>
         </div>
@@ -253,12 +240,7 @@
               <div class="ai-draft__grid">
                 <div class="oq-field ai-draft__field">
                   <label [for]="'draft-term-' + draft.id">{{ 'vocabAi.fieldTerm' | t }}</label>
-                  <input
-                    [id]="'draft-term-' + draft.id"
-                    type="text"
-                    [(ngModel)]="draft.term"
-                    [placeholder]="'vocabAi.fieldTerm' | t"
-                  />
+                  <input [id]="'draft-term-' + draft.id" type="text" [(ngModel)]="draft.term" />
                 </div>
                 <div class="oq-field ai-draft__field">
                   <label [for]="'draft-ipa-' + draft.id">{{ 'vocabAi.fieldIpa' | t }}</label>
@@ -266,7 +248,6 @@
                     [id]="'draft-ipa-' + draft.id"
                     type="text"
                     [(ngModel)]="draft.pronunciation"
-                    placeholder="/IPA/"
                   />
                 </div>
                 <div class="oq-field ai-draft__field">
@@ -275,7 +256,6 @@
                     [id]="'draft-pos-' + draft.id"
                     type="text"
                     [(ngModel)]="draft.partOfSpeech"
-                    [placeholder]="'vocab.posPlaceholder' | t"
                   />
                 </div>
               </div>
@@ -286,28 +266,17 @@
                   [id]="'draft-def-' + draft.id"
                   rows="2"
                   [(ngModel)]="draft.definition"
-                  [placeholder]="'vocabAi.fieldDef' | t"
                 ></textarea>
               </div>
 
               <div class="oq-field ai-draft__field">
                 <label [for]="'draft-ex-' + draft.id">{{ 'vocabAi.fieldExample' | t }}</label>
-                <input
-                  [id]="'draft-ex-' + draft.id"
-                  type="text"
-                  [(ngModel)]="draft.example"
-                  [placeholder]="'vocabAi.fieldExample' | t"
-                />
+                <input [id]="'draft-ex-' + draft.id" type="text" [(ngModel)]="draft.example" />
               </div>
 
               <div class="oq-field ai-draft__field">
                 <label [for]="'draft-notes-' + draft.id">{{ 'vocabAi.fieldNotes' | t }}</label>
-                <input
-                  [id]="'draft-notes-' + draft.id"
-                  type="text"
-                  [(ngModel)]="draft.notes"
-                  [placeholder]="'vocabAi.fieldNotes' | t"
-                />
+                <input [id]="'draft-notes-' + draft.id" type="text" [(ngModel)]="draft.notes" />
               </div>
             </article>
           }

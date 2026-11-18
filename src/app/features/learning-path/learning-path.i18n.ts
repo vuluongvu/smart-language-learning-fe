@@ -32,7 +32,6 @@ export const LP_EN_TRANSLATIONS = {
   'lp.aiGenModalSub':
     'Enter any topic, learning goal, or target path — AI automatically builds structured units and full study materials tailored to your need.',
   'lp.aiGoalTopicLabel': 'Your need, topic, or target path',
-  'lp.aiGoalTopicPlaceholder': 'e.g., English for Software Engineer Job Interviews',
   'lp.aiPresetsLabel': 'Quick templates:',
   'lp.aiPreset1': 'IT Job Interviews',
   'lp.aiPreset2': 'IELTS Environment Band 6.5',
@@ -40,7 +39,6 @@ export const LP_EN_TRANSLATIONS = {
   'lp.aiUnitCountLabel': 'Number of units',
   'lp.aiUnitsOption': '{{count}} units (full materials)',
   'lp.aiFocusLabel': 'Priority focus (optional)',
-  'lp.aiFocusPlaceholder': 'e.g., Practical daily speaking, basics to advanced, exam tips...',
   'lp.aiGenSubmitBtn': 'Generate with AI',
   'lp.aiGeneratingBtn': 'AI is building path & materials...',
   'lp.aiDisabledWarn': 'AI Tutor is currently off on the server (set AI_PROVIDER=groq).',
@@ -78,7 +76,6 @@ export const LP_EN_TRANSLATIONS = {
   'lpu.aiDisabledNotice':
     'AI Tutor is currently turned off on the server (set AI_PROVIDER=groq to enable Writing & Speaking AI).',
   'lpu.writingInputLabel': 'Your English paragraph',
-  'lpu.writingPlaceholder': 'Write your response using the unit vocabulary and grammar focus...',
   'lpu.showSampleBtn': 'View sample',
   'lpu.hideSampleBtn': 'Hide sample',
   'lpu.evaluateWritingBtn': 'Evaluate for target Band',
@@ -145,7 +142,6 @@ export const LP_VI_TRANSLATIONS: Record<LpTxKey, string> = {
   'lp.aiGenModalSub':
     'Chỉ cần nhập chủ đề hoặc nhu cầu học của bạn — AI sẽ tự động thiết kế lộ trình kèm tóm tắt ngữ pháp, từ vựng, bài nghe/đọc, viết & nói.',
   'lp.aiGoalTopicLabel': 'Nhu cầu, chủ đề hoặc lộ trình muốn học',
-  'lp.aiGoalTopicPlaceholder': 'Ví dụ: Tiếng Anh phỏng vấn IT, Giao tiếp công sở từ A2 lên B2...',
   'lp.aiPresetsLabel': 'Gợi ý nhanh:',
   'lp.aiPreset1': 'Phỏng vấn IT Backend',
   'lp.aiPreset2': 'IELTS Môi trường Band 6.5',
@@ -153,8 +149,6 @@ export const LP_VI_TRANSLATIONS: Record<LpTxKey, string> = {
   'lp.aiUnitCountLabel': 'Số lượng bài học',
   'lp.aiUnitsOption': '{{count}} bài học (đủ bộ tài liệu)',
   'lp.aiFocusLabel': 'Trọng tâm ưu tiên (tùy chọn)',
-  'lp.aiFocusPlaceholder':
-    'Ví dụ: Từ cơ bản đến nâng cao, ưu tiên giao tiếp phản xạ, luyện thi IELTS...',
   'lp.aiGenSubmitBtn': 'Tạo bằng AI',
   'lp.aiGeneratingBtn': 'AI đang soạn lộ trình & tài liệu...',
   'lp.aiDisabledWarn': 'AI hiện đang tắt trên server (cấu hình AI_PROVIDER=groq để bật).',
@@ -191,8 +185,6 @@ export const LP_VI_TRANSLATIONS: Record<LpTxKey, string> = {
   'lpu.aiDisabledNotice':
     'AI hiện đang tắt trên server (cấu hình AI_PROVIDER=groq để bật chấm Viết & Nói AI).',
   'lpu.writingInputLabel': 'Đoạn văn tiếng Anh của bạn',
-  'lpu.writingPlaceholder':
-    'Viết đoạn trả lời ngắn và thử lồng ghép các từ vựng mục tiêu phía trên...',
   'lpu.showSampleBtn': 'Xem bài mẫu',
   'lpu.hideSampleBtn': 'Ẩn bài mẫu',
   'lpu.evaluateWritingBtn': 'Chấm bài theo Band',

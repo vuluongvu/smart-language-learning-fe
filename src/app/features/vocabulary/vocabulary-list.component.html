@@ -284,13 +284,7 @@
         <div class="oq-field">
           <label for="vocab-term">{{ 'vocab.termLabel' | t }}</label>
           <div class="term-input-row">
-            <input
-              id="vocab-term"
-              type="text"
-              formControlName="term"
-              (blur)="onTermBlur()"
-              [placeholder]="'vocab.termPlaceholder' | t"
-            />
+            <input id="vocab-term" type="text" formControlName="term" (blur)="onTermBlur()" />
             <button
               type="button"
               class="oq-btn oq-btn--ai"
@@ -309,12 +303,7 @@
         <div class="filter-grid">
           <div class="oq-field">
             <label for="vocab-ipa">{{ 'vocab.ipaLabel' | t }}</label>
-            <input
-              id="vocab-ipa"
-              type="text"
-              formControlName="pronunciation"
-              placeholder="/breɪk ði aɪs/"
-            />
+            <input id="vocab-ipa" type="text" formControlName="pronunciation" />
           </div>
 
           <div class="oq-field">
@@ -324,7 +313,6 @@
               type="text"
               formControlName="partOfSpeech"
               list="pos-suggestions"
-              [placeholder]="'vocab.posPlaceholder' | t"
             />
             <datalist id="pos-suggestions">
               @for (pos of partOfSpeechOptions; track pos) {
@@ -336,12 +324,7 @@
 
         <div class="oq-field">
           <label for="vocab-def">{{ 'vocab.defLabel' | t }}</label>
-          <textarea
-            id="vocab-def"
-            rows="2"
-            formControlName="definition"
-            [placeholder]="'vocab.defPlaceholder' | t"
-          ></textarea>
+          <textarea id="vocab-def" rows="2" formControlName="definition"></textarea>
           @if (form.controls.definition.touched && form.controls.definition.invalid) {
             <span class="oq-field-error">{{ 'vocab.defError' | t }}</span>
           }
@@ -349,22 +332,12 @@
 
         <div class="oq-field">
           <label for="vocab-example">{{ 'vocab.exampleLabel' | t }}</label>
-          <textarea
-            id="vocab-example"
-            rows="2"
-            formControlName="example"
-            [placeholder]="'vocab.examplePlaceholder' | t"
-          ></textarea>
+          <textarea id="vocab-example" rows="2" formControlName="example"></textarea>
         </div>
 
         <div class="oq-field">
           <label for="vocab-notes">{{ 'vocab.notesLabel' | t }}</label>
-          <textarea
-            id="vocab-notes"
-            rows="2"
-            formControlName="notes"
-            [placeholder]="'vocab.notesPlaceholder' | t"
-          ></textarea>
+          <textarea id="vocab-notes" rows="2" formControlName="notes"></textarea>
         </div>
 
         @if (topics().length > 0 || !editingItem()) {
@@ -393,12 +366,7 @@
             @if (!editingItem()) {
               <div class="oq-field topic-group__new">
                 <label for="vocab-new-topic">{{ 'vocabAi.newTopicLabel' | t }}</label>
-                <input
-                  id="vocab-new-topic"
-                  type="text"
-                  formControlName="newTopicName"
-                  [placeholder]="'vocabAi.newTopicPlaceholder' | t"
-                />
+                <input id="vocab-new-topic" type="text" formControlName="newTopicName" />
               </div>
             }
           </div>
