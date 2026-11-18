@@ -22,6 +22,20 @@ export const routes: Routes = [
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
       {
+        path: 'learning-path',
+        loadComponent: () =>
+          import('./features/learning-path/learning-path.component').then(
+            (m) => m.LearningPathComponent,
+          ),
+      },
+      {
+        path: 'learning-path/units/:id',
+        loadComponent: () =>
+          import('./features/learning-path/learning-unit.component').then(
+            (m) => m.LearningUnitComponent,
+          ),
+      },
+      {
         path: 'dashboard',
         loadComponent: () =>
           import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent),

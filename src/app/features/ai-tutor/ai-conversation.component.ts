@@ -5,8 +5,10 @@ import {
   ElementRef,
   OnInit,
   computed,
+  effect,
   inject,
   input,
+  output,
   signal,
   viewChild,
 } from '@angular/core';
@@ -48,6 +50,9 @@ export class AiConversationComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly aiEnabled = input<boolean>(false);
+  readonly initialSession = input<AiConversationSessionDetail | null>(null);
+  readonly embedded = input<boolean>(false);
+  readonly sessionUpdated = output<AiConversationSessionDetail>();
 
   private readonly threadEnd = viewChild<ElementRef<HTMLElement>>('threadEnd');
   private copyTimer: ReturnType<typeof setTimeout> | null = null;
@@ -106,6 +111,20 @@ export class AiConversationComponent implements OnInit {
   );
 
   constructor() {
+    effect(() => {
+      const provided = this.initialSession();
+      if (!provided) {
+        return;
+      }
+      const current = this.activeSession();
+      if (!current || current.id !== provided.id) {
+        this.activeSession.set(provided);
+        this.replyDraft.set('');
+        this.errorMessage.set(null);
+        this.autoSpeakPendingPrompt(provided);
+      }
+    });
+
     this.destroyRef.onDestroy(() => {
       if (this.copyTimer) {
         clearTimeout(this.copyTimer);
@@ -116,7 +135,11 @@ export class AiConversationComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadHistoryAndTopics();
+    if (!this.embedded()) {
+      this.loadHistoryAndTopics();
+    } else {
+      this.loadingSessions.set(false);
+    }
   }
 
   loadHistoryAndTopics(): void {
@@ -248,6 +271,7 @@ export class AiConversationComponent implements OnInit {
         this.replyDraft.set('');
         this.replying.set(false);
         this.upsertSessionSummary(updated);
+        this.sessionUpdated.emit(updated);
         this.scrollToLatest();
         this.autoSpeakPendingPrompt(updated);
       },
@@ -315,6 +339,7 @@ export class AiConversationComponent implements OnInit {
         this.activeSession.set(completed);
         this.ending.set(false);
         this.upsertSessionSummary(completed);
+        this.sessionUpdated.emit(completed);
       },
       error: (err: unknown) => {
         this.ending.set(false);

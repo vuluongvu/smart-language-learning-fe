@@ -162,10 +162,12 @@
 } @else if (activeSession(); as s) {
   <section class="oq-card conv-session-bar">
     <div class="conv-session-bar__info">
-      <button type="button" class="oq-btn oq-btn--ghost oq-btn--sm" (click)="backToSetup()">
-        <oq-icon name="arrow-left" [size]="15" />
-        <span>{{ 'conv.backSetupBtn' | t }}</span>
-      </button>
+      @if (!embedded()) {
+        <button type="button" class="oq-btn oq-btn--ghost oq-btn--sm" (click)="backToSetup()">
+          <oq-icon name="arrow-left" [size]="15" />
+          <span>{{ 'conv.backSetupBtn' | t }}</span>
+        </button>
+      }
       <div class="conv-session-bar__meta">
         <h2>{{ s.topic }}</h2>
         <div class="conv-session-bar__badges">

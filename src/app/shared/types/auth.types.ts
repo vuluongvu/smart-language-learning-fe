@@ -5,6 +5,9 @@ export interface UserProfile {
   avatarUrl: string | null;
   timezone: string;
   isLeaderboardVisible: boolean;
+  learningGoalBand?: string;
+  currentLevel?: string;
+  dailyGoalMinutes?: number;
   role: string;
   hasPassword: boolean;
   linkedProviders: string[];
