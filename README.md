@@ -84,6 +84,17 @@ docker compose up -d --build
 - Web UI: `http://localhost:4200`
 - Reverse proxy: Nginx serves the built Angular SPA and proxies `/api/*` to `http://argon-learning-app:3000`.
 
+## Deploying to Vercel (Paired with AWS Backend)
+
+`vercel.json` and `scripts/vercel-build.mjs` configure SPA fallback routing, cache headers, and runtime API URL injection for Vercel:
+
+1. Import `smart-language-learning-fe` into Vercel.
+2. Add Environment Variable in **Project Settings -> Environment Variables**:
+   - `ARGON_API_BASE_URL` = `https://<your-aws-api-domain>/api/v1` (must be HTTPS to avoid browser Mixed Content errors).
+   - Optional: `ARGON_GOOGLE_CLIENT_ID` (if omitted, the app resolves the public Client ID automatically from `GET /api/v1/auth/google/config`).
+3. Deploy — Vercel uses `vercel.json` (`npm run build:vercel` -> `dist/smart-language-learning-fe/browser`).
+4. Add your assigned `https://<your-app>.vercel.app` URL to `CORS_ORIGIN` on the AWS backend (and to **Authorized JavaScript origins** in Google Cloud Console if Google Sign-In is enabled).
+
 ## Git Workflow
 
 Develop on isolated feature branches off `develop`, verify `npm run format:check`, `npm run build`, and `npm run test:ci`, then merge (`--no-ff`) into `develop` and `master`.
