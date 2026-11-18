@@ -29,7 +29,7 @@ interface NavGroup {
             <circle cx="13.5" cy="13.5" r="5.25" stroke="#fff" stroke-width="2.2" />
             <path d="M17.5 17.5 21 21" stroke="#fff" stroke-width="2.2" stroke-linecap="round" />
           </svg>
-          <span class="shell__brand-name">OpenQuiz</span>
+          <span class="shell__brand-name">Argon Learning</span>
         </a>
         <button
           type="button"
