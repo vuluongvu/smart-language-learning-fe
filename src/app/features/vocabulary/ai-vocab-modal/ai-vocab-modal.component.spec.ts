@@ -206,4 +206,108 @@ describe('AiVocabModalComponent', () => {
       },
     });
   });
+
+  it('validates image selection, uploads FormData to /vocabulary/ai/extract-image, applies suggestedTopic, and saves drafts', async () => {
+    const fixture = TestBed.createComponent(AiVocabModalComponent);
+    fixture.componentRef.setInput('open', true);
+    fixture.componentRef.setInput('initialMode', 'image');
+    fixture.componentRef.setInput('topics', [
+      {
+        id: 2,
+        name: 'Environment',
+        description: null,
+        languageId: 1,
+        vocabularyCount: 0,
+        createdAt: '2026-11-16T00:00:00.000Z',
+        updatedAt: '2026-11-16T00:00:00.000Z',
+      },
+    ]);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance['mode']).toBe('image');
+    expect(fixture.componentInstance['count']).toBe(8);
+
+    // Submitting without an image shows validation error and fires no request
+    fixture.componentInstance.generate();
+    expect(fixture.componentInstance['errorMessage']()).toContain('image');
+
+    // Invalid file type is rejected
+    const badFile = new File(['hello'], 'notes.pdf', { type: 'application/pdf' });
+    await fixture.componentInstance['handleImageFile'](badFile);
+    expect(fixture.componentInstance['errorMessage']()).toContain('Unsupported image format');
+    expect(fixture.componentInstance['selectedImage']()).toBeNull();
+
+    // Valid PNG file uploads as multipart FormData
+    const pngFile = new File([new Uint8Array([0x89, 0x50, 0x4e, 0x47])], 'vocab-page.png', {
+      type: 'image/png',
+    });
+    await fixture.componentInstance['handleImageFile'](pngFile);
+    expect(fixture.componentInstance['selectedImage']()).toBe(pngFile);
+
+    fixture.componentInstance['prompt'] = 'Academic verbs';
+    fixture.componentInstance.generate();
+
+    const extractReq = httpTesting.expectOne(
+      (r) => r.url.endsWith('/vocabulary/ai/extract-image') && r.method === 'POST',
+    );
+    expect(extractReq.request.body instanceof FormData).toBe(true);
+    const body = extractReq.request.body as FormData;
+    const uploadedImage = body.get('image');
+    expect(uploadedImage).toBeInstanceOf(File);
+    expect((uploadedImage as File).name).toBe('vocab-page.png');
+    expect((uploadedImage as File).type).toBe('image/png');
+    expect((uploadedImage as File).size).toBe(4);
+    expect(body.get('prompt')).toBe('Academic verbs');
+    expect(body.get('level')).toBe('B1');
+    expect(body.get('count')).toBe('8');
+
+    extractReq.flush({
+      data: {
+        model: 'qwen/qwen3.8-27b',
+        suggestedTopic: 'IELTS Reading',
+        items: [
+          {
+            term: 'mitigate',
+            pronunciation: '/ˈmɪtɪɡeɪt/',
+            partOfSpeech: 'verb',
+            definition: 'Giảm nhẹ, làm dịu bớt',
+            example: 'New policies aim to mitigate climate risks.',
+            notes: null,
+            alreadyExists: false,
+          },
+        ],
+      },
+    });
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance['newTopicName']).toBe('IELTS Reading');
+    expect(fixture.componentInstance['drafts']()).toHaveLength(1);
+
+    fixture.componentInstance.saveSelected();
+    const bulkReq = httpTesting.expectOne(
+      (r) => r.url.endsWith('/vocabulary/bulk') && r.method === 'POST',
+    );
+    expect(bulkReq.request.body).toEqual({
+      topicIds: [],
+      newTopicName: 'IELTS Reading',
+      items: [
+        {
+          term: 'mitigate',
+          pronunciation: '/ˈmɪtɪɡeɪt/',
+          partOfSpeech: 'verb',
+          definition: 'Giảm nhẹ, làm dịu bớt',
+          example: 'New policies aim to mitigate climate risks.',
+          notes: null,
+          source: 'ai',
+        },
+      ],
+    });
+    bulkReq.flush({
+      data: {
+        createdCount: 1,
+        createdTopic: { id: 12, name: 'IELTS Reading' },
+        items: [],
+      },
+    });
+  });
 });

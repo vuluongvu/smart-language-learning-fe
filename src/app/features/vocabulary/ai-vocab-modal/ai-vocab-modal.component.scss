@@ -3,7 +3,8 @@
 .ai-topics__chips,
 .ai-gen-bar,
 .ai-drafts-head,
-.ai-modal-foot {
+.ai-modal-foot,
+.ai-image-preview__actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -24,6 +25,9 @@
 }
 
 .ai-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 6px 12px;
   border-radius: var(--oq-radius-sm);
   font-size: 0.84rem;
@@ -34,6 +38,105 @@
     background: var(--oq-accent-soft);
     color: var(--oq-accent);
     font-weight: 600;
+  }
+}
+
+.ai-field-label,
+.ai-topics__label {
+  display: block;
+  font-size: 0.78125rem;
+  font-weight: 700;
+  color: var(--oq-text-secondary);
+  margin-bottom: 6px;
+}
+
+.ai-file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ai-dropzone,
+.ai-image-preview {
+  display: flex;
+  align-items: center;
+  border-radius: var(--oq-radius-md);
+  background: var(--oq-bg-subtle);
+}
+
+.ai-dropzone {
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  padding: 20px 16px;
+  border: 2px dashed var(--oq-border-strong);
+  text-align: center;
+  cursor: pointer;
+
+  &:hover,
+  &--dragover {
+    border-color: var(--oq-accent);
+    background: var(--oq-accent-soft);
+  }
+
+  &__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--oq-radius-full);
+    background: var(--oq-bg-surface);
+    color: var(--oq-accent);
+    border: 1px solid var(--oq-border-subtle);
+  }
+
+  &__title {
+    font-size: 0.88rem;
+    color: var(--oq-text-primary);
+  }
+
+  &__hint {
+    font-size: 0.76rem;
+    color: var(--oq-text-muted);
+    max-width: 420px;
+  }
+}
+
+.ai-image-preview {
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--oq-border-strong);
+
+  &__thumb {
+    width: 88px;
+    height: 88px;
+    object-fit: cover;
+    border-radius: var(--oq-radius-sm);
+    border: 1px solid var(--oq-border-subtle);
+    flex-shrink: 0;
+  }
+
+  &__meta {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+    flex: 1 1 200px;
+  }
+
+  &__name {
+    font-size: 0.86rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__size {
+    font-size: 0.76rem;
+    color: var(--oq-text-muted);
   }
 }
 
@@ -75,15 +178,6 @@
   &__new {
     margin-bottom: 0;
   }
-}
-
-.ai-topics__label {
-  display: block;
-  font-size: 0.78125rem;
-  font-weight: 700;
-  letter-spacing: 0.025em;
-  color: var(--oq-text-secondary);
-  margin-bottom: 6px;
 }
 
 .ai-chip {

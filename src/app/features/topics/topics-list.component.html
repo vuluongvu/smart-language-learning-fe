@@ -52,12 +52,7 @@
     <form [formGroup]="form" (ngSubmit)="saveTopic()" novalidate>
       <div class="oq-field">
         <label for="topic-name">{{ 'topics.nameLabel' | t }}</label>
-        <input
-          id="topic-name"
-          type="text"
-          formControlName="name"
-          [placeholder]="'topics.namePlaceholder' | t"
-        />
+        <input id="topic-name" type="text" formControlName="name" />
         @if (form.controls.name.touched && form.controls.name.invalid) {
           <span class="oq-field-error">{{ 'topics.nameError' | t }}</span>
         }
@@ -65,12 +60,7 @@
 
       <div class="oq-field">
         <label for="topic-desc">{{ 'topics.descLabel' | t }}</label>
-        <textarea
-          id="topic-desc"
-          rows="3"
-          formControlName="description"
-          [placeholder]="'topics.descPlaceholder' | t"
-        ></textarea>
+        <textarea id="topic-desc" rows="3" formControlName="description"></textarea>
       </div>
 
       <div class="modal-actions">

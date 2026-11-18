@@ -22,7 +22,6 @@
         type="text"
         maxlength="160"
         [value]="topicInput()"
-        [placeholder]="'conv.topicPlaceholder' | t"
         (input)="onTopicChange($event)"
       />
       <div class="conv-chips">
@@ -483,7 +482,6 @@
           [attr.maxlength]="maxReplyLength"
           [value]="replyDraft()"
           [disabled]="!aiEnabled() || isBusyTurn() || speech.isRecording()"
-          [placeholder]="'conv.replyPlaceholder' | t"
           (input)="onReplyInput($event)"
           (keydown)="onReplyKeydown($event)"
         ></textarea>

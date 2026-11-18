@@ -10,6 +10,7 @@ import {
 import { I18nService, TranslatePipe } from '../../shared/i18n';
 import { SpeechService } from '../../shared/services/speech.service';
 import {
+  AiGenerateMode,
   BulkCreateVocabularyResult,
   DuplicateCheckResult,
   FlashcardDueSummary,
@@ -108,6 +109,7 @@ export class VocabularyListComponent implements OnInit, OnDestroy {
 
   protected readonly showForm = signal(false);
   protected readonly showAiModal = signal(false);
+  protected readonly aiModalInitialMode = signal<AiGenerateMode>('topic');
   protected readonly showMoreFilters = signal(false);
   protected readonly editingItem = signal<VocabularyItem | null>(null);
   protected readonly selectedTopicIds = signal<number[]>([]);
@@ -283,7 +285,8 @@ export class VocabularyListComponent implements OnInit, OnDestroy {
     this.showForm.set(true);
   }
 
-  openAiModal(): void {
+  openAiModal(mode: AiGenerateMode = 'topic'): void {
+    this.aiModalInitialMode.set(mode);
     this.showAiModal.set(true);
   }
 

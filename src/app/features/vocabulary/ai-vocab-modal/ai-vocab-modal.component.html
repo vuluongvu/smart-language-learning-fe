@@ -10,227 +10,298 @@
       <div class="oq-alert oq-alert--error" role="alert">{{ errorMessage() }}</div>
     }
 
-    <div class="ai-mode-tabs" role="tablist">
-      <button
-        type="button"
-        role="tab"
-        class="ai-tab"
-        [class.ai-tab--active]="mode === 'topic'"
-        [attr.aria-selected]="mode === 'topic'"
-        (click)="setMode('topic')"
-      >
-        {{ 'vocabAi.modeTopic' | t }}
-      </button>
-      <button
-        type="button"
-        role="tab"
-        class="ai-tab"
-        [class.ai-tab--active]="mode === 'passage'"
-        [attr.aria-selected]="mode === 'passage'"
-        (click)="setMode('passage')"
-      >
-        {{ 'vocabAi.modePassage' | t }}
-      </button>
-    </div>
-
-    <div class="oq-field">
-      <label for="ai-vocab-prompt">
-        {{ (mode === 'topic' ? 'vocabAi.promptTopicLabel' : 'vocabAi.promptPassageLabel') | t }}
-      </label>
-      <textarea
-        id="ai-vocab-prompt"
-        [rows]="mode === 'passage' ? 4 : 2"
-        [(ngModel)]="prompt"
-        [placeholder]="
-          (mode === 'topic' ? 'vocabAi.promptTopicPlaceholder' : 'vocabAi.promptPassagePlaceholder')
-            | t
-        "
-      ></textarea>
-      @if (mode === 'topic') {
-        <div class="ai-presets">
-          @for (key of presetKeys; track key) {
-            <button type="button" class="ai-preset" (click)="applyPreset(key)">
-              {{ key | t }}
-            </button>
-          }
-        </div>
-      }
-    </div>
-
-    <div class="ai-controls">
-      <div class="oq-field">
-        <label for="ai-vocab-level">{{ 'vocabAi.levelLabel' | t }}</label>
-        <select id="ai-vocab-level" [(ngModel)]="level">
-          <option value="">{{ 'vocabAi.levelAny' | t }}</option>
-          @for (lvl of levels; track lvl) {
-            <option [value]="lvl">{{ lvl }}</option>
-          }
-        </select>
-      </div>
-
-      <div class="oq-field">
-        <label for="ai-vocab-count">{{ 'vocabAi.countLabel' | t }}</label>
-        <select id="ai-vocab-count" [(ngModel)]="count">
-          @for (c of counts; track c) {
-            <option [ngValue]="c">{{ c }}</option>
-          }
-        </select>
-      </div>
-    </div>
-
-    <div class="ai-topic-group">
-      @if (topics().length > 0) {
-        <div class="ai-topics">
-          <span class="ai-topics__label">{{ 'vocabAi.topicContextLabel' | t }}</span>
-          <div class="ai-topics__chips">
-            @for (topic of topics(); track topic.id) {
-              <label class="ai-chip" [class.ai-chip--active]="isTopicSelected(topic.id)">
-                <input
-                  type="checkbox"
-                  [checked]="isTopicSelected(topic.id)"
-                  (change)="toggleTopic(topic.id)"
-                />
-                <span>{{ topic.name }}</span>
-              </label>
-            }
-          </div>
-        </div>
-      }
-
-      <div class="oq-field ai-topic-group__new">
-        <label for="ai-vocab-new-topic">{{ 'vocabAi.newTopicLabel' | t }}</label>
-        <input
-          id="ai-vocab-new-topic"
-          type="text"
-          maxlength="120"
-          [(ngModel)]="newTopicName"
-          (ngModelChange)="onNewTopicInput()"
-          [placeholder]="'vocabAi.newTopicPlaceholder' | t"
-        />
-        <span class="oq-field-hint">{{ 'vocabAi.newTopicHint' | t }}</span>
-      </div>
-    </div>
-
-    <div class="ai-gen-bar">
-      @if (generatedModel(); as model) {
-        <span class="oq-badge">{{ model }}</span>
-      }
-      <button
-        type="button"
-        class="oq-btn oq-btn--primary"
-        [disabled]="isGenerating() || isSaving()"
-        (click)="generate()"
-      >
-        <oq-icon name="sparkles" [size]="15" />
-        <span>{{ (isGenerating() ? 'vocabAi.generating' : 'vocabAi.generateBtn') | t }}</span>
-      </button>
-    </div>
-
-    @if (drafts().length > 0) {
-      <div class="ai-drafts-head">
-        <strong>
-          {{ 'vocabAi.resultsTitle' | t: { selected: selectedCount(), total: drafts().length } }}
-        </strong>
-        <button type="button" class="oq-btn oq-btn--ghost oq-btn--sm" (click)="toggleAll()">
-          {{ (allSelected() ? 'vocabAi.deselectAll' : 'vocabAi.selectAll') | t }}
+    <div class="ai-modal-body" (paste)="onModalPaste($event)">
+      <div class="ai-mode-tabs" role="tablist">
+        <button
+          type="button"
+          role="tab"
+          class="ai-tab"
+          [class.ai-tab--active]="mode === 'topic'"
+          [attr.aria-selected]="mode === 'topic'"
+          (click)="setMode('topic')"
+        >
+          {{ 'vocabAi.modeTopic' | t }}
+        </button>
+        <button
+          type="button"
+          role="tab"
+          class="ai-tab"
+          [class.ai-tab--active]="mode === 'passage'"
+          [attr.aria-selected]="mode === 'passage'"
+          (click)="setMode('passage')"
+        >
+          {{ 'vocabAi.modePassage' | t }}
+        </button>
+        <button
+          type="button"
+          role="tab"
+          class="ai-tab"
+          [class.ai-tab--active]="mode === 'image'"
+          [attr.aria-selected]="mode === 'image'"
+          (click)="setMode('image')"
+        >
+          <oq-icon name="image" [size]="14" />
+          <span>{{ 'vocabAi.modeImage' | t }}</span>
         </button>
       </div>
 
-      <div class="ai-drafts">
-        @for (draft of drafts(); track draft.id) {
-          <article class="ai-draft" [class.ai-draft--off]="!draft.selected">
-            <div class="ai-draft__top">
-              <label class="oq-check">
-                <input type="checkbox" [(ngModel)]="draft.selected" />
-                <strong>{{ draft.term }}</strong>
-              </label>
-              @if (draft.alreadyExists) {
-                <span class="oq-badge oq-badge--warning">{{ 'vocabAi.duplicateBadge' | t }}</span>
+      @if (mode === 'image') {
+        <div class="oq-field">
+          <span class="ai-field-label">{{ 'vocabAi.imageUploadLabel' | t }}</span>
+          <input
+            id="ai-vocab-image-input"
+            class="ai-file-input"
+            type="file"
+            accept="image/png,image/jpeg,image/webp,image/gif"
+            (change)="onImageFilePicked($event)"
+          />
+
+          @if (selectedImage(); as imageFile) {
+            <div
+              class="ai-image-preview"
+              [class.ai-dropzone--dragover]="isDragOver()"
+              (dragover)="onImageDragOver($event)"
+              (dragleave)="onImageDragLeave($event)"
+              (drop)="onImageDrop($event)"
+            >
+              @if (imagePreviewUrl(); as previewUrl) {
+                <img
+                  class="ai-image-preview__thumb"
+                  [src]="previewUrl"
+                  [alt]="'vocabAi.imagePreviewAlt' | t"
+                />
+              }
+              <div class="ai-image-preview__meta">
+                <strong class="ai-image-preview__name">{{ imageFile.name }}</strong>
+                <span class="ai-image-preview__size">{{ formatFileSize(imageFile.size) }}</span>
+                <div class="ai-image-preview__actions">
+                  <label for="ai-vocab-image-input" class="oq-btn oq-btn--secondary oq-btn--sm">
+                    <oq-icon name="upload" [size]="14" />
+                    <span>{{ 'vocabAi.imageChange' | t }}</span>
+                  </label>
+                  <button
+                    type="button"
+                    class="oq-btn oq-btn--ghost oq-btn--sm"
+                    [disabled]="isGenerating() || isSaving()"
+                    (click)="clearSelectedImage()"
+                  >
+                    <oq-icon name="trash" [size]="14" />
+                    <span>{{ 'vocabAi.imageRemove' | t }}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          } @else {
+            <label
+              for="ai-vocab-image-input"
+              class="ai-dropzone"
+              [class.ai-dropzone--dragover]="isDragOver()"
+              (dragover)="onImageDragOver($event)"
+              (dragleave)="onImageDragLeave($event)"
+              (drop)="onImageDrop($event)"
+            >
+              <span class="ai-dropzone__icon">
+                <oq-icon name="upload" [size]="22" />
+              </span>
+              <strong class="ai-dropzone__title">{{ 'vocabAi.imageDropTitle' | t }}</strong>
+              <span class="ai-dropzone__hint">{{ 'vocabAi.imageDropHint' | t }}</span>
+            </label>
+          }
+        </div>
+
+        <div class="oq-field">
+          <label for="ai-vocab-prompt">{{ 'vocabAi.imageFocusLabel' | t }}</label>
+          <input id="ai-vocab-prompt" type="text" maxlength="500" [(ngModel)]="prompt" />
+        </div>
+      } @else {
+        <div class="oq-field">
+          <label for="ai-vocab-prompt">
+            {{ (mode === 'topic' ? 'vocabAi.promptTopicLabel' : 'vocabAi.promptPassageLabel') | t }}
+          </label>
+          <textarea
+            id="ai-vocab-prompt"
+            [rows]="mode === 'passage' ? 4 : 2"
+            [(ngModel)]="prompt"
+          ></textarea>
+          @if (mode === 'topic') {
+            <div class="ai-presets">
+              @for (key of presetKeys; track key) {
+                <button type="button" class="ai-preset" (click)="applyPreset(key)">
+                  {{ key | t }}
+                </button>
               }
             </div>
+          }
+        </div>
+      }
 
-            <div class="ai-draft__grid">
-              <div class="oq-field ai-draft__field">
-                <label [for]="'draft-term-' + draft.id">{{ 'vocabAi.fieldTerm' | t }}</label>
-                <input
-                  [id]="'draft-term-' + draft.id"
-                  type="text"
-                  [(ngModel)]="draft.term"
-                  [placeholder]="'vocabAi.fieldTerm' | t"
-                />
-              </div>
-              <div class="oq-field ai-draft__field">
-                <label [for]="'draft-ipa-' + draft.id">{{ 'vocabAi.fieldIpa' | t }}</label>
-                <input
-                  [id]="'draft-ipa-' + draft.id"
-                  type="text"
-                  [(ngModel)]="draft.pronunciation"
-                  placeholder="/IPA/"
-                />
-              </div>
-              <div class="oq-field ai-draft__field">
-                <label [for]="'draft-pos-' + draft.id">{{ 'vocabAi.fieldPos' | t }}</label>
-                <input
-                  [id]="'draft-pos-' + draft.id"
-                  type="text"
-                  [(ngModel)]="draft.partOfSpeech"
-                  [placeholder]="'vocab.posPlaceholder' | t"
-                />
-              </div>
-            </div>
+      <div class="ai-controls">
+        <div class="oq-field">
+          <label for="ai-vocab-level">{{ 'vocabAi.levelLabel' | t }}</label>
+          <select id="ai-vocab-level" [(ngModel)]="level">
+            <option value="">{{ 'vocabAi.levelAny' | t }}</option>
+            @for (lvl of levels; track lvl) {
+              <option [value]="lvl">{{ lvl }}</option>
+            }
+          </select>
+        </div>
 
-            <div class="oq-field ai-draft__field">
-              <label [for]="'draft-def-' + draft.id">{{ 'vocabAi.fieldDef' | t }}</label>
-              <textarea
-                [id]="'draft-def-' + draft.id"
-                rows="2"
-                [(ngModel)]="draft.definition"
-                [placeholder]="'vocabAi.fieldDef' | t"
-              ></textarea>
-            </div>
-
-            <div class="oq-field ai-draft__field">
-              <label [for]="'draft-ex-' + draft.id">{{ 'vocabAi.fieldExample' | t }}</label>
-              <input
-                [id]="'draft-ex-' + draft.id"
-                type="text"
-                [(ngModel)]="draft.example"
-                [placeholder]="'vocabAi.fieldExample' | t"
-              />
-            </div>
-
-            <div class="oq-field ai-draft__field">
-              <label [for]="'draft-notes-' + draft.id">{{ 'vocabAi.fieldNotes' | t }}</label>
-              <input
-                [id]="'draft-notes-' + draft.id"
-                type="text"
-                [(ngModel)]="draft.notes"
-                [placeholder]="'vocabAi.fieldNotes' | t"
-              />
-            </div>
-          </article>
-        }
+        <div class="oq-field">
+          <label for="ai-vocab-count">{{ 'vocabAi.countLabel' | t }}</label>
+          <select id="ai-vocab-count" [(ngModel)]="count">
+            @for (c of counts; track c) {
+              <option [ngValue]="c">{{ c }}</option>
+            }
+          </select>
+        </div>
       </div>
-    }
 
-    <div class="ai-modal-foot">
-      <button type="button" class="oq-btn oq-btn--secondary" (click)="close()">
-        {{ 'common.cancel' | t }}
-      </button>
-      @if (drafts().length > 0) {
+      <div class="ai-topic-group">
+        @if (topics().length > 0) {
+          <div class="ai-topics">
+            <span class="ai-topics__label">{{ 'vocabAi.topicContextLabel' | t }}</span>
+            <div class="ai-topics__chips">
+              @for (topic of topics(); track topic.id) {
+                <label class="ai-chip" [class.ai-chip--active]="isTopicSelected(topic.id)">
+                  <input
+                    type="checkbox"
+                    [checked]="isTopicSelected(topic.id)"
+                    (change)="toggleTopic(topic.id)"
+                  />
+                  <span>{{ topic.name }}</span>
+                </label>
+              }
+            </div>
+          </div>
+        }
+
+        <div class="oq-field ai-topic-group__new">
+          <label for="ai-vocab-new-topic">{{ 'vocabAi.newTopicLabel' | t }}</label>
+          <input
+            id="ai-vocab-new-topic"
+            type="text"
+            maxlength="120"
+            [(ngModel)]="newTopicName"
+            (ngModelChange)="onNewTopicInput()"
+          />
+          <span class="oq-field-hint">{{ 'vocabAi.newTopicHint' | t }}</span>
+        </div>
+      </div>
+
+      <div class="ai-gen-bar">
+        @if (generatedModel(); as model) {
+          <span class="oq-badge">{{ model }}</span>
+        }
         <button
           type="button"
           class="oq-btn oq-btn--primary"
-          [disabled]="selectedCount() === 0 || isSaving()"
-          (click)="saveSelected()"
+          [disabled]="isGenerating() || isSaving()"
+          (click)="generate()"
         >
-          {{
-            isSaving()
-              ? ('vocabAi.saving' | t)
-              : ('vocabAi.saveSelected' | t: { count: selectedCount() })
-          }}
+          <oq-icon [name]="mode === 'image' ? 'image' : 'sparkles'" [size]="15" />
+          <span>
+            {{
+              (mode === 'image'
+                ? isGenerating()
+                  ? 'vocabAi.extracting'
+                  : 'vocabAi.extractBtn'
+                : isGenerating()
+                  ? 'vocabAi.generating'
+                  : 'vocabAi.generateBtn'
+              ) | t
+            }}
+          </span>
         </button>
+      </div>
+
+      @if (drafts().length > 0) {
+        <div class="ai-drafts-head">
+          <strong>
+            {{ 'vocabAi.resultsTitle' | t: { selected: selectedCount(), total: drafts().length } }}
+          </strong>
+          <button type="button" class="oq-btn oq-btn--ghost oq-btn--sm" (click)="toggleAll()">
+            {{ (allSelected() ? 'vocabAi.deselectAll' : 'vocabAi.selectAll') | t }}
+          </button>
+        </div>
+
+        <div class="ai-drafts">
+          @for (draft of drafts(); track draft.id) {
+            <article class="ai-draft" [class.ai-draft--off]="!draft.selected">
+              <div class="ai-draft__top">
+                <label class="oq-check">
+                  <input type="checkbox" [(ngModel)]="draft.selected" />
+                  <strong>{{ draft.term }}</strong>
+                </label>
+                @if (draft.alreadyExists) {
+                  <span class="oq-badge oq-badge--warning">{{ 'vocabAi.duplicateBadge' | t }}</span>
+                }
+              </div>
+
+              <div class="ai-draft__grid">
+                <div class="oq-field ai-draft__field">
+                  <label [for]="'draft-term-' + draft.id">{{ 'vocabAi.fieldTerm' | t }}</label>
+                  <input [id]="'draft-term-' + draft.id" type="text" [(ngModel)]="draft.term" />
+                </div>
+                <div class="oq-field ai-draft__field">
+                  <label [for]="'draft-ipa-' + draft.id">{{ 'vocabAi.fieldIpa' | t }}</label>
+                  <input
+                    [id]="'draft-ipa-' + draft.id"
+                    type="text"
+                    [(ngModel)]="draft.pronunciation"
+                  />
+                </div>
+                <div class="oq-field ai-draft__field">
+                  <label [for]="'draft-pos-' + draft.id">{{ 'vocabAi.fieldPos' | t }}</label>
+                  <input
+                    [id]="'draft-pos-' + draft.id"
+                    type="text"
+                    [(ngModel)]="draft.partOfSpeech"
+                  />
+                </div>
+              </div>
+
+              <div class="oq-field ai-draft__field">
+                <label [for]="'draft-def-' + draft.id">{{ 'vocabAi.fieldDef' | t }}</label>
+                <textarea
+                  [id]="'draft-def-' + draft.id"
+                  rows="2"
+                  [(ngModel)]="draft.definition"
+                ></textarea>
+              </div>
+
+              <div class="oq-field ai-draft__field">
+                <label [for]="'draft-ex-' + draft.id">{{ 'vocabAi.fieldExample' | t }}</label>
+                <input [id]="'draft-ex-' + draft.id" type="text" [(ngModel)]="draft.example" />
+              </div>
+
+              <div class="oq-field ai-draft__field">
+                <label [for]="'draft-notes-' + draft.id">{{ 'vocabAi.fieldNotes' | t }}</label>
+                <input [id]="'draft-notes-' + draft.id" type="text" [(ngModel)]="draft.notes" />
+              </div>
+            </article>
+          }
+        </div>
       }
+
+      <div class="ai-modal-foot">
+        <button type="button" class="oq-btn oq-btn--secondary" (click)="close()">
+          {{ 'common.cancel' | t }}
+        </button>
+        @if (drafts().length > 0) {
+          <button
+            type="button"
+            class="oq-btn oq-btn--primary"
+            [disabled]="selectedCount() === 0 || isSaving()"
+            (click)="saveSelected()"
+          >
+            {{
+              isSaving()
+                ? ('vocabAi.saving' | t)
+                : ('vocabAi.saveSelected' | t: { count: selectedCount() })
+            }}
+          </button>
+        }
+      </div>
     </div>
   </oq-modal>
 }
