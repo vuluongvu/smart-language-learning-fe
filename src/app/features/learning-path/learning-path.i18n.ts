@@ -32,6 +32,7 @@ export const LP_EN_TRANSLATIONS = {
   'lp.aiGenModalSub':
     'Enter any topic, learning goal, or target path — AI automatically builds structured units and full study materials tailored to your need.',
   'lp.aiGoalTopicLabel': 'Your need, topic, or target path',
+  'lp.aiGoalTopicPlaceholder': 'e.g., English for IT Interviews',
   'lp.aiPresetsLabel': 'Quick templates:',
   'lp.aiPreset1': 'IT Job Interviews',
   'lp.aiPreset2': 'IELTS Environment Band 6.5',
@@ -76,6 +77,7 @@ export const LP_EN_TRANSLATIONS = {
   'lpu.aiDisabledNotice':
     'AI Tutor is currently turned off on the server (set AI_PROVIDER=groq to enable Writing & Speaking AI).',
   'lpu.writingInputLabel': 'Your English paragraph',
+  'lpu.writingPlaceholder': 'Write your English paragraph...',
   'lpu.showSampleBtn': 'View sample',
   'lpu.hideSampleBtn': 'Hide sample',
   'lpu.evaluateWritingBtn': 'Evaluate for target Band',
@@ -142,6 +144,7 @@ export const LP_VI_TRANSLATIONS: Record<LpTxKey, string> = {
   'lp.aiGenModalSub':
     'Chỉ cần nhập chủ đề hoặc nhu cầu học của bạn — AI sẽ tự động thiết kế lộ trình kèm tóm tắt ngữ pháp, từ vựng, bài nghe/đọc, viết & nói.',
   'lp.aiGoalTopicLabel': 'Nhu cầu, chủ đề hoặc lộ trình muốn học',
+  'lp.aiGoalTopicPlaceholder': 'VD: Tiếng Anh phỏng vấn IT',
   'lp.aiPresetsLabel': 'Gợi ý nhanh:',
   'lp.aiPreset1': 'Phỏng vấn IT Backend',
   'lp.aiPreset2': 'IELTS Môi trường Band 6.5',
@@ -185,6 +188,7 @@ export const LP_VI_TRANSLATIONS: Record<LpTxKey, string> = {
   'lpu.aiDisabledNotice':
     'AI hiện đang tắt trên server (cấu hình AI_PROVIDER=groq để bật chấm Viết & Nói AI).',
   'lpu.writingInputLabel': 'Đoạn văn tiếng Anh của bạn',
+  'lpu.writingPlaceholder': 'Viết đoạn văn tiếng Anh của bạn...',
   'lpu.showSampleBtn': 'Xem bài mẫu',
   'lpu.hideSampleBtn': 'Ẩn bài mẫu',
   'lpu.evaluateWritingBtn': 'Chấm bài theo Band',

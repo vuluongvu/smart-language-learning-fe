@@ -57,7 +57,13 @@
     <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
       <div class="oq-field">
         <label for="register-name">{{ 'auth.displayName' | t }}</label>
-        <input id="register-name" type="text" formControlName="displayName" autocomplete="name" />
+        <input
+          id="register-name"
+          type="text"
+          formControlName="displayName"
+          autocomplete="name"
+          [placeholder]="'auth.displayNamePlaceholder' | t"
+        />
         @if (form.controls.displayName.touched && form.controls.displayName.invalid) {
           <span class="oq-field-error">{{ 'auth.displayNameError' | t }}</span>
         }
@@ -65,7 +71,13 @@
 
       <div class="oq-field">
         <label for="register-email">{{ 'auth.email' | t }}</label>
-        <input id="register-email" type="email" formControlName="email" autocomplete="email" />
+        <input
+          id="register-email"
+          type="email"
+          formControlName="email"
+          autocomplete="email"
+          [placeholder]="'auth.emailPlaceholder' | t"
+        />
         @if (form.controls.email.touched && form.controls.email.invalid) {
           <span class="oq-field-error">{{ 'auth.emailError' | t }}</span>
         }
@@ -78,6 +90,7 @@
           type="password"
           formControlName="password"
           autocomplete="new-password"
+          [placeholder]="'auth.registerPasswordPlaceholder' | t"
         />
         @if (form.controls.password.touched && form.controls.password.invalid) {
           <span class="oq-field-error">{{ 'auth.registerPasswordError' | t }}</span>

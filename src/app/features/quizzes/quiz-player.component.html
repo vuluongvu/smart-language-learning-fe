@@ -82,6 +82,7 @@
               type="text"
               [ngModel]="blankTexts()[q.id] ?? ''"
               (ngModelChange)="updateBlankText(q.id, $event)"
+              [placeholder]="'qp.blankPlaceholder' | t"
               autocomplete="off"
             />
           </div>
