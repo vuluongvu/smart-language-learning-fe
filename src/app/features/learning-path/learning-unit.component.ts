@@ -77,6 +77,12 @@ export class LearningUnitComponent implements OnInit {
   protected readonly savedSuggestedTerms = signal<Set<string>>(new Set());
   protected readonly savingSuggestedTerm = signal<string | null>(null);
 
+  // AI Study Material
+  protected readonly showStudyGuide = signal(false);
+  protected readonly guideFocusNote = signal('');
+  protected readonly generatingStudyGuide = signal(false);
+  protected readonly regeneratingUnit = signal(false);
+
   // Step 4: Speaking AI
   protected readonly startingSpeaking = signal(false);
   protected readonly speakingSession = signal<AiConversationSessionDetail | null>(null);
@@ -132,6 +138,7 @@ export class LearningUnitComponent implements OnInit {
     this.pathApi.getUnitDetail(unitId).subscribe({
       next: (data) => {
         this.detail.set(data);
+        this.showStudyGuide.set(Boolean(data.studyGuide));
         if (data.progress.writingSubmission) {
           this.writingDraft.set(data.progress.writingSubmission);
         } else {
@@ -389,5 +396,63 @@ export class LearningUnitComponent implements OnInit {
         this.errorMessage.set(extractApiError(err, 'Unable to update speaking progress.'));
       },
     });
+  }
+
+  onGuideFocusInput(event: Event): void {
+    this.guideFocusNote.set((event.target as HTMLInputElement).value);
+  }
+
+  generateStudyGuide(): void {
+    const current = this.detail();
+    if (!current || !this.aiEnabled() || this.generatingStudyGuide()) {
+      return;
+    }
+
+    this.generatingStudyGuide.set(true);
+    this.errorMessage.set(null);
+
+    this.pathApi
+      .generateUnitStudyGuide(current.id, {
+        focusNote: this.guideFocusNote().trim() || undefined,
+        explanationLang: this.i18n.lang(),
+      })
+      .subscribe({
+        next: (res) => {
+          this.generatingStudyGuide.set(false);
+          this.showStudyGuide.set(true);
+          this.detail.update((d) => (d ? { ...d, studyGuide: res.studyGuide } : null));
+        },
+        error: (err: unknown) => {
+          this.generatingStudyGuide.set(false);
+          this.errorMessage.set(extractApiError(err, 'Unable to generate study guide.'));
+        },
+      });
+  }
+
+  regenerateAiUnit(): void {
+    const current = this.detail();
+    if (!current?.isCustomAiTrack || !this.aiEnabled() || this.regeneratingUnit()) {
+      return;
+    }
+
+    this.regeneratingUnit.set(true);
+    this.errorMessage.set(null);
+
+    this.pathApi
+      .regenerateAiUnit(current.id, {
+        focusNote: this.guideFocusNote().trim() || undefined,
+        explanationLang: this.i18n.lang(),
+      })
+      .subscribe({
+        next: (updated) => {
+          this.regeneratingUnit.set(false);
+          this.showStudyGuide.set(Boolean(updated.studyGuide));
+          this.detail.set(updated);
+        },
+        error: (err: unknown) => {
+          this.regeneratingUnit.set(false);
+          this.errorMessage.set(extractApiError(err, 'Unable to refresh unit materials.'));
+        },
+      });
   }
 }

@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { vi } from 'vitest';
+import { AiApiService } from '../ai-tutor/ai-api.service';
 import { AuthService } from '../auth/auth.service';
 import { LearningPathApiService } from './learning-path-api.service';
 import { LP_EN_TRANSLATIONS, LP_VI_TRANSLATIONS } from './learning-path.i18n';
@@ -11,6 +12,8 @@ describe('LearningPathComponent', () => {
   let pathApiMock: {
     getOverview: ReturnType<typeof vi.fn>;
     updateGoal: ReturnType<typeof vi.fn>;
+    generateAiPath: ReturnType<typeof vi.fn>;
+    deleteAiTrack: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(async () => {
@@ -30,6 +33,7 @@ describe('LearningPathComponent', () => {
               cefrLevel: 'B1',
               languageCode: 'en',
               summary: 'Foundation everyday path',
+              isAiGenerated: false,
             },
             {
               id: 2,
@@ -38,6 +42,7 @@ describe('LearningPathComponent', () => {
               cefrLevel: 'B2',
               languageCode: 'en',
               summary: 'Intermediate work & culture path',
+              isAiGenerated: false,
             },
           ],
           activeTrack: {
@@ -47,6 +52,7 @@ describe('LearningPathComponent', () => {
             cefrLevel: 'B1',
             languageCode: 'en',
             summary: 'Foundation everyday path',
+            isAiGenerated: false,
           },
           parts: [
             {
@@ -94,6 +100,8 @@ describe('LearningPathComponent', () => {
         }),
       ),
       updateGoal: vi.fn(),
+      generateAiPath: vi.fn(),
+      deleteAiTrack: vi.fn(),
     };
 
     await TestBed.configureTestingModule({
@@ -102,6 +110,10 @@ describe('LearningPathComponent', () => {
         provideRouter([]),
         { provide: LearningPathApiService, useValue: pathApiMock },
         { provide: AuthService, useValue: { fetchMe: vi.fn().mockReturnValue(of(null)) } },
+        {
+          provide: AiApiService,
+          useValue: { getStatus: vi.fn().mockReturnValue(of({ enabled: true, model: 'qwen' })) },
+        },
       ],
     }).compileComponents();
   });
@@ -120,6 +132,55 @@ describe('LearningPathComponent', () => {
     select.value = 'band_55_65';
     select.dispatchEvent(new Event('change'));
     expect(pathApiMock.getOverview).toHaveBeenCalledWith('band_55_65');
+  });
+
+  it('opens AI generator modal and generates a custom AI path & materials', () => {
+    pathApiMock.generateAiPath.mockReturnValue(
+      of({
+        goal: { learningGoalBand: 'band_45_55', currentLevel: 'B1', dailyGoalMinutes: 15 },
+        tracks: [
+          {
+            id: 9,
+            code: 'ai-7-test',
+            title: 'IT Job Interviews',
+            cefrLevel: 'B2',
+            languageCode: 'en',
+            summary: 'Custom AI track',
+            isAiGenerated: true,
+          },
+        ],
+        activeTrack: {
+          id: 9,
+          code: 'ai-7-test',
+          title: 'IT Job Interviews',
+          cefrLevel: 'B2',
+          languageCode: 'en',
+          summary: 'Custom AI track',
+          isAiGenerated: true,
+        },
+        parts: [],
+        stats: { completedUnits: 0, totalUnits: 0, recommendedUnitId: null },
+      }),
+    );
+
+    const fixture = TestBed.createComponent(LearningPathComponent);
+    fixture.detectChanges();
+
+    const comp = fixture.componentInstance as unknown as {
+      openAiGenModal: () => void;
+      applyAiPreset: (t: string) => void;
+      submitAiGenerate: () => void;
+    };
+    comp.openAiGenModal();
+    comp.applyAiPreset('English for IT Software Engineering Interviews');
+    comp.submitAiGenerate();
+
+    expect(pathApiMock.generateAiPath).toHaveBeenCalledWith(
+      expect.objectContaining({
+        goalTopic: 'English for IT Software Engineering Interviews',
+        unitCount: 3,
+      }),
+    );
   });
 
   it('maintains 100% EN/VI key parity for learning-path i18n dictionary', () => {

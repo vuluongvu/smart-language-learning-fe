@@ -10,6 +10,34 @@ export interface LearningPathTrackSummary {
   cefrLevel: string;
   languageCode: string;
   summary: string;
+  isAiGenerated?: boolean;
+  sourcePrompt?: string | null;
+}
+
+export interface UnitStudyGrammarPoint {
+  title: string;
+  explanation: string;
+  example: string;
+}
+
+export interface UnitStudyKeyPattern {
+  pattern: string;
+  meaning: string;
+  example: string;
+}
+
+export interface UnitStudyMistake {
+  mistake: string;
+  correction: string;
+  tip: string;
+}
+
+export interface UnitStudyGuide {
+  overview: string;
+  grammarPoints: UnitStudyGrammarPoint[];
+  keyPatterns: UnitStudyKeyPattern[];
+  commonMistakes: UnitStudyMistake[];
+  studyTips: string[];
 }
 
 export interface UnitWritingError {
@@ -137,7 +165,22 @@ export interface LearningPathUnitDetail {
   readingListening: UnitReadingListening;
   writing: UnitWritingPrompt;
   speakingTopicPrompt: string;
+  isCustomAiTrack?: boolean;
+  studyGuide?: UnitStudyGuide | null;
   progress: UnitProgressView;
+}
+
+export interface GenerateAiPathRequest {
+  goalTopic: string;
+  sourceMaterial?: string;
+  targetBand?: LearningGoalBand | string;
+  currentLevel?: string;
+  unitCount?: number;
+  explanationLang?: 'vi' | 'en';
+}
+
+export interface GenerateStudyGuideResult {
+  studyGuide: UnitStudyGuide;
 }
 
 export interface SyncUnitVocabResult {

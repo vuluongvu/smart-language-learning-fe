@@ -22,6 +22,29 @@ export const LP_EN_TRANSLATIONS = {
   'lp.dailyMinutesLabel': 'Daily study target',
   'lp.minutesOption': '{{min}} minutes / day',
   'lp.goalSavedMsg': 'Learning goal updated!',
+  'lp.aiGenBtn': 'AI Path & Materials',
+  'lp.aiTrackTag': '[AI]',
+  'lp.aiTrackBadge': 'AI Generated',
+  'lp.deleteAiTrackBtn': 'Delete AI path',
+  'lp.aiTrackCreatedMsg': 'AI created your custom learning path and study materials!',
+  'lp.aiTrackDeletedMsg': 'Deleted custom AI learning path.',
+  'lp.aiGenModalTitle': 'Create AI Path & Study Materials',
+  'lp.aiGenModalSub':
+    'Enter any topic or paste raw study notes — AI builds a full path with study guides, vocabulary, reading, writing & speaking.',
+  'lp.aiGoalTopicLabel': 'Learning goal or topic',
+  'lp.aiGoalTopicPlaceholder': 'e.g., English for Software Engineer Job Interviews',
+  'lp.aiPresetsLabel': 'Quick templates:',
+  'lp.aiPreset1': 'IT Job Interviews',
+  'lp.aiPreset2': 'IELTS Environment Band 6.5',
+  'lp.aiPreset3': 'Business Meetings & Emails',
+  'lp.aiUnitCountLabel': 'Number of units',
+  'lp.aiUnitsOption': '{{count}} units (full materials)',
+  'lp.aiSourceLabel': 'Raw study notes / article (optional)',
+  'lp.aiSourcePlaceholder':
+    'Paste notes, syllabus, or reading text to turn into structured units & exercises...',
+  'lp.aiGenSubmitBtn': 'Generate with AI',
+  'lp.aiGeneratingBtn': 'AI is building path & materials...',
+  'lp.aiDisabledWarn': 'AI Tutor is currently off on the server (set AI_PROVIDER=groq).',
 
   'lpu.backToPath': 'Back to Learning Path',
   'lpu.skillsLabel': 'skills',
@@ -71,6 +94,23 @@ export const LP_EN_TRANSLATIONS = {
   'lpu.speakingReadyTitle': 'Ready to speak on this topic',
   'lpu.speakingReadyDesc':
     'Click Start above to open a guided voice/text conversation with instant AI feedback.',
+  'lpu.studyGuideHeading': 'Study Material & Grammar Guide',
+  'lpu.studyGuideSub':
+    'Key grammar rules, reusable sentence patterns, common mistakes & fast tips.',
+  'lpu.studyGuideEmpty':
+    'No study guide generated for this unit yet. Click below to create tailored notes with AI.',
+  'lpu.showGuideBtn': 'Show study guide',
+  'lpu.hideGuideBtn': 'Hide study guide',
+  'lpu.genGuideBtn': 'Generate AI study guide',
+  'lpu.generatingGuideBtn': 'Creating AI study guide...',
+  'lpu.regenUnitBtn': 'Regenerate unit materials',
+  'lpu.regeneratingUnitBtn': 'Refreshing materials...',
+  'lpu.guideFocusPlaceholder':
+    'Optional focus or pasted notes (e.g. emphasize interview answers, phrasal verbs...)',
+  'lpu.grammarPointsTitle': 'Core Grammar Points',
+  'lpu.keyPatternsTitle': 'Useful Sentence Patterns',
+  'lpu.commonMistakesTitle': 'Common Mistakes to Avoid',
+  'lpu.studyTipsTitle': 'Quick Study Tips',
 } as const;
 
 export type LpTxKey = keyof typeof LP_EN_TRANSLATIONS;
@@ -96,6 +136,29 @@ export const LP_VI_TRANSLATIONS: Record<LpTxKey, string> = {
   'lp.dailyMinutesLabel': 'Mục tiêu học mỗi ngày',
   'lp.minutesOption': '{{min}} phút / ngày',
   'lp.goalSavedMsg': 'Đã cập nhật mục tiêu khóa học!',
+  'lp.aiGenBtn': 'Tạo lộ trình & tài liệu AI',
+  'lp.aiTrackTag': '[AI]',
+  'lp.aiTrackBadge': 'Tạo bởi AI',
+  'lp.deleteAiTrackBtn': 'Xóa lộ trình AI',
+  'lp.aiTrackCreatedMsg': 'AI đã tạo xong lộ trình học và bộ tài liệu từng bài!',
+  'lp.aiTrackDeletedMsg': 'Đã xóa lộ trình AI tùy chỉnh.',
+  'lp.aiGenModalTitle': 'Tạo Lộ trình & Tài liệu học bằng AI',
+  'lp.aiGenModalSub':
+    'Nhập mục tiêu hoặc dán tài liệu/ghi chú thô — AI sẽ thiết kế lộ trình kèm tóm tắt ngữ pháp, từ vựng, bài đọc/nghe, viết & nói.',
+  'lp.aiGoalTopicLabel': 'Mục tiêu hoặc chủ đề muốn học',
+  'lp.aiGoalTopicPlaceholder': 'Ví dụ: Tiếng Anh phỏng vấn IT, IELTS Chủ đề Môi trường...',
+  'lp.aiPresetsLabel': 'Gợi ý nhanh:',
+  'lp.aiPreset1': 'Phỏng vấn IT Backend',
+  'lp.aiPreset2': 'IELTS Môi trường Band 6.5',
+  'lp.aiPreset3': 'Giao tiếp họp & Email công sở',
+  'lp.aiUnitCountLabel': 'Số lượng bài học',
+  'lp.aiUnitsOption': '{{count}} bài học (đủ bộ tài liệu)',
+  'lp.aiSourceLabel': 'Tài liệu nguồn / Ghi chú gốc (tùy chọn)',
+  'lp.aiSourcePlaceholder':
+    'Dán bài đọc, đề cương hoặc ghi chú bạn muốn AI chuyển hóa thành lộ trình & bài tập...',
+  'lp.aiGenSubmitBtn': 'Tạo bằng AI',
+  'lp.aiGeneratingBtn': 'AI đang soạn lộ trình & tài liệu...',
+  'lp.aiDisabledWarn': 'AI hiện đang tắt trên server (cấu hình AI_PROVIDER=groq để bật).',
 
   'lpu.backToPath': 'Về lộ trình học',
   'lpu.skillsLabel': 'kỹ năng',
@@ -145,6 +208,22 @@ export const LP_VI_TRANSLATIONS: Record<LpTxKey, string> = {
   'lpu.speakingReadyTitle': 'Sẵn sàng luyện nói chủ đề này',
   'lpu.speakingReadyDesc':
     'Bấm nút Bắt đầu ở trên để vào hội thoại Nói / Gõ với AI chấm đúng sai và hỏi nối tiếp.',
+  'lpu.studyGuideHeading': 'Tài liệu bài học & Ngữ pháp trọng tâm',
+  'lpu.studyGuideSub': 'Tổng hợp điểm ngữ pháp, cấu trúc câu mẫu, lỗi dễ sai và mẹo ghi nhớ nhanh.',
+  'lpu.studyGuideEmpty':
+    'Bài này chưa có tài liệu tóm tắt AI riêng. Bấm nút bên dưới để AI tự soạn tài liệu bám sát Band của bạn.',
+  'lpu.showGuideBtn': 'Mở tài liệu học',
+  'lpu.hideGuideBtn': 'Thu gọn tài liệu',
+  'lpu.genGuideBtn': 'Tạo tài liệu học bằng AI',
+  'lpu.generatingGuideBtn': 'AI đang soạn tài liệu...',
+  'lpu.regenUnitBtn': 'Làm mới toàn bộ bài AI',
+  'lpu.regeneratingUnitBtn': 'Đang làm mới bài AI...',
+  'lpu.guideFocusPlaceholder':
+    'Yêu cầu bổ sung hoặc dán ghi chú riêng (VD: thêm mẫu câu trả lời phỏng vấn...)',
+  'lpu.grammarPointsTitle': 'Ngữ pháp trọng tâm',
+  'lpu.keyPatternsTitle': 'Mẫu câu hữu ích',
+  'lpu.commonMistakesTitle': 'Lỗi thường gặp cần tránh',
+  'lpu.studyTipsTitle': 'Mẹo học nhanh',
 };
 
 export function lpTranslate(
