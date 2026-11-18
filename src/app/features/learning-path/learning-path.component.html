@@ -30,7 +30,6 @@
         </div>
 
         <label class="lp-pill lp-pill--band">
-          <span class="oq-sr-only">{{ 'lp.selectBandLabel' | lpT }}</span>
           <select
             class="lp-band-select"
             [value]="data.activeTrack.code"
@@ -45,7 +44,6 @@
               </option>
             }
           </select>
-          <oq-icon name="chevron-down" [size]="15" />
         </label>
 
         <button type="button" class="oq-btn oq-btn--primary oq-btn--sm" (click)="openAiGenModal()">
