@@ -18,6 +18,8 @@ describe('LearningUnitComponent', () => {
     startUnitSpeaking: ReturnType<typeof vi.fn>;
     completeUnitSpeaking: ReturnType<typeof vi.fn>;
     saveUnitWords: ReturnType<typeof vi.fn>;
+    generateUnitStudyGuide: ReturnType<typeof vi.fn>;
+    regenerateAiUnit: ReturnType<typeof vi.fn>;
   };
   let flashcardsMock: { createSession: ReturnType<typeof vi.fn> };
 
@@ -220,6 +222,30 @@ describe('LearningUnitComponent', () => {
         .mockReturnValue(
           of({ topicId: 88, topicName: 'Neighborhood & Home', addedCount: 1, skippedCount: 0 }),
         ),
+      generateUnitStudyGuide: vi.fn().mockReturnValue(
+        of({
+          studyGuide: {
+            overview: 'Tailored study summary for describing homes.',
+            grammarPoints: [
+              {
+                title: 'There is / There are',
+                explanation: 'Describe rooms naturally.',
+                example: 'There is a bright balcony in my flat.',
+              },
+            ],
+            keyPatterns: [
+              {
+                pattern: 'My place is located near...',
+                meaning: 'Describe location cleanly.',
+                example: 'My place is located near a park.',
+              },
+            ],
+            commonMistakes: [],
+            studyTips: ['Practice aloud twice.'],
+          },
+        }),
+      ),
+      regenerateAiUnit: vi.fn(),
     };
 
     flashcardsMock = {
@@ -323,5 +349,18 @@ describe('LearningUnitComponent', () => {
     fixture.detectChanges();
     expect(pathApiMock.startUnitSpeaking).toHaveBeenCalledWith(101, 'en');
     expect(el.textContent).toContain('Tell me about your neighborhood!');
+
+    // Step 5: Generate AI study guide for the unit
+    const guideBtn = Array.from(el.querySelectorAll<HTMLButtonElement>('button')).find((b) =>
+      b.textContent?.includes('Generate AI study guide'),
+    )!;
+    guideBtn.click();
+    fixture.detectChanges();
+    expect(pathApiMock.generateUnitStudyGuide).toHaveBeenCalledWith(101, {
+      focusNote: undefined,
+      explanationLang: 'en',
+    });
+    expect(el.textContent).toContain('Tailored study summary for describing homes.');
+    expect(el.textContent).toContain('There is / There are');
   });
 });

@@ -38,11 +38,20 @@
             [attr.aria-label]="'lp.selectBandLabel' | lpT"
           >
             @for (track of data.tracks; track track.id) {
-              <option [value]="track.code">{{ track.title }} ({{ track.cefrLevel }})</option>
+              <option [value]="track.code">
+                {{ track.isAiGenerated ? ('lp.aiTrackTag' | lpT) + ' ' : '' }}{{ track.title }} ({{
+                  track.cefrLevel
+                }})
+              </option>
             }
           </select>
           <oq-icon name="chevron-down" [size]="15" />
         </label>
+
+        <button type="button" class="oq-btn oq-btn--primary oq-btn--sm" (click)="openAiGenModal()">
+          <oq-icon name="sparkles" [size]="15" />
+          <span>{{ 'lp.aiGenBtn' | lpT }}</span>
+        </button>
       </div>
 
       <div class="lp-goal-links">
@@ -64,6 +73,18 @@
           <div class="lp-overview-banner__badges">
             <span class="oq-badge oq-badge--accent">{{ data.activeTrack.title }}</span>
             <span class="oq-badge oq-badge--lavender">CEFR {{ data.activeTrack.cefrLevel }}</span>
+            @if (data.activeTrack.isAiGenerated) {
+              <span class="oq-badge oq-badge--success">{{ 'lp.aiTrackBadge' | lpT }}</span>
+              <button
+                type="button"
+                class="oq-btn oq-btn--ghost oq-btn--sm"
+                [disabled]="deletingAiTrack()"
+                (click)="deleteActiveAiTrack()"
+              >
+                <oq-icon name="trash" [size]="14" />
+                <span>{{ 'lp.deleteAiTrackBtn' | lpT }}</span>
+              </button>
+            }
           </div>
           <p class="oq-muted lp-summary">{{ data.activeTrack.summary }}</p>
         </div>
@@ -210,7 +231,9 @@
       <select id="lp-goal-band" name="band" [(ngModel)]="draftBand">
         @if (overview(); as data) {
           @for (track of data.tracks; track track.id) {
-            <option [value]="track.code">{{ track.title }} (CEFR {{ track.cefrLevel }})</option>
+            @if (!track.isAiGenerated) {
+              <option [value]="track.code">{{ track.title }} (CEFR {{ track.cefrLevel }})</option>
+            }
           }
         }
       </select>
@@ -240,6 +263,103 @@
       </button>
       <button type="submit" class="oq-btn oq-btn--primary" [disabled]="savingGoal()">
         {{ (savingGoal() ? 'common.saving' : 'common.save') | t }}
+      </button>
+    </div>
+  </form>
+</oq-modal>
+
+<oq-modal
+  [open]="showAiGenModal()"
+  [title]="'lp.aiGenModalTitle' | lpT"
+  [description]="'lp.aiGenModalSub' | lpT"
+  (closed)="showAiGenModal.set(false)"
+>
+  <form class="lp-goal-form" (submit)="$event.preventDefault(); submitAiGenerate()">
+    @if (!aiEnabled()) {
+      <div class="oq-alert oq-alert--info">{{ 'lp.aiDisabledWarn' | lpT }}</div>
+    }
+
+    <div class="oq-field">
+      <label for="lp-ai-topic">{{ 'lp.aiGoalTopicLabel' | lpT }}</label>
+      <input
+        id="lp-ai-topic"
+        name="goalTopic"
+        maxlength="220"
+        [(ngModel)]="aiGoalTopic"
+        [placeholder]="'lp.aiGoalTopicPlaceholder' | lpT"
+      />
+    </div>
+
+    <div class="lp-overview-banner__badges">
+      <span class="lp-meta">{{ 'lp.aiPresetsLabel' | lpT }}</span>
+      <button
+        type="button"
+        class="oq-btn oq-btn--ghost oq-btn--sm"
+        (click)="applyAiPreset('English for IT Software Engineering Interviews')"
+      >
+        {{ 'lp.aiPreset1' | lpT }}
+      </button>
+      <button
+        type="button"
+        class="oq-btn oq-btn--ghost oq-btn--sm"
+        (click)="applyAiPreset('IELTS Environment, Energy & Society Band 6.5')"
+      >
+        {{ 'lp.aiPreset2' | lpT }}
+      </button>
+      <button
+        type="button"
+        class="oq-btn oq-btn--ghost oq-btn--sm"
+        (click)="applyAiPreset('Business Meetings, Presentations & Professional Emails')"
+      >
+        {{ 'lp.aiPreset3' | lpT }}
+      </button>
+    </div>
+
+    <div class="oq-field">
+      <label for="lp-ai-band">{{ 'lp.goalBandLabel' | lpT }}</label>
+      <select id="lp-ai-band" name="aiTargetBand" [(ngModel)]="aiTargetBand">
+        @if (overview(); as data) {
+          @for (track of data.tracks; track track.id) {
+            @if (!track.isAiGenerated) {
+              <option [value]="track.code">{{ track.title }} (CEFR {{ track.cefrLevel }})</option>
+            }
+          }
+        }
+      </select>
+    </div>
+
+    <div class="oq-field">
+      <label for="lp-ai-units">{{ 'lp.aiUnitCountLabel' | lpT }}</label>
+      <select id="lp-ai-units" name="aiUnitCount" [(ngModel)]="aiUnitCount">
+        @for (c of aiUnitCountOptions; track c) {
+          <option [ngValue]="c">{{ 'lp.aiUnitsOption' | lpT: { count: c } }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="oq-field">
+      <label for="lp-ai-source">{{ 'lp.aiSourceLabel' | lpT }}</label>
+      <textarea
+        id="lp-ai-source"
+        name="sourceMaterial"
+        rows="4"
+        maxlength="4000"
+        [(ngModel)]="aiSourceMaterial"
+        [placeholder]="'lp.aiSourcePlaceholder' | lpT"
+      ></textarea>
+    </div>
+
+    <div class="lp-goal-form__actions">
+      <button type="button" class="oq-btn oq-btn--secondary" (click)="showAiGenModal.set(false)">
+        {{ 'common.cancel' | t }}
+      </button>
+      <button
+        type="submit"
+        class="oq-btn oq-btn--primary"
+        [disabled]="!aiEnabled() || generatingAiPath() || aiGoalTopic.trim().length < 3"
+      >
+        <oq-icon name="sparkles" [size]="15" />
+        <span>{{ (generatingAiPath() ? 'lp.aiGeneratingBtn' : 'lp.aiGenSubmitBtn') | lpT }}</span>
       </button>
     </div>
   </form>

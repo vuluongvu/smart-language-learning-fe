@@ -6,6 +6,8 @@ import { ApiEnvelope } from '../../shared/api/api-response.type';
 import { ExplanationLanguage } from '../../shared/types/ai.types';
 import {
   EvaluateUnitWritingResult,
+  GenerateAiPathRequest,
+  GenerateStudyGuideResult,
   LearningGoalBand,
   LearningPathOverview,
   LearningPathUnitDetail,
@@ -111,6 +113,42 @@ export class LearningPathApiService {
       .post<ApiEnvelope<SaveUnitWordsResult>>(
         `${this.baseUrl}/units/${unitId}/notebook/save-words`,
         { words },
+      )
+      .pipe(map((res) => res.data));
+  }
+
+  generateAiPath(payload: GenerateAiPathRequest): Observable<LearningPathOverview> {
+    return this.http
+      .post<ApiEnvelope<LearningPathOverview>>(`${this.baseUrl}/ai/generate`, payload)
+      .pipe(map((res) => res.data));
+  }
+
+  deleteAiTrack(trackId: number): Observable<LearningPathOverview> {
+    return this.http
+      .delete<ApiEnvelope<LearningPathOverview>>(`${this.baseUrl}/ai-tracks/${trackId}`)
+      .pipe(map((res) => res.data));
+  }
+
+  generateUnitStudyGuide(
+    unitId: number,
+    payload: { focusNote?: string; explanationLang?: ExplanationLanguage },
+  ): Observable<GenerateStudyGuideResult> {
+    return this.http
+      .post<ApiEnvelope<GenerateStudyGuideResult>>(
+        `${this.baseUrl}/units/${unitId}/ai/study-guide`,
+        payload,
+      )
+      .pipe(map((res) => res.data));
+  }
+
+  regenerateAiUnit(
+    unitId: number,
+    payload: { focusNote?: string; explanationLang?: ExplanationLanguage },
+  ): Observable<LearningPathUnitDetail> {
+    return this.http
+      .post<ApiEnvelope<LearningPathUnitDetail>>(
+        `${this.baseUrl}/units/${unitId}/ai/regenerate`,
+        payload,
       )
       .pipe(map((res) => res.data));
   }

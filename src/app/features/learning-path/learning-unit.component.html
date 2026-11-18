@@ -51,6 +51,137 @@
     }
   </section>
 
+  <section class="oq-card lpu-progress-wrap">
+    <div class="lpu-panel__head">
+      <div>
+        <h2>{{ 'lpu.studyGuideHeading' | lpT }}</h2>
+        <p class="oq-muted">{{ 'lpu.studyGuideSub' | lpT }}</p>
+      </div>
+      <div class="lpu-panel__actions">
+        @if (d.studyGuide) {
+          <button
+            type="button"
+            class="oq-btn oq-btn--ghost oq-btn--sm"
+            (click)="showStudyGuide.set(!showStudyGuide())"
+          >
+            {{ (showStudyGuide() ? 'lpu.hideGuideBtn' : 'lpu.showGuideBtn') | lpT }}
+          </button>
+        }
+        <button
+          type="button"
+          class="oq-btn oq-btn--secondary oq-btn--sm"
+          [disabled]="!aiEnabled() || generatingStudyGuide()"
+          (click)="generateStudyGuide()"
+        >
+          <oq-icon name="sparkles" [size]="14" />
+          <span>{{
+            (generatingStudyGuide() ? 'lpu.generatingGuideBtn' : 'lpu.genGuideBtn') | lpT
+          }}</span>
+        </button>
+        @if (d.isCustomAiTrack) {
+          <button
+            type="button"
+            class="oq-btn oq-btn--ghost oq-btn--sm"
+            [disabled]="!aiEnabled() || regeneratingUnit()"
+            (click)="regenerateAiUnit()"
+          >
+            {{ (regeneratingUnit() ? 'lpu.regeneratingUnitBtn' : 'lpu.regenUnitBtn') | lpT }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="oq-field">
+      <input
+        type="text"
+        maxlength="1500"
+        [value]="guideFocusNote()"
+        [placeholder]="'lpu.guideFocusPlaceholder' | lpT"
+        (input)="onGuideFocusInput($event)"
+      />
+    </div>
+
+    @if (!d.studyGuide) {
+      <p class="oq-muted">{{ 'lpu.studyGuideEmpty' | lpT }}</p>
+    } @else if (showStudyGuide()) {
+      @let sg = d.studyGuide;
+      <div class="lpu-passage-box">
+        <div class="lpu-panel__head">
+          <p>{{ sg.overview }}</p>
+          @if (speech.isTtsSupported) {
+            <button
+              type="button"
+              class="oq-copy-btn"
+              (click)="speakAudio(sg.overview, 'unit-sg', 0.92)"
+            >
+              <oq-icon
+                [name]="speech.speakingId() === 'unit-sg' ? 'square' : 'volume-2'"
+                [size]="13"
+              />
+              <span>{{ 'conv.listenBtn' | t }}</span>
+            </button>
+          }
+        </div>
+      </div>
+
+      @if (sg.grammarPoints.length > 0) {
+        <strong>{{ 'lpu.grammarPointsTitle' | lpT }}</strong>
+        <div class="lpu-vocab-grid">
+          @for (gp of sg.grammarPoints; track gp.title) {
+            <article class="lpu-vocab-card">
+              <div class="lpu-vocab-card__def">{{ gp.title }}</div>
+              <p>{{ gp.explanation }}</p>
+              @if (gp.example) {
+                <p class="lpu-vocab-card__ex">"{{ gp.example }}"</p>
+              }
+            </article>
+          }
+        </div>
+      }
+
+      @if (sg.keyPatterns.length > 0) {
+        <strong>{{ 'lpu.keyPatternsTitle' | lpT }}</strong>
+        <div class="lpu-vocab-grid">
+          @for (kp of sg.keyPatterns; track kp.pattern) {
+            <article class="lpu-vocab-card">
+              <div class="lpu-vocab-card__def">{{ kp.pattern }}</div>
+              <p>{{ kp.meaning }}</p>
+              @if (kp.example) {
+                <p class="lpu-vocab-card__ex">"{{ kp.example }}"</p>
+              }
+            </article>
+          }
+        </div>
+      }
+
+      @if (sg.commonMistakes.length > 0) {
+        <strong>{{ 'lpu.commonMistakesTitle' | lpT }}</strong>
+        <ul class="lpu-err-list">
+          @for (cm of sg.commonMistakes; track cm.mistake) {
+            <li class="lpu-err-item">
+              <div>
+                <del class="lpu-err-old">{{ cm.mistake }}</del> →
+                <strong class="lpu-err-new">{{ cm.correction }}</strong>
+              </div>
+              @if (cm.tip) {
+                <p class="oq-muted">{{ cm.tip }}</p>
+              }
+            </li>
+          }
+        </ul>
+      }
+
+      @if (sg.studyTips.length > 0) {
+        <strong>{{ 'lpu.studyTipsTitle' | lpT }}</strong>
+        <div class="lpu-chips">
+          @for (tip of sg.studyTips; track tip) {
+            <span class="oq-badge oq-badge--lavender">{{ tip }}</span>
+          }
+        </div>
+      }
+    }
+  </section>
+
   <nav class="lpu-stepper" [attr.aria-label]="'lpu.skillsLabel' | lpT">
     <button
       type="button"
