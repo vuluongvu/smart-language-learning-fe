@@ -107,7 +107,7 @@ export interface CreateVocabularyPayload {
   newTopicName?: string | null;
 }
 
-export type AiGenerateMode = 'topic' | 'passage';
+export type AiGenerateMode = 'topic' | 'passage' | 'image';
 export type CefrLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
 
 export interface AiVocabularyDraft {
@@ -128,6 +128,10 @@ export interface AiEnrichVocabularyResult {
 export interface AiGenerateVocabularyResult {
   model: string;
   items: AiVocabularyDraft[];
+}
+
+export interface AiExtractImageVocabularyResult extends AiGenerateVocabularyResult {
+  suggestedTopic: string | null;
 }
 
 export interface BulkCreateVocabularyPayload {
