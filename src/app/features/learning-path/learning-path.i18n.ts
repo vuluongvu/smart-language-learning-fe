@@ -16,7 +16,7 @@ export const LP_EN_TRANSLATIONS = {
   'lp.skillsDoneMeta': '{{done}}/{{total}} skills done',
   'lp.goalModalTitle': 'Course Learning Goal',
   'lp.goalModalSubtitle':
-    'OpenQuiz tailors AI Writing & Speaking feedback to match your target Band.',
+    'Argon Learning tailors AI Writing & Speaking feedback to match your target Band.',
   'lp.goalBandLabel': 'Target Band track',
   'lp.currentLevelLabel': 'Your current CEFR level',
   'lp.dailyMinutesLabel': 'Daily study target',
@@ -129,7 +129,7 @@ export const LP_VI_TRANSLATIONS: Record<LpTxKey, string> = {
   'lp.skillsDoneMeta': '{{done}}/{{total}} kỹ năng',
   'lp.goalModalTitle': 'Thiết lập Mục tiêu khóa học',
   'lp.goalModalSubtitle':
-    'OpenQuiz sẽ điều chỉnh mức chấm Viết AI và độ khó Nói AI bám sát Band bạn chọn.',
+    'Argon Learning sẽ điều chỉnh mức chấm Viết AI và độ khó Nói AI bám sát Band bạn chọn.',
   'lp.goalBandLabel': 'Lộ trình Band mục tiêu',
   'lp.currentLevelLabel': 'Trình độ hiện tại của bạn',
   'lp.dailyMinutesLabel': 'Mục tiêu học mỗi ngày',

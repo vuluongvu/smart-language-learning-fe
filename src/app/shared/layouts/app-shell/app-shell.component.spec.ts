@@ -11,8 +11,8 @@ import { AppShellComponent } from './app-shell.component';
 describe('AppShellComponent', () => {
   const mockUser = signal<UserProfile | null>({
     id: 1,
-    email: 'learner@openquiz.test',
-    displayName: 'OpenQuiz Learner',
+    email: 'learner@argonlearning.test',
+    displayName: 'Argon Learning Learner',
     avatarUrl: null,
     timezone: 'Asia/Ho_Chi_Minh',
     isLeaderboardVisible: true,

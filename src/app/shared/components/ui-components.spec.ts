@@ -140,7 +140,7 @@ class TestHostComponent {
 
   readonly profile = {
     id: 1,
-    email: 'learner@openquiz.test',
+    email: 'learner@argonlearning.test',
     displayName: 'Linh Learner',
     avatarUrl: null,
     timezone: 'Asia/Ho_Chi_Minh',
