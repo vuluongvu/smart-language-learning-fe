@@ -265,6 +265,7 @@ export const EN_TRANSLATIONS = {
   'vocab.unassigned': 'Unassigned',
   'vocab.examplePrefix': 'Ex:',
   'vocab.aiAddBtn': 'Add with AI',
+  'vocab.imageExtractBtn': 'Extract from image',
   'vocab.aiFillBtn': 'AI Auto-fill',
   'vocab.aiFilling': 'Filling...',
   'vocab.aiSourceBadge': 'AI',
@@ -284,9 +285,27 @@ export const EN_TRANSLATIONS = {
   'vocab.filterByTopicTitle': 'Filter by topic {{name}}',
   'vocabAi.title': 'Generate Vocabulary with AI',
   'vocabAi.desc':
-    'Generate Vietnamese definitions and English examples by topic or extract key words from a passage.',
+    'Generate Vietnamese definitions and English examples by topic, passage, or uploaded image.',
   'vocabAi.modeTopic': 'By topic / goal',
   'vocabAi.modePassage': 'From English passage',
+  'vocabAi.modeImage': 'From image',
+  'vocabAi.imageUploadLabel': 'Upload an image',
+  'vocabAi.imageDropTitle': 'Click to choose an image, drag & drop, or paste (Ctrl+V)',
+  'vocabAi.imageDropHint':
+    'Supports PNG, JPEG, WebP, GIF up to 5 MB (book pages, notes, screenshots, menus...)',
+  'vocabAi.imageChange': 'Change image',
+  'vocabAi.imageRemove': 'Remove',
+  'vocabAi.imageFocusLabel': 'Focus instruction (optional)',
+  'vocabAi.imageFocusPlaceholder':
+    'e.g., Focus on academic adjectives, phrasal verbs, or B2+ terms...',
+  'vocabAi.imagePreviewAlt': 'Selected image preview',
+  'vocabAi.imageRequiredError': 'Please select, drop, or paste an image first.',
+  'vocabAi.imageInvalidTypeError':
+    'Unsupported image format. Please choose PNG, JPEG, WebP, or GIF.',
+  'vocabAi.imageTooLargeError':
+    'Image exceeds the 5 MB upload limit. Please choose a smaller image.',
+  'vocabAi.extractBtn': 'Extract from image',
+  'vocabAi.extracting': 'Analyzing image...',
   'vocabAi.promptTopicLabel': 'Topic or learning goal',
   'vocabAi.promptTopicPlaceholder':
     'e.g., Office meetings, IELTS environment, common phrasal verbs...',
@@ -1050,6 +1069,7 @@ export const VI_TRANSLATIONS: Record<TxKey, string> = {
   'vocab.unassigned': 'Chưa gán',
   'vocab.examplePrefix': 'VD:',
   'vocab.aiAddBtn': 'Thêm bằng AI',
+  'vocab.imageExtractBtn': 'Trích từ ảnh',
   'vocab.aiFillBtn': 'Điền bằng AI',
   'vocab.aiFilling': 'Đang điền...',
   'vocab.aiSourceBadge': 'AI',
@@ -1069,9 +1089,27 @@ export const VI_TRANSLATIONS: Record<TxKey, string> = {
   'vocab.filterByTopicTitle': 'Lọc theo chủ đề {{name}}',
   'vocabAi.title': 'Tạo từ vựng bằng AI',
   'vocabAi.desc':
-    'Tạo nghĩa tiếng Việt và ví dụ tiếng Anh theo chủ đề, hoặc trích xuất từ mới từ một đoạn văn.',
+    'Tạo nghĩa tiếng Việt và ví dụ tiếng Anh theo chủ đề, đoạn văn, hoặc trích xuất từ hình ảnh tải lên.',
   'vocabAi.modeTopic': 'Theo chủ đề / mục tiêu',
   'vocabAi.modePassage': 'Trích xuất từ đoạn văn',
+  'vocabAi.modeImage': 'Từ hình ảnh',
+  'vocabAi.imageUploadLabel': 'Tải ảnh lên',
+  'vocabAi.imageDropTitle': 'Nhấn để chọn ảnh, kéo thả hoặc dán ảnh (Ctrl+V)',
+  'vocabAi.imageDropHint':
+    'Hỗ trợ PNG, JPEG, WebP, GIF tối đa 5 MB (trang sách, ghi chú, ảnh chụp màn hình, thực đơn...)',
+  'vocabAi.imageChange': 'Đổi ảnh khác',
+  'vocabAi.imageRemove': 'Xóa ảnh',
+  'vocabAi.imageFocusLabel': 'Gợi ý trọng tâm trích xuất (tùy chọn)',
+  'vocabAi.imageFocusPlaceholder':
+    'VD: Ưu tiên tính từ học thuật, cụm động từ, hoặc từ trình độ B2+...',
+  'vocabAi.imagePreviewAlt': 'Xem trước ảnh đã tải lên',
+  'vocabAi.imageRequiredError': 'Vui lòng chọn, kéo thả hoặc dán một hình ảnh trước.',
+  'vocabAi.imageInvalidTypeError':
+    'Định dạng ảnh chưa hỗ trợ. Vui lòng chọn PNG, JPEG, WebP hoặc GIF.',
+  'vocabAi.imageTooLargeError':
+    'Ảnh vượt quá giới hạn 5 MB. Vui lòng chọn ảnh có dung lượng nhỏ hơn.',
+  'vocabAi.extractBtn': 'Trích từ vựng từ ảnh',
+  'vocabAi.extracting': 'Đang phân tích ảnh...',
   'vocabAi.promptTopicLabel': 'Chủ đề hoặc mục tiêu học',
   'vocabAi.promptTopicPlaceholder':
     'VD: Giao tiếp công sở, IELTS chủ đề Môi trường, cụm động từ thông dụng...',

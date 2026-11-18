@@ -29,6 +29,10 @@
           <oq-icon name="layers" [size]="16" />
           <span>{{ 'dashboard.reviewFlashcards' | t }}</span>
         </a>
+        <button type="button" class="oq-btn oq-btn--secondary" (click)="openAiModal('image')">
+          <oq-icon name="image" [size]="16" />
+          <span>{{ 'vocab.imageExtractBtn' | t }}</span>
+        </button>
         <button type="button" class="oq-btn oq-btn--ai" (click)="openAiModal()">
           <oq-icon name="sparkles" [size]="16" />
           <span>{{ 'vocab.aiAddBtn' | t }}</span>
@@ -416,6 +420,7 @@
     [open]="showAiModal()"
     [topics]="topics()"
     [defaultTopicId]="selectedTopicId"
+    [initialMode]="aiModalInitialMode()"
     (closed)="showAiModal.set(false)"
     (saved)="onAiSaved($event)"
   />
@@ -459,6 +464,10 @@
       [description]="'vocab.emptyDesc' | t"
     >
       <div actions class="flex-row">
+        <button type="button" class="oq-btn oq-btn--secondary" (click)="openAiModal('image')">
+          <oq-icon name="image" [size]="16" />
+          <span>{{ 'vocab.imageExtractBtn' | t }}</span>
+        </button>
         <button type="button" class="oq-btn oq-btn--ai" (click)="openAiModal()">
           <oq-icon name="sparkles" [size]="16" />
           <span>{{ 'vocab.aiAddBtn' | t }}</span>

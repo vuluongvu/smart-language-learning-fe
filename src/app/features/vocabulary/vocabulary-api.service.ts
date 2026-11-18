@@ -5,6 +5,7 @@ import { environment } from '../../../environments/environment';
 import { ApiEnvelope } from '../../shared/api/api-response.type';
 import {
   AiEnrichVocabularyResult,
+  AiExtractImageVocabularyResult,
   AiGenerateMode,
   AiGenerateVocabularyResult,
   BulkCreateVocabularyPayload,
@@ -91,7 +92,7 @@ export class VocabularyApiService {
 
   generateWithAi(payload: {
     prompt: string;
-    mode?: AiGenerateMode;
+    mode?: Exclude<AiGenerateMode, 'image'>;
     level?: CefrLevel | '';
     count?: number;
     topicId?: number | null;
@@ -104,6 +105,36 @@ export class VocabularyApiService {
         ...(payload.count ? { count: payload.count } : {}),
         ...(payload.topicId ? { topicId: payload.topicId } : {}),
       })
+      .pipe(map((res) => res.data));
+  }
+
+  extractFromImage(payload: {
+    image: File;
+    prompt?: string;
+    level?: CefrLevel | '';
+    count?: number;
+    topicId?: number | null;
+  }): Observable<AiExtractImageVocabularyResult> {
+    const formData = new FormData();
+    formData.append('image', payload.image, payload.image.name || 'image.png');
+    if (payload.prompt?.trim()) {
+      formData.append('prompt', payload.prompt.trim());
+    }
+    if (payload.level) {
+      formData.append('level', payload.level);
+    }
+    if (payload.count) {
+      formData.append('count', String(payload.count));
+    }
+    if (payload.topicId) {
+      formData.append('topicId', String(payload.topicId));
+    }
+
+    return this.http
+      .post<ApiEnvelope<AiExtractImageVocabularyResult>>(
+        `${this.baseUrl}/ai/extract-image`,
+        formData,
+      )
       .pipe(map((res) => res.data));
   }
 
