@@ -192,6 +192,57 @@
       </form>
     </div>
 
+    <div class="security-block">
+      <div class="settings-section__head">
+        <div>
+          <h3>{{ 'settings.googleTitle' | t }}</h3>
+          <p class="section-desc">{{ 'settings.googleDesc' | t }}</p>
+        </div>
+        <span
+          class="oq-badge"
+          [class.oq-badge--success]="isGoogleLinked()"
+          [class.oq-badge--lavender]="!isGoogleLinked()"
+        >
+          {{
+            (isGoogleLinked() ? 'settings.googleLinkedBadge' : 'settings.googleNotLinkedBadge') | t
+          }}
+        </span>
+      </div>
+
+      @if (googleMessage()) {
+        <div class="oq-alert oq-alert--success" role="status">
+          {{ googleMessage() }}
+        </div>
+      }
+      @if (googleError()) {
+        <div class="oq-alert oq-alert--error" role="alert">
+          {{ googleError() }}
+        </div>
+      }
+
+      @if (isGoogleLinked()) {
+        <div class="actions-row">
+          <button
+            type="button"
+            class="oq-btn oq-btn--secondary"
+            [disabled]="googleBusy() || !authService.user()?.hasPassword"
+            (click)="unlinkGoogle()"
+          >
+            {{ 'settings.googleUnlinkBtn' | t }}
+          </button>
+          @if (!authService.user()?.hasPassword) {
+            <span class="section-desc">{{ 'settings.googleNeedPasswordHint' | t }}</span>
+          }
+        </div>
+      } @else if (googleClientId()) {
+        <div #googleLinkContainer class="actions-row"></div>
+      } @else {
+        <div class="oq-alert oq-alert--info">
+          {{ 'auth.googleDisabled' | t }}
+        </div>
+      }
+    </div>
+
     <div class="danger-block">
       <h3>{{ 'settings.deleteTitle' | t }}</h3>
       <p class="section-desc">{{ 'settings.deleteDesc' | t }}</p>
