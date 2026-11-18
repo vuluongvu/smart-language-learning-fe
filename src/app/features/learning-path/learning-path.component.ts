@@ -68,7 +68,7 @@ export class LearningPathComponent implements OnInit {
   protected draftDailyMinutes = 15;
 
   protected aiGoalTopic = '';
-  protected aiSourceMaterial = '';
+  protected aiLearningFocus = '';
   protected aiTargetBand: LearningGoalBand | string = 'band_45_55';
   protected aiCurrentLevel = 'B1';
   protected aiUnitCount = 3;
@@ -220,7 +220,7 @@ export class LearningPathComponent implements OnInit {
     this.pathApi
       .generateAiPath({
         goalTopic: topic,
-        sourceMaterial: this.aiSourceMaterial.trim() || undefined,
+        learningFocus: this.aiLearningFocus.trim() || undefined,
         targetBand: this.aiTargetBand,
         currentLevel: this.aiCurrentLevel,
         unitCount: Number(this.aiUnitCount),
@@ -233,7 +233,7 @@ export class LearningPathComponent implements OnInit {
           this.generatingAiPath.set(false);
           this.showAiGenModal.set(false);
           this.aiGoalTopic = '';
-          this.aiSourceMaterial = '';
+          this.aiLearningFocus = '';
           this.goalSuccess.set(lpTranslate(this.i18n.lang(), 'lp.aiTrackCreatedMsg'));
         },
         error: (err: unknown) => {

@@ -131,7 +131,7 @@ export class LearningPathApiService {
 
   generateUnitStudyGuide(
     unitId: number,
-    payload: { focusNote?: string; explanationLang?: ExplanationLanguage },
+    payload: { focusGoal?: string; explanationLang?: ExplanationLanguage },
   ): Observable<GenerateStudyGuideResult> {
     return this.http
       .post<ApiEnvelope<GenerateStudyGuideResult>>(
@@ -143,7 +143,7 @@ export class LearningPathApiService {
 
   regenerateAiUnit(
     unitId: number,
-    payload: { focusNote?: string; explanationLang?: ExplanationLanguage },
+    payload: { focusGoal?: string; explanationLang?: ExplanationLanguage },
   ): Observable<LearningPathUnitDetail> {
     return this.http
       .post<ApiEnvelope<LearningPathUnitDetail>>(

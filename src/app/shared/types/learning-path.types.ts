@@ -172,7 +172,7 @@ export interface LearningPathUnitDetail {
 
 export interface GenerateAiPathRequest {
   goalTopic: string;
-  sourceMaterial?: string;
+  learningFocus?: string;
   targetBand?: LearningGoalBand | string;
   currentLevel?: string;
   unitCount?: number;
