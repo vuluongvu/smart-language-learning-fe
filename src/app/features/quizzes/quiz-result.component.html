@@ -158,7 +158,12 @@
 
                 <div class="oq-field">
                   <label [for]="'savePos-' + ans.id">{{ 'qr.posLabel' | t }}</label>
-                  <input [id]="'savePos-' + ans.id" type="text" [(ngModel)]="savePartOfSpeech" />
+                  <input
+                    [id]="'savePos-' + ans.id"
+                    type="text"
+                    [(ngModel)]="savePartOfSpeech"
+                    [placeholder]="'vocab.posPlaceholder' | t"
+                  />
                 </div>
               </div>
 
@@ -187,7 +192,12 @@
 
               <div class="oq-field">
                 <label [for]="'saveDef-' + ans.id">{{ 'qr.defLabel' | t }}</label>
-                <input [id]="'saveDef-' + ans.id" type="text" [(ngModel)]="saveDefinition" />
+                <input
+                  [id]="'saveDef-' + ans.id"
+                  type="text"
+                  [(ngModel)]="saveDefinition"
+                  [placeholder]="'qr.defPlaceholder' | t"
+                />
               </div>
 
               <div class="save-grid">

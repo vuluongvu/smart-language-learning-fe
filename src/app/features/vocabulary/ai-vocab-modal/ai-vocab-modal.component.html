@@ -122,6 +122,12 @@
             id="ai-vocab-prompt"
             [rows]="mode === 'passage' ? 4 : 2"
             [(ngModel)]="prompt"
+            [placeholder]="
+              (mode === 'topic'
+                ? 'vocabAi.promptTopicPlaceholder'
+                : 'vocabAi.promptPassagePlaceholder'
+              ) | t
+            "
           ></textarea>
           @if (mode === 'topic') {
             <div class="ai-presets">
