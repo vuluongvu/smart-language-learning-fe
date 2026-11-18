@@ -1,37 +1,13 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  NgZone,
-  ViewChild,
-  inject,
-  signal,
-} from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { environment } from '../../../../environments/environment';
 import { OqIconComponent } from '../../../shared/components';
 import { I18nService, TranslatePipe } from '../../../shared/i18n';
+import { GoogleIdentityService } from '../../../shared/services/google-identity.service';
 import { ThemeService } from '../../../shared/services/theme.service';
 import { detectBrowserTimezone, extractApiError } from '../../../shared/utils/api-error.util';
 import { AuthService } from '../auth.service';
-
-interface GoogleAccountsId {
-  initialize: (options: {
-    client_id: string;
-    callback: (response: { credential?: string }) => void;
-  }) => void;
-  renderButton: (
-    parent: HTMLElement,
-    options: { theme?: string; size?: string; width?: number },
-  ) => void;
-}
-
-declare global {
-  interface Window {
-    google?: { accounts?: { id?: GoogleAccountsId } };
-  }
-}
 
 @Component({
   selector: 'app-login',
@@ -39,18 +15,17 @@ declare global {
   templateUrl: './login.component.html',
   styleUrl: '../auth-page.scss',
 })
-export class LoginComponent implements AfterViewInit {
+export class LoginComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
+  private readonly googleIdentity = inject(GoogleIdentityService);
   private readonly router = inject(Router);
-  private readonly ngZone = inject(NgZone);
   protected readonly themeService = inject(ThemeService);
   protected readonly i18n = inject(I18nService);
 
-  @ViewChild('googleBtnContainer')
-  private readonly googleBtnContainer?: ElementRef<HTMLElement>;
-
-  protected readonly googleClientId = environment.googleClientId.trim();
+  protected readonly googleClientId = signal<string | null>(
+    environment.googleClientId.trim() || null,
+  );
   protected readonly isSubmitting = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
 
@@ -59,10 +34,23 @@ export class LoginComponent implements AfterViewInit {
     password: ['', [Validators.required]],
   });
 
-  ngAfterViewInit(): void {
-    if (this.googleClientId && this.googleBtnContainer) {
-      this.initGoogleSignIn(this.googleBtnContainer.nativeElement);
+  @ViewChild('googleBtnContainer')
+  set googleBtnContainerRef(ref: ElementRef<HTMLElement> | undefined) {
+    const clientId = this.googleClientId();
+    if (ref && clientId) {
+      this.googleIdentity.renderButton(
+        ref.nativeElement,
+        clientId,
+        (idToken) => this.handleGoogleCredential(idToken),
+        { text: 'signin_with' },
+      );
     }
+  }
+
+  ngOnInit(): void {
+    this.googleIdentity.resolveClientId().subscribe((clientId) => {
+      this.googleClientId.set(clientId);
+    });
   }
 
   submit(): void {
@@ -89,45 +77,6 @@ export class LoginComponent implements AfterViewInit {
         );
       },
     });
-  }
-
-  private initGoogleSignIn(container: HTMLElement): void {
-    const render = () => {
-      const gsi = window.google?.accounts?.id;
-      if (!gsi) return;
-      gsi.initialize({
-        client_id: this.googleClientId,
-        callback: (response) => {
-          if (!response.credential) return;
-          this.ngZone.run(() => this.handleGoogleCredential(response.credential!));
-        },
-      });
-      gsi.renderButton(container, {
-        theme: 'outline',
-        size: 'large',
-        width: 340,
-      });
-    };
-
-    if (window.google?.accounts?.id) {
-      render();
-      return;
-    }
-
-    const existing = document.querySelector<HTMLScriptElement>(
-      'script[src="https://accounts.google.com/gsi/client"]',
-    );
-    if (existing) {
-      existing.addEventListener('load', render, { once: true });
-      return;
-    }
-
-    const script = document.createElement('script');
-    script.src = 'https://accounts.google.com/gsi/client';
-    script.async = true;
-    script.defer = true;
-    script.onload = render;
-    document.head.appendChild(script);
   }
 
   private handleGoogleCredential(idToken: string): void {
