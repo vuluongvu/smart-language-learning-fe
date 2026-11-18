@@ -3,7 +3,7 @@
     [open]="true"
     size="lg"
     [title]="'vocabAi.title' | t"
-    [description]="'vocabAi.desc' | t"
+    [description]="(activeLanguageCode() === 'ko' ? 'vocabAi.koDesc' : 'vocabAi.desc') | t"
     (closed)="close()"
   >
     @if (errorMessage()) {
@@ -30,7 +30,9 @@
           [attr.aria-selected]="mode === 'passage'"
           (click)="setMode('passage')"
         >
-          {{ 'vocabAi.modePassage' | t }}
+          {{
+            (activeLanguageCode() === 'ko' ? 'vocabAi.koModePassage' : 'vocabAi.modePassage') | t
+          }}
         </button>
         <button
           type="button"
@@ -116,7 +118,14 @@
       } @else {
         <div class="oq-field">
           <label for="ai-vocab-prompt">
-            {{ (mode === 'topic' ? 'vocabAi.promptTopicLabel' : 'vocabAi.promptPassageLabel') | t }}
+            {{
+              (mode === 'topic'
+                ? 'vocabAi.promptTopicLabel'
+                : activeLanguageCode() === 'ko'
+                  ? 'vocabAi.koPromptPassageLabel'
+                  : 'vocabAi.promptPassageLabel'
+              ) | t
+            }}
           </label>
           <textarea
             id="ai-vocab-prompt"
@@ -124,14 +133,18 @@
             [(ngModel)]="prompt"
             [placeholder]="
               (mode === 'topic'
-                ? 'vocabAi.promptTopicPlaceholder'
-                : 'vocabAi.promptPassagePlaceholder'
+                ? activeLanguageCode() === 'ko'
+                  ? 'vocabAi.koPromptTopicPlaceholder'
+                  : 'vocabAi.promptTopicPlaceholder'
+                : activeLanguageCode() === 'ko'
+                  ? 'vocabAi.koPromptPassagePlaceholder'
+                  : 'vocabAi.promptPassagePlaceholder'
               ) | t
             "
           ></textarea>
           @if (mode === 'topic') {
             <div class="ai-presets">
-              @for (key of presetKeys; track key) {
+              @for (key of presetKeys(); track key) {
                 <button type="button" class="ai-preset" (click)="applyPreset(key)">
                   {{ key | t }}
                 </button>
@@ -143,7 +156,9 @@
 
       <div class="ai-controls">
         <div class="oq-field">
-          <label for="ai-vocab-level">{{ 'vocabAi.levelLabel' | t }}</label>
+          <label for="ai-vocab-level">{{
+            (activeLanguageCode() === 'ko' ? 'vocabAi.koLevelLabel' : 'vocabAi.levelLabel') | t
+          }}</label>
           <select id="ai-vocab-level" [(ngModel)]="level">
             <option value="">{{ 'vocabAi.levelAny' | t }}</option>
             @for (lvl of levels; track lvl) {
@@ -249,7 +264,9 @@
                   <input [id]="'draft-term-' + draft.id" type="text" [(ngModel)]="draft.term" />
                 </div>
                 <div class="oq-field ai-draft__field">
-                  <label [for]="'draft-ipa-' + draft.id">{{ 'vocabAi.fieldIpa' | t }}</label>
+                  <label [for]="'draft-ipa-' + draft.id">{{
+                    (activeLanguageCode() === 'ko' ? 'vocabAi.koFieldIpa' : 'vocabAi.fieldIpa') | t
+                  }}</label>
                   <input
                     [id]="'draft-ipa-' + draft.id"
                     type="text"

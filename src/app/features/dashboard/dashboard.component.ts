@@ -1,5 +1,5 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { catchError, forkJoin, of } from 'rxjs';
 import {
@@ -11,6 +11,8 @@ import {
   OqStreakCardComponent,
 } from '../../shared/components';
 import { I18nService, TranslatePipe, TxKey } from '../../shared/i18n';
+import { LearningLanguageService } from '../../shared/services/learning-language.service';
+import { LearningLanguageCode } from '../../shared/types/learning-language.types';
 import {
   DailyActivityPoint,
   FlashcardCardView,
@@ -45,6 +47,8 @@ export class DashboardComponent implements OnInit {
   private readonly progressApi = inject(ProgressApiService);
   private readonly flashcardsApi = inject(FlashcardsApiService);
   protected readonly i18n = inject(I18nService);
+  protected readonly learningLang = inject(LearningLanguageService);
+  private lastLoadedLang: LearningLanguageCode | null = null;
 
   protected readonly user = this.authService.user;
   protected readonly loading = signal(true);
@@ -55,6 +59,16 @@ export class DashboardComponent implements OnInit {
   protected readonly activityWindow = signal<14 | 30>(14);
   protected readonly activity30d = signal<DailyActivityPoint[] | null>(null);
   protected readonly loading30d = signal(false);
+
+  constructor() {
+    effect(() => {
+      const lang = this.learningLang.activeLang();
+      if (this.lastLoadedLang && this.lastLoadedLang !== lang) {
+        this.activity30d.set(null);
+        this.loadDashboard();
+      }
+    });
+  }
 
   protected readonly activityPoints = computed(() => {
     if (this.activityWindow() === 30) {
@@ -108,11 +122,13 @@ export class DashboardComponent implements OnInit {
   loadDashboard(): void {
     this.loading.set(true);
     this.errorMessage.set(null);
+    const activeLang = this.learningLang.activeLang();
+    this.lastLoadedLang = activeLang;
 
     forkJoin({
-      overview: this.progressApi.getOverview(),
+      overview: this.progressApi.getOverview(activeLang),
       dueQueue: this.flashcardsApi
-        .getDueQueue({ mode: 'all', limit: 6 })
+        .getDueQueue({ mode: 'all', limit: 6, languageCode: activeLang })
         .pipe(catchError(() => of(null))),
     }).subscribe({
       next: ({ overview, dueQueue }) => {
@@ -135,7 +151,7 @@ export class DashboardComponent implements OnInit {
 
     if (days === 30 && this.activity30d() === null && !this.loading30d()) {
       this.loading30d.set(true);
-      this.progressApi.getHistory(30).subscribe({
+      this.progressApi.getHistory(30, this.learningLang.activeLang()).subscribe({
         next: (hist) => {
           this.activity30d.set(hist.dailyActivities);
           this.loading30d.set(false);

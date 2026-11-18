@@ -4,7 +4,9 @@
       <div>
         <span class="oq-hero__eyebrow">{{ 'vocab.eyebrow' | t }}</span>
         <h1>{{ 'vocab.title' | t }}</h1>
-        <p class="oq-hero__sub">{{ 'vocab.subtitle' | t }}</p>
+        <p class="oq-hero__sub">
+          {{ (learningLang.isKorean() ? 'vocab.koSubtitle' : 'vocab.subtitle') | t }}
+        </p>
         <div class="oq-hero__pills">
           <span class="oq-badge oq-badge--lavender">
             {{ 'vocab.heroWordsCount' | t: { count: totalWordsCount() } }}
@@ -237,7 +239,7 @@
             [attr.aria-label]="'vocab.allPos' | t"
           >
             <option value="">{{ 'vocab.allPos' | t }}</option>
-            @for (pos of partOfSpeechOptions; track pos) {
+            @for (pos of partOfSpeechOptions(); track pos) {
               <option [value]="pos">{{ pos }}</option>
             }
           </select>
@@ -289,7 +291,9 @@
               type="text"
               formControlName="term"
               (blur)="onTermBlur()"
-              [placeholder]="'vocab.termPlaceholder' | t"
+              [placeholder]="
+                (learningLang.isKorean() ? 'vocab.koTermPlaceholder' : 'vocab.termPlaceholder') | t
+              "
             />
             <button
               type="button"
@@ -308,12 +312,16 @@
 
         <div class="filter-grid">
           <div class="oq-field">
-            <label for="vocab-ipa">{{ 'vocab.ipaLabel' | t }}</label>
+            <label for="vocab-ipa">{{
+              (learningLang.isKorean() ? 'vocab.koIpaLabel' : 'vocab.ipaLabel') | t
+            }}</label>
             <input
               id="vocab-ipa"
               type="text"
               formControlName="pronunciation"
-              placeholder="/breɪk ði aɪs/"
+              [placeholder]="
+                learningLang.isKorean() ? ('vocab.koIpaPlaceholder' | t) : '/breɪk ði aɪs/'
+              "
             />
           </div>
 
@@ -324,10 +332,12 @@
               type="text"
               formControlName="partOfSpeech"
               list="pos-suggestions"
-              [placeholder]="'vocab.posPlaceholder' | t"
+              [placeholder]="
+                (learningLang.isKorean() ? 'vocab.koPosPlaceholder' : 'vocab.posPlaceholder') | t
+              "
             />
             <datalist id="pos-suggestions">
-              @for (pos of partOfSpeechOptions; track pos) {
+              @for (pos of partOfSpeechOptions(); track pos) {
                 <option [value]="pos"></option>
               }
             </datalist>
@@ -406,6 +416,7 @@
     [topics]="topics()"
     [defaultTopicId]="selectedTopicId"
     [initialMode]="aiModalInitialMode()"
+    [languageCode]="learningLang.activeLang()"
     (closed)="showAiModal.set(false)"
     (saved)="onAiSaved($event)"
   />

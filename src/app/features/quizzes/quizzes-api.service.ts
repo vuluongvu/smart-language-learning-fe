@@ -31,6 +31,9 @@ export class QuizzesApiService {
     if (query?.search?.trim()) {
       params = params.set('search', query.search.trim());
     }
+    if (query?.languageCode) {
+      params = params.set('languageCode', query.languageCode);
+    }
     if (query?.topicId) {
       params = params.set('topicId', query.topicId);
     }
@@ -126,6 +129,7 @@ export class QuizzesApiService {
   listAllAttempts(query?: {
     quizId?: number | null;
     status?: QuizAttemptStatus | '';
+    languageCode?: 'en' | 'ko';
     page?: number;
     limit?: number;
   }): Observable<PaginatedResponse<AttemptSummary>> {
@@ -135,6 +139,9 @@ export class QuizzesApiService {
     }
     if (query?.status) {
       params = params.set('status', query.status);
+    }
+    if (query?.languageCode) {
+      params = params.set('languageCode', query.languageCode);
     }
     if (query?.page) {
       params = params.set('page', query.page);

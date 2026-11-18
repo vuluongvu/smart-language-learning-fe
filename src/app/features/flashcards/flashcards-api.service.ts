@@ -24,6 +24,7 @@ export class FlashcardsApiService {
   getDueQueue(query?: {
     topicId?: number | null;
     mode?: FlashcardSessionMode;
+    languageCode?: 'en' | 'ko';
     page?: number;
     limit?: number;
   }): Observable<FlashcardDueQueueResponse> {
@@ -33,6 +34,9 @@ export class FlashcardsApiService {
     }
     if (query?.mode) {
       params = params.set('mode', query.mode);
+    }
+    if (query?.languageCode) {
+      params = params.set('languageCode', query.languageCode);
     }
     if (query?.page) {
       params = params.set('page', query.page);
@@ -50,6 +54,7 @@ export class FlashcardsApiService {
   listSessions(query?: {
     status?: FlashcardSessionStatus | null;
     topicId?: number | null;
+    languageCode?: 'en' | 'ko';
     page?: number;
     limit?: number;
   }): Observable<PaginatedResponse<FlashcardSessionSummary>> {
@@ -59,6 +64,9 @@ export class FlashcardsApiService {
     }
     if (query?.topicId) {
       params = params.set('topicId', query.topicId);
+    }
+    if (query?.languageCode) {
+      params = params.set('languageCode', query.languageCode);
     }
     if (query?.page) {
       params = params.set('page', query.page);

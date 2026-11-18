@@ -5,6 +5,7 @@ import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { environment } from '../../../environments/environment';
+import { LearningLanguageService } from '../../shared/services/learning-language.service';
 import { AiApiService } from './ai-api.service';
 import { AiTutorComponent } from './ai-tutor.component';
 
@@ -137,6 +138,7 @@ describe('AiTutorComponent', () => {
     expect(aiApiMock.chat).toHaveBeenLastCalledWith({
       message: 'Explain the difference between "affect" and "effect" with simple examples.',
       history: [],
+      languageCode: 'en',
     });
     expect(el.querySelector('.oq-markdown h3')?.textContent).toBe('Quick Tip');
     expect(el.querySelector('.oq-markdown strong')?.textContent).toBe('Affect');
@@ -167,6 +169,7 @@ describe('AiTutorComponent', () => {
             '### Quick Tip\n**Affect** is usually a verb, while **effect** is usually a noun.',
         },
       ],
+      languageCode: 'en',
     });
     expect(el.textContent).toContain('Example: The weather affected our plans.');
 
@@ -223,6 +226,7 @@ describe('AiTutorComponent', () => {
     expect(aiApiMock.chat).toHaveBeenLastCalledWith({
       message: 'How do I use albeit?',
       history: [],
+      languageCode: 'en',
     });
     expect(el.textContent).toContain('Recovered response!');
     expect(textarea.value).toBe('');
@@ -238,5 +242,37 @@ describe('AiTutorComponent', () => {
       b.textContent?.includes('Conversation Practice'),
     );
     expect(guidedTab).toBeTruthy();
+  });
+
+  it('switches to Korean starter prompts and forwards languageCode ko when course toggles', () => {
+    aiApiMock.getStatus.mockReturnValue(of({ enabled: true, model: 'qwen/qwen3.8-27b' }));
+    aiApiMock.chat.mockReturnValue(
+      of({
+        model: 'qwen/qwen3.8-27b',
+        content: '은/는 marks the topic while 이/가 marks the subject.',
+      }),
+    );
+
+    const learningLang = TestBed.inject(LearningLanguageService);
+    const fixture = TestBed.createComponent(AiTutorComponent);
+    fixture.detectChanges();
+
+    learningLang.setLanguage('ko');
+    TestBed.flushEffects();
+    fixture.detectChanges();
+
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.textContent).toContain('AI Korean Tutor');
+    expect(el.textContent).toContain('은/는 vs 이/가 particles');
+
+    el.querySelector<HTMLButtonElement>('.ai-starter')?.click();
+    fixture.detectChanges();
+
+    expect(aiApiMock.chat).toHaveBeenCalledWith({
+      message:
+        'Explain the difference between topic particle 은/는 and subject particle 이/가 with simple Korean examples.',
+      history: [],
+      languageCode: 'ko',
+    });
   });
 });

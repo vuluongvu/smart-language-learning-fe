@@ -26,6 +26,16 @@
     <div class="shell__topbar-actions">
       <button
         type="button"
+        class="oq-btn oq-btn--secondary oq-btn--sm shell__course-top-btn"
+        (click)="learningLang.toggleLanguage()"
+        [attr.aria-label]="'course.switchAria' | t"
+        [title]="'course.switchAria' | t"
+      >
+        <span class="shell__course-top-badge">{{ learningLang.activeOption().badgeCode }}</span>
+        <span>{{ learningLang.activeOption().nativeLabel }}</span>
+      </button>
+      <button
+        type="button"
         class="oq-btn oq-btn--secondary oq-btn--sm shell__lang-btn"
         (click)="i18n.toggleLang()"
         [attr.aria-label]="'common.switchLangAria' | t"
@@ -66,9 +76,11 @@
     [user]="authService.user()"
     [theme]="themeService.theme()"
     [lang]="i18n.lang()"
+    [learningLang]="learningLang.activeLang()"
     (closeDrawer)="closeDrawer()"
     (toggleTheme)="themeService.toggleTheme()"
     (toggleLang)="i18n.toggleLang()"
+    (selectLearningLang)="learningLang.setLanguage($event)"
     (logout)="logout()"
   />
 

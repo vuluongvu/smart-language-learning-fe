@@ -16,7 +16,9 @@ import { catchError, of } from 'rxjs';
 import { OqEmptyStateComponent, OqIconComponent } from '../../shared/components';
 import { I18nService, TranslatePipe, TxKey } from '../../shared/i18n';
 import { OqMarkdownPipe } from '../../shared/pipes/markdown.pipe';
+import { LearningLanguageService } from '../../shared/services/learning-language.service';
 import { SpeechService } from '../../shared/services/speech.service';
+import { LearningLanguageCode } from '../../shared/types/learning-language.types';
 import {
   AiConversationSessionDetail,
   AiConversationSessionSummary,
@@ -47,7 +49,9 @@ export class AiConversationComponent implements OnInit {
   private readonly vocabApi = inject(VocabularyApiService);
   protected readonly speech = inject(SpeechService);
   protected readonly i18n = inject(I18nService);
+  protected readonly learningLang = inject(LearningLanguageService);
   private readonly destroyRef = inject(DestroyRef);
+  private lastLoadedLang: LearningLanguageCode | null = null;
 
   readonly aiEnabled = input<boolean>(false);
   readonly initialSession = input<AiConversationSessionDetail | null>(null);
@@ -59,14 +63,28 @@ export class AiConversationComponent implements OnInit {
 
   protected readonly maxReplyLength = MAX_CONV_REPLY_LENGTH;
   protected readonly levels: ConversationLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
-  protected readonly presetTopicKeys: TxKey[] = [
-    'conv.preset1',
-    'conv.preset2',
-    'conv.preset3',
-    'conv.preset4',
-    'conv.preset5',
-    'conv.preset6',
-  ];
+  protected readonly activeCourseLang = computed<LearningLanguageCode>(
+    () => this.activeSession()?.languageCode ?? this.learningLang.activeLang(),
+  );
+  protected readonly presetTopicKeys = computed<TxKey[]>(() =>
+    this.activeCourseLang() === 'ko'
+      ? [
+          'conv.koPreset1',
+          'conv.koPreset2',
+          'conv.koPreset3',
+          'conv.koPreset4',
+          'conv.koPreset5',
+          'conv.koPreset6',
+        ]
+      : [
+          'conv.preset1',
+          'conv.preset2',
+          'conv.preset3',
+          'conv.preset4',
+          'conv.preset5',
+          'conv.preset6',
+        ],
+  );
 
   protected readonly sessions = signal<AiConversationSessionSummary[]>([]);
   protected readonly loadingSessions = signal(true);
@@ -125,6 +143,15 @@ export class AiConversationComponent implements OnInit {
       }
     });
 
+    effect(() => {
+      const lang = this.learningLang.activeLang();
+      if (!this.embedded() && this.lastLoadedLang && this.lastLoadedLang !== lang) {
+        this.activeSession.set(null);
+        this.topicInput.set('');
+        this.loadHistoryAndTopics();
+      }
+    });
+
     this.destroyRef.onDestroy(() => {
       if (this.copyTimer) {
         clearTimeout(this.copyTimer);
@@ -144,7 +171,10 @@ export class AiConversationComponent implements OnInit {
 
   loadHistoryAndTopics(): void {
     this.loadingSessions.set(true);
-    this.aiApi.listConversations().subscribe({
+    const activeLang = this.learningLang.activeLang();
+    this.lastLoadedLang = activeLang;
+
+    this.aiApi.listConversations(activeLang).subscribe({
       next: (list) => {
         this.sessions.set(list);
         this.loadingSessions.set(false);
@@ -155,7 +185,7 @@ export class AiConversationComponent implements OnInit {
     });
 
     this.topicsApi
-      .list({ limit: 12 })
+      .list({ limit: 12, languageCode: activeLang })
       .pipe(catchError(() => of(null)))
       .subscribe((res) => {
         if (res?.items) {
@@ -200,6 +230,7 @@ export class AiConversationComponent implements OnInit {
         topic: this.topicInput().trim(),
         level: this.selectedLevel(),
         explanationLang: this.selectedExplainLang(),
+        languageCode: this.activeCourseLang(),
       })
       .subscribe({
         next: (detail) => {
@@ -320,7 +351,7 @@ export class AiConversationComponent implements OnInit {
   }
 
   toggleSpeak(text: string, id: string): void {
-    this.speech.speak(text, id, this.speechRateForLevel());
+    this.speech.speak(text, id, this.speechRateForLevel(), this.activeCourseLang());
   }
 
   endSession(): void {
@@ -372,6 +403,7 @@ export class AiConversationComponent implements OnInit {
         definition: word.definition.trim(),
         partOfSpeech: word.partOfSpeech ?? null,
         example: word.example ?? null,
+        languageCode: this.activeCourseLang(),
       })
       .subscribe({
         next: () => {
@@ -427,9 +459,11 @@ export class AiConversationComponent implements OnInit {
   }
 
   private async finishRecordingAndTranscribe(): Promise<void> {
+    const emptyErrKey: TxKey =
+      this.activeCourseLang() === 'ko' ? 'conv.koMicEmptyError' : 'conv.micEmptyError';
     const blob = await this.speech.stopRecording();
     if (!blob || blob.size === 0) {
-      this.errorMessage.set(this.i18n.t('conv.micEmptyError'));
+      this.errorMessage.set(this.i18n.t(emptyErrKey));
       return;
     }
 
@@ -441,7 +475,7 @@ export class AiConversationComponent implements OnInit {
 
     this.aiApi
       .transcribeAudio(blob, {
-        language: 'en',
+        language: session?.languageCode ?? this.activeCourseLang(),
         prompt: pendingTurn?.aiPrompt,
       })
       .subscribe({
@@ -449,7 +483,7 @@ export class AiConversationComponent implements OnInit {
           this.transcribing.set(false);
           const clean = text.trim();
           if (!clean) {
-            this.errorMessage.set(this.i18n.t('conv.micEmptyError'));
+            this.errorMessage.set(this.i18n.t(emptyErrKey));
             return;
           }
           const prefix = this.replyDraft().trim();
@@ -460,7 +494,7 @@ export class AiConversationComponent implements OnInit {
         },
         error: (err: unknown) => {
           this.transcribing.set(false);
-          this.errorMessage.set(extractApiError(err, this.i18n.t('conv.micEmptyError')));
+          this.errorMessage.set(extractApiError(err, this.i18n.t(emptyErrKey)));
         },
       });
   }
@@ -471,7 +505,12 @@ export class AiConversationComponent implements OnInit {
     }
     const pendingTurn = [...detail.turns].reverse().find((t) => t.userAnswer === null);
     if (pendingTurn?.aiPrompt) {
-      this.speech.speak(pendingTurn.aiPrompt, `turn-${pendingTurn.id}`, this.speechRateForLevel());
+      this.speech.speak(
+        pendingTurn.aiPrompt,
+        `turn-${pendingTurn.id}`,
+        this.speechRateForLevel(),
+        detail.languageCode ?? this.activeCourseLang(),
+      );
     }
   }
 
@@ -488,6 +527,7 @@ export class AiConversationComponent implements OnInit {
       topic: detail.topic,
       level: detail.level,
       explanationLang: detail.explanationLang,
+      languageCode: detail.languageCode,
       status: detail.status,
       turnCount: detail.turnCount,
       summary: detail.summary,

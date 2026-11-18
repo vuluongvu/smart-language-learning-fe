@@ -12,6 +12,8 @@ import {
 import { FormsModule } from '@angular/forms';
 import { OqIconComponent, OqModalComponent } from '../../../shared/components';
 import { I18nService, TranslatePipe, TxKey } from '../../../shared/i18n';
+import { LearningLanguageService } from '../../../shared/services/learning-language.service';
+import { LearningLanguageCode } from '../../../shared/types/learning-language.types';
 import {
   AiGenerateMode,
   AiVocabularyDraft,
@@ -50,6 +52,12 @@ export interface EditableAiVocabDraft {
 export class AiVocabModalComponent implements OnDestroy {
   private readonly vocabularyApi = inject(VocabularyApiService);
   private readonly i18n = inject(I18nService);
+  private readonly learningLang = inject(LearningLanguageService);
+
+  readonly languageCode = input<LearningLanguageCode | null>(null);
+  protected readonly activeLanguageCode = computed(
+    () => this.languageCode() ?? this.learningLang.activeLang(),
+  );
   private nextDraftId = 1;
   private wasOpen = false;
   private lastObjectUrl: string | null = null;
@@ -62,11 +70,11 @@ export class AiVocabModalComponent implements OnDestroy {
   readonly closed = output<void>();
   readonly saved = output<BulkCreateVocabularyResult>();
 
-  protected readonly presetKeys: TxKey[] = [
-    'vocabAi.preset1',
-    'vocabAi.preset2',
-    'vocabAi.preset3',
-  ];
+  protected readonly presetKeys = computed<TxKey[]>(() =>
+    this.activeLanguageCode() === 'ko'
+      ? ['vocabAi.koPreset1', 'vocabAi.koPreset2', 'vocabAi.koPreset3']
+      : ['vocabAi.preset1', 'vocabAi.preset2', 'vocabAi.preset3'],
+  );
   protected readonly levels: CefrLevel[] = ['A2', 'B1', 'B2', 'C1'];
   protected readonly counts = [3, 5, 8, 10, 12, 15];
 
@@ -241,6 +249,7 @@ export class AiVocabModalComponent implements OnDestroy {
         level: this.level,
         count: this.count,
         topicId,
+        languageCode: this.activeLanguageCode(),
       })
       .subscribe({
         next: (res) => this.applyGeneratedDrafts(res.model, res.items),
@@ -276,6 +285,7 @@ export class AiVocabModalComponent implements OnDestroy {
         level: this.level,
         count: this.count,
         topicId,
+        languageCode: this.activeLanguageCode(),
       })
       .subscribe({
         next: (res) => {
@@ -335,6 +345,7 @@ export class AiVocabModalComponent implements OnDestroy {
     this.vocabularyApi
       .createBulk({
         topicIds: this.selectedTopicIds(),
+        languageCode: this.activeLanguageCode(),
         ...(trimmedNewTopic ? { newTopicName: trimmedNewTopic } : {}),
         items: chosen.map((d) => ({
           term: d.term.trim(),

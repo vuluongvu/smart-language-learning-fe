@@ -12,6 +12,10 @@
         <p class="welcome-card__motto">{{ 'dashboard.welcomeMotivation' | t }}</p>
         @if (overview(); as data) {
           <div class="welcome-card__pills">
+            <span class="oq-badge oq-badge--accent">
+              {{ 'course.badgePrefix' | t }}
+              {{ (learningLang.isKorean() ? 'course.koLabel' : 'course.enLabel') | t }}
+            </span>
             <span class="oq-badge oq-badge--cream">
               {{
                 'dashboard.welcomeSubtitle'

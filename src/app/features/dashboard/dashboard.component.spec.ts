@@ -203,7 +203,7 @@ describe('DashboardComponent', () => {
     btn30?.click();
     fixture.detectChanges();
 
-    expect(progressApiMock.getHistory).toHaveBeenCalledWith(30);
+    expect(progressApiMock.getHistory).toHaveBeenCalledWith(30, 'en');
     expect(el.querySelectorAll('.oq-heatmap__cell').length).toBe(30);
   });
 

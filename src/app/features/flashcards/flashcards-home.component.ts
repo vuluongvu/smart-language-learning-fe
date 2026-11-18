@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
@@ -10,6 +10,8 @@ import {
   OqStatCardComponent,
 } from '../../shared/components';
 import { I18nService, TranslatePipe, TxKey } from '../../shared/i18n';
+import { LearningLanguageService } from '../../shared/services/learning-language.service';
+import { LearningLanguageCode } from '../../shared/types/learning-language.types';
 import {
   FlashcardCardView,
   FlashcardDueSummary,
@@ -48,6 +50,18 @@ export class FlashcardsHomeComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   protected readonly i18n = inject(I18nService);
+  protected readonly learningLang = inject(LearningLanguageService);
+  private lastLoadedLang: LearningLanguageCode | null = null;
+
+  constructor() {
+    effect(() => {
+      const lang = this.learningLang.activeLang();
+      if (this.lastLoadedLang && this.lastLoadedLang !== lang) {
+        this.selectedTopicId = null;
+        this.loadOverview();
+      }
+    });
+  }
 
   readonly topics = signal<TopicSummary[]>([]);
   readonly summary = signal<FlashcardDueSummary>({
@@ -92,16 +106,20 @@ export class FlashcardsHomeComponent implements OnInit {
   loadOverview(): void {
     this.isLoading.set(true);
     this.errorMessage.set(null);
+    const activeLang = this.learningLang.activeLang();
+    this.lastLoadedLang = activeLang;
 
     forkJoin({
-      topics: this.topicsApi.list({ limit: 50 }),
+      topics: this.topicsApi.list({ limit: 50, languageCode: activeLang }),
       due: this.flashcardsApi.getDueQueue({
         topicId: this.selectedTopicId,
         mode: this.selectedMode,
+        languageCode: activeLang,
         limit: 12,
       }),
       sessions: this.flashcardsApi.listSessions({
         topicId: this.selectedTopicId,
+        languageCode: activeLang,
         limit: 8,
       }),
     }).subscribe({
@@ -137,6 +155,7 @@ export class FlashcardsHomeComponent implements OnInit {
     const mode = modeOverride ?? this.selectedMode;
     this.flashcardsApi
       .createSession({
+        languageCode: this.learningLang.activeLang(),
         topicId: this.selectedTopicId,
         mode,
         limit: this.sessionLimit,

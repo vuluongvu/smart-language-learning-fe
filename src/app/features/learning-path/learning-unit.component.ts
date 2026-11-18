@@ -177,7 +177,8 @@ export class LearningUnitComponent implements OnInit {
   }
 
   speakAudio(text: string, id: string, rate = 0.95): void {
-    this.speech.speak(text, id, rate);
+    const langCode = this.detail()?.track?.languageCode === 'ko' ? 'ko' : 'en';
+    this.speech.speak(text, id, rate, langCode);
   }
 
   syncVocabToNotebook(): void {
@@ -221,18 +222,21 @@ export class LearningUnitComponent implements OnInit {
       return;
     }
 
+    const langCode = current.track?.languageCode === 'ko' ? 'ko' : 'en';
     this.launchingCards.set(true);
     const openForTopic = (topicId: number) => {
-      this.flashcardsApi.createSession({ topicId, mode: 'due_and_new', limit: 20 }).subscribe({
-        next: (session) => {
-          this.launchingCards.set(false);
-          this.router.navigate(['/flashcards/sessions', session.id]);
-        },
-        error: (err: unknown) => {
-          this.launchingCards.set(false);
-          this.errorMessage.set(extractApiError(err, 'Unable to open flashcards.'));
-        },
-      });
+      this.flashcardsApi
+        .createSession({ languageCode: langCode, topicId, mode: 'due_and_new', limit: 20 })
+        .subscribe({
+          next: (session) => {
+            this.launchingCards.set(false);
+            this.router.navigate(['/flashcards/sessions', session.id]);
+          },
+          error: (err: unknown) => {
+            this.launchingCards.set(false);
+            this.errorMessage.set(extractApiError(err, 'Unable to open flashcards.'));
+          },
+        });
     };
 
     if (current.progress.topicId) {

@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { OqIconComponent, OqPageHeaderComponent } from '../../shared/components';
 import { I18nService, TranslatePipe } from '../../shared/i18n';
 import { GoogleIdentityService } from '../../shared/services/google-identity.service';
+import { LearningLanguageService } from '../../shared/services/learning-language.service';
 import { ThemeService } from '../../shared/services/theme.service';
 import { COMMON_TIMEZONES, extractApiError } from '../../shared/utils/api-error.util';
 import { AuthService } from '../auth/auth.service';
@@ -21,6 +22,7 @@ export class SettingsComponent implements OnInit {
   protected readonly authService = inject(AuthService);
   protected readonly themeService = inject(ThemeService);
   protected readonly i18n = inject(I18nService);
+  protected readonly learningLang = inject(LearningLanguageService);
 
   protected readonly timezoneOptions = signal<string[]>([...COMMON_TIMEZONES]);
   protected readonly profileBusy = signal(false);

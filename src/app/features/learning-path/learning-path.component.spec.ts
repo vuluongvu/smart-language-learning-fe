@@ -4,6 +4,7 @@ import { of } from 'rxjs';
 import { vi } from 'vitest';
 import { AiApiService } from '../ai-tutor/ai-api.service';
 import { AuthService } from '../auth/auth.service';
+import { LearningLanguageService } from '../../shared/services/learning-language.service';
 import { LearningPathApiService } from './learning-path-api.service';
 import { LP_EN_TRANSLATIONS, LP_VI_TRANSLATIONS } from './learning-path.i18n';
 import { LearningPathComponent } from './learning-path.component';
@@ -17,6 +18,7 @@ describe('LearningPathComponent', () => {
   };
 
   beforeEach(async () => {
+    localStorage.removeItem('argon_learning_course');
     pathApiMock = {
       getOverview: vi.fn().mockReturnValue(
         of({
@@ -118,6 +120,10 @@ describe('LearningPathComponent', () => {
     }).compileComponents();
   });
 
+  afterEach(() => {
+    localStorage.removeItem('argon_learning_course');
+  });
+
   it('renders Part 1 skill tree, Vocab Notebook node, Band switcher, and opens goal modal', () => {
     const fixture = TestBed.createComponent(LearningPathComponent);
     fixture.detectChanges();
@@ -131,7 +137,7 @@ describe('LearningPathComponent', () => {
     const select = el.querySelector<HTMLSelectElement>('.lp-band-select')!;
     select.value = 'band_55_65';
     select.dispatchEvent(new Event('change'));
-    expect(pathApiMock.getOverview).toHaveBeenCalledWith('band_55_65');
+    expect(pathApiMock.getOverview).toHaveBeenCalledWith('band_55_65', 'en');
   });
 
   it('opens AI generator modal and generates a custom AI path & materials', () => {
@@ -185,5 +191,18 @@ describe('LearningPathComponent', () => {
 
   it('maintains 100% EN/VI key parity for learning-path i18n dictionary', () => {
     expect(Object.keys(LP_VI_TRANSLATIONS).sort()).toEqual(Object.keys(LP_EN_TRANSLATIONS).sort());
+  });
+
+  it('reloads Korean learning path track when active course changes to ko', () => {
+    const fixture = TestBed.createComponent(LearningPathComponent);
+    const learningLang = TestBed.inject(LearningLanguageService);
+    fixture.detectChanges();
+
+    learningLang.setLanguage('ko');
+    TestBed.flushEffects();
+    fixture.detectChanges();
+
+    expect(pathApiMock.getOverview).toHaveBeenLastCalledWith(undefined, 'ko');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Korean (한국어 · TOPIK)');
   });
 });

@@ -24,10 +24,16 @@
   } @else if (overview(); as data) {
     <header class="lp-topbar">
       <div class="lp-selectors">
-        <div class="lp-pill lp-pill--lang">
+        <button
+          type="button"
+          class="lp-pill lp-pill--lang lp-link-btn"
+          [title]="'course.switchAria' | t"
+          [attr.aria-label]="'course.switchAria' | t"
+          (click)="learningLang.toggleLanguage()"
+        >
           <oq-icon name="globe" [size]="16" />
-          <span>{{ 'lp.langEnglish' | lpT }}</span>
-        </div>
+          <span>{{ (learningLang.isKorean() ? 'lp.langKorean' : 'lp.langEnglish') | lpT }}</span>
+        </button>
 
         <label class="lp-pill lp-pill--band">
           <select
@@ -230,7 +236,11 @@
         @if (overview(); as data) {
           @for (track of data.tracks; track track.id) {
             @if (!track.isAiGenerated) {
-              <option [value]="track.code">{{ track.title }} (CEFR {{ track.cefrLevel }})</option>
+              <option [value]="track.code">
+                {{ track.title }} ({{
+                  track.languageCode === 'ko' ? track.cefrLevel : 'CEFR ' + track.cefrLevel
+                }})
+              </option>
             }
           }
         }
@@ -284,7 +294,10 @@
         name="goalTopic"
         maxlength="220"
         [(ngModel)]="aiGoalTopic"
-        [placeholder]="'lp.aiGoalTopicPlaceholder' | lpT"
+        [placeholder]="
+          (learningLang.isKorean() ? 'lp.koAiGoalTopicPlaceholder' : 'lp.aiGoalTopicPlaceholder')
+            | lpT
+        "
       />
     </div>
 
@@ -293,23 +306,41 @@
       <button
         type="button"
         class="oq-btn oq-btn--ghost oq-btn--sm"
-        (click)="applyAiPreset('English for IT Software Engineering Interviews')"
+        (click)="
+          applyAiPreset(
+            learningLang.isKorean()
+              ? 'Korean for Seoul Travel, Ordering Food & Shopping (TOPIK I)'
+              : 'English for IT Software Engineering Interviews'
+          )
+        "
       >
-        {{ 'lp.aiPreset1' | lpT }}
+        {{ (learningLang.isKorean() ? 'lp.koAiPreset1' : 'lp.aiPreset1') | lpT }}
       </button>
       <button
         type="button"
         class="oq-btn oq-btn--ghost oq-btn--sm"
-        (click)="applyAiPreset('IELTS Environment, Energy & Society Band 6.5')"
+        (click)="
+          applyAiPreset(
+            learningLang.isKorean()
+              ? 'TOPIK I Core Grammar, Daily Routines & Conversation'
+              : 'IELTS Environment, Energy & Society Band 6.5'
+          )
+        "
       >
-        {{ 'lp.aiPreset2' | lpT }}
+        {{ (learningLang.isKorean() ? 'lp.koAiPreset2' : 'lp.aiPreset2') | lpT }}
       </button>
       <button
         type="button"
         class="oq-btn oq-btn--ghost oq-btn--sm"
-        (click)="applyAiPreset('Business Meetings, Presentations & Professional Emails')"
+        (click)="
+          applyAiPreset(
+            learningLang.isKorean()
+              ? 'Korean Workplace Communication, Honorifics & Polite Emails'
+              : 'Business Meetings, Presentations & Professional Emails'
+          )
+        "
       >
-        {{ 'lp.aiPreset3' | lpT }}
+        {{ (learningLang.isKorean() ? 'lp.koAiPreset3' : 'lp.aiPreset3') | lpT }}
       </button>
     </div>
 
@@ -328,7 +359,11 @@
         @if (overview(); as data) {
           @for (track of data.tracks; track track.id) {
             @if (!track.isAiGenerated) {
-              <option [value]="track.code">{{ track.title }} (CEFR {{ track.cefrLevel }})</option>
+              <option [value]="track.code">
+                {{ track.title }} ({{
+                  track.languageCode === 'ko' ? track.cefrLevel : 'CEFR ' + track.cefrLevel
+                }})
+              </option>
             }
           }
         }
