@@ -21,7 +21,12 @@
     <form [formGroup]="metaForm" class="meta-grid">
       <div class="oq-field meta-grid__full">
         <label for="quizTitle">{{ 'qb.titleLabel' | t }}</label>
-        <input id="quizTitle" type="text" formControlName="title" />
+        <input
+          id="quizTitle"
+          type="text"
+          formControlName="title"
+          [placeholder]="'qb.titlePlaceholder' | t"
+        />
         @if (metaForm.controls.title.touched && metaForm.controls.title.invalid) {
           <span class="oq-field-error">{{ 'qb.titleError' | t }}</span>
         }

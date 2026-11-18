@@ -284,7 +284,13 @@
         <div class="oq-field">
           <label for="vocab-term">{{ 'vocab.termLabel' | t }}</label>
           <div class="term-input-row">
-            <input id="vocab-term" type="text" formControlName="term" (blur)="onTermBlur()" />
+            <input
+              id="vocab-term"
+              type="text"
+              formControlName="term"
+              (blur)="onTermBlur()"
+              [placeholder]="'vocab.termPlaceholder' | t"
+            />
             <button
               type="button"
               class="oq-btn oq-btn--ai"
@@ -303,7 +309,12 @@
         <div class="filter-grid">
           <div class="oq-field">
             <label for="vocab-ipa">{{ 'vocab.ipaLabel' | t }}</label>
-            <input id="vocab-ipa" type="text" formControlName="pronunciation" />
+            <input
+              id="vocab-ipa"
+              type="text"
+              formControlName="pronunciation"
+              placeholder="/breɪk ði aɪs/"
+            />
           </div>
 
           <div class="oq-field">
@@ -313,6 +324,7 @@
               type="text"
               formControlName="partOfSpeech"
               list="pos-suggestions"
+              [placeholder]="'vocab.posPlaceholder' | t"
             />
             <datalist id="pos-suggestions">
               @for (pos of partOfSpeechOptions; track pos) {
@@ -324,7 +336,12 @@
 
         <div class="oq-field">
           <label for="vocab-def">{{ 'vocab.defLabel' | t }}</label>
-          <textarea id="vocab-def" rows="2" formControlName="definition"></textarea>
+          <textarea
+            id="vocab-def"
+            rows="2"
+            formControlName="definition"
+            [placeholder]="'vocab.defPlaceholder' | t"
+          ></textarea>
           @if (form.controls.definition.touched && form.controls.definition.invalid) {
             <span class="oq-field-error">{{ 'vocab.defError' | t }}</span>
           }

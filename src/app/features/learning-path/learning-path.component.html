@@ -279,7 +279,13 @@
 
     <div class="oq-field">
       <label for="lp-ai-topic">{{ 'lp.aiGoalTopicLabel' | lpT }}</label>
-      <input id="lp-ai-topic" name="goalTopic" maxlength="220" [(ngModel)]="aiGoalTopic" />
+      <input
+        id="lp-ai-topic"
+        name="goalTopic"
+        maxlength="220"
+        [(ngModel)]="aiGoalTopic"
+        [placeholder]="'lp.aiGoalTopicPlaceholder' | lpT"
+      />
     </div>
 
     <div class="lp-overview-banner__badges">
