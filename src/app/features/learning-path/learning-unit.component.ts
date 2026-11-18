@@ -79,7 +79,7 @@ export class LearningUnitComponent implements OnInit {
 
   // AI Study Material
   protected readonly showStudyGuide = signal(false);
-  protected readonly guideFocusNote = signal('');
+  protected readonly guideFocusGoal = signal('');
   protected readonly generatingStudyGuide = signal(false);
   protected readonly regeneratingUnit = signal(false);
 
@@ -399,7 +399,7 @@ export class LearningUnitComponent implements OnInit {
   }
 
   onGuideFocusInput(event: Event): void {
-    this.guideFocusNote.set((event.target as HTMLInputElement).value);
+    this.guideFocusGoal.set((event.target as HTMLInputElement).value);
   }
 
   generateStudyGuide(): void {
@@ -413,7 +413,7 @@ export class LearningUnitComponent implements OnInit {
 
     this.pathApi
       .generateUnitStudyGuide(current.id, {
-        focusNote: this.guideFocusNote().trim() || undefined,
+        focusGoal: this.guideFocusGoal().trim() || undefined,
         explanationLang: this.i18n.lang(),
       })
       .subscribe({
@@ -440,7 +440,7 @@ export class LearningUnitComponent implements OnInit {
 
     this.pathApi
       .regenerateAiUnit(current.id, {
-        focusNote: this.guideFocusNote().trim() || undefined,
+        focusGoal: this.guideFocusGoal().trim() || undefined,
         explanationLang: this.i18n.lang(),
       })
       .subscribe({

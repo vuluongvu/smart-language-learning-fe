@@ -316,6 +316,15 @@
     </div>
 
     <div class="oq-field">
+      <label for="lp-ai-level">{{ 'lp.currentLevelLabel' | lpT }}</label>
+      <select id="lp-ai-level" name="aiCurrentLevel" [(ngModel)]="aiCurrentLevel">
+        @for (lvl of cefrOptions; track lvl) {
+          <option [value]="lvl">{{ lvl }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="oq-field">
       <label for="lp-ai-band">{{ 'lp.goalBandLabel' | lpT }}</label>
       <select id="lp-ai-band" name="aiTargetBand" [(ngModel)]="aiTargetBand">
         @if (overview(); as data) {
@@ -338,15 +347,14 @@
     </div>
 
     <div class="oq-field">
-      <label for="lp-ai-source">{{ 'lp.aiSourceLabel' | lpT }}</label>
-      <textarea
-        id="lp-ai-source"
-        name="sourceMaterial"
-        rows="4"
-        maxlength="4000"
-        [(ngModel)]="aiSourceMaterial"
-        [placeholder]="'lp.aiSourcePlaceholder' | lpT"
-      ></textarea>
+      <label for="lp-ai-focus">{{ 'lp.aiFocusLabel' | lpT }}</label>
+      <input
+        id="lp-ai-focus"
+        name="learningFocus"
+        maxlength="300"
+        [(ngModel)]="aiLearningFocus"
+        [placeholder]="'lp.aiFocusPlaceholder' | lpT"
+      />
     </div>
 
     <div class="lp-goal-form__actions">
