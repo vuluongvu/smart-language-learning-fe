@@ -101,6 +101,46 @@ export class AuthService {
       );
   }
 
+  getGoogleConfig(): Observable<{ enabled: boolean; clientId: string | null }> {
+    return this.http
+      .get<ApiEnvelope<{ enabled: boolean; clientId: string | null }>>(
+        `${this.baseUrl}/auth/google/config`,
+      )
+      .pipe(map((res) => res.data));
+  }
+
+  linkGoogle(idToken: string): Observable<{ message: string; linkedProviders: string[] }> {
+    return this.http
+      .post<ApiEnvelope<{ message: string; linkedProviders: string[] }>>(
+        `${this.baseUrl}/auth/google/link`,
+        { idToken },
+      )
+      .pipe(
+        map((res) => res.data),
+        tap((data) => {
+          this.userSignal.update((curr) =>
+            curr ? { ...curr, linkedProviders: data.linkedProviders } : null,
+          );
+        }),
+      );
+  }
+
+  unlinkGoogle(): Observable<{ message: string; linkedProviders: string[] }> {
+    return this.http
+      .post<ApiEnvelope<{ message: string; linkedProviders: string[] }>>(
+        `${this.baseUrl}/auth/google/unlink`,
+        {},
+      )
+      .pipe(
+        map((res) => res.data),
+        tap((data) => {
+          this.userSignal.update((curr) =>
+            curr ? { ...curr, linkedProviders: data.linkedProviders } : null,
+          );
+        }),
+      );
+  }
+
   refreshTokens(): Observable<AuthTokenResponse> {
     if (this.refreshInFlight$) {
       return this.refreshInFlight$;

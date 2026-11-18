@@ -1,8 +1,9 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { OqIconComponent, OqPageHeaderComponent } from '../../shared/components';
 import { I18nService, TranslatePipe } from '../../shared/i18n';
+import { GoogleIdentityService } from '../../shared/services/google-identity.service';
 import { ThemeService } from '../../shared/services/theme.service';
 import { COMMON_TIMEZONES, extractApiError } from '../../shared/utils/api-error.util';
 import { AuthService } from '../auth/auth.service';
@@ -16,6 +17,7 @@ import { AuthService } from '../auth/auth.service';
 export class SettingsComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
+  private readonly googleIdentity = inject(GoogleIdentityService);
   protected readonly authService = inject(AuthService);
   protected readonly themeService = inject(ThemeService);
   protected readonly i18n = inject(I18nService);
@@ -29,9 +31,30 @@ export class SettingsComponent implements OnInit {
   protected readonly passwordMessage = signal<string | null>(null);
   protected readonly passwordError = signal<string | null>(null);
 
+  protected readonly googleClientId = signal<string | null>(null);
+  protected readonly googleBusy = signal(false);
+  protected readonly googleMessage = signal<string | null>(null);
+  protected readonly googleError = signal<string | null>(null);
+  protected readonly isGoogleLinked = computed(() =>
+    Boolean(this.authService.user()?.linkedProviders.includes('google')),
+  );
+
   protected readonly showDeleteConfirm = signal(false);
   protected readonly deleteBusy = signal(false);
   protected readonly deleteError = signal<string | null>(null);
+
+  @ViewChild('googleLinkContainer')
+  set googleLinkContainerRef(ref: ElementRef<HTMLElement> | undefined) {
+    const clientId = this.googleClientId();
+    if (ref && clientId && !this.isGoogleLinked()) {
+      this.googleIdentity.renderButton(
+        ref.nativeElement,
+        clientId,
+        (idToken) => this.linkGoogle(idToken),
+        { text: 'continue_with', width: 280 },
+      );
+    }
+  }
 
   protected readonly profileForm = this.fb.nonNullable.group({
     displayName: ['', [Validators.required, Validators.maxLength(100)]],
@@ -51,6 +74,10 @@ export class SettingsComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.googleIdentity.resolveClientId().subscribe((clientId) => {
+      this.googleClientId.set(clientId);
+    });
+
     const user = this.authService.user();
     if (user) {
       if (!COMMON_TIMEZONES.includes(user.timezone)) {
@@ -175,5 +202,59 @@ export class SettingsComponent implements OnInit {
           );
         },
       });
+  }
+
+  linkGoogle(idToken: string): void {
+    if (this.googleBusy()) {
+      return;
+    }
+    this.googleBusy.set(true);
+    this.googleMessage.set(null);
+    this.googleError.set(null);
+
+    this.authService.linkGoogle(idToken).subscribe({
+      next: (res) => {
+        this.googleBusy.set(false);
+        this.googleMessage.set(res.message);
+      },
+      error: (err: unknown) => {
+        this.googleBusy.set(false);
+        this.googleError.set(
+          extractApiError(
+            err,
+            this.i18n.lang() === 'vi'
+              ? 'Không thể liên kết tài khoản Google'
+              : 'Failed to link Google account',
+          ),
+        );
+      },
+    });
+  }
+
+  unlinkGoogle(): void {
+    if (this.googleBusy() || !this.authService.user()?.hasPassword) {
+      return;
+    }
+    this.googleBusy.set(true);
+    this.googleMessage.set(null);
+    this.googleError.set(null);
+
+    this.authService.unlinkGoogle().subscribe({
+      next: (res) => {
+        this.googleBusy.set(false);
+        this.googleMessage.set(res.message);
+      },
+      error: (err: unknown) => {
+        this.googleBusy.set(false);
+        this.googleError.set(
+          extractApiError(
+            err,
+            this.i18n.lang() === 'vi'
+              ? 'Không thể hủy liên kết Google'
+              : 'Failed to unlink Google account',
+          ),
+        );
+      },
+    });
   }
 }
