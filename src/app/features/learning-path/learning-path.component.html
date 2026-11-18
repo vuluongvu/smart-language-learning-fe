@@ -1,0 +1,246 @@
+<div class="lp-shell">
+  @if (errorMessage()) {
+    <div class="oq-alert oq-alert--error" role="alert">
+      <span>{{ errorMessage() }}</span>
+      <button type="button" class="oq-btn oq-btn--secondary oq-btn--sm" (click)="loadOverview()">
+        {{ 'common.retry' | t }}
+      </button>
+    </div>
+  }
+
+  @if (goalSuccess()) {
+    <div class="oq-alert oq-alert--success" role="status">
+      <span>{{ goalSuccess() }}</span>
+      <button type="button" class="oq-btn oq-btn--ghost oq-btn--sm" (click)="goalSuccess.set(null)">
+        <oq-icon name="x" [size]="14" />
+      </button>
+    </div>
+  }
+
+  @if (loading()) {
+    <section class="oq-card lp-loading" aria-busy="true">
+      <p class="oq-muted">{{ 'common.loading' | t }}</p>
+    </section>
+  } @else if (overview(); as data) {
+    <header class="lp-topbar">
+      <div class="lp-selectors">
+        <div class="lp-pill lp-pill--lang">
+          <oq-icon name="globe" [size]="16" />
+          <span>{{ 'lp.langEnglish' | lpT }}</span>
+        </div>
+
+        <label class="lp-pill lp-pill--band">
+          <span class="oq-sr-only">{{ 'lp.selectBandLabel' | lpT }}</span>
+          <select
+            class="lp-band-select"
+            [value]="data.activeTrack.code"
+            (change)="onSelectTrack($event)"
+            [attr.aria-label]="'lp.selectBandLabel' | lpT"
+          >
+            @for (track of data.tracks; track track.id) {
+              <option [value]="track.code">{{ track.title }} ({{ track.cefrLevel }})</option>
+            }
+          </select>
+          <oq-icon name="chevron-down" [size]="15" />
+        </label>
+      </div>
+
+      <div class="lp-goal-links">
+        <button type="button" class="lp-link-btn" (click)="openGoalModal()">
+          <oq-icon name="target" [size]="15" />
+          <span>{{ 'lp.courseGoalBtn' | lpT }}</span>
+        </button>
+        <span aria-hidden="true">·</span>
+        <span class="lp-meta">
+          {{
+            'lp.goalSummaryMeta'
+              | lpT: { level: data.goal.currentLevel, minutes: data.goal.dailyGoalMinutes }
+          }}
+        </span>
+      </div>
+
+      <div class="oq-card oq-card--pastel-cream lp-overview-banner">
+        <div>
+          <div class="lp-overview-banner__badges">
+            <span class="oq-badge oq-badge--accent">{{ data.activeTrack.title }}</span>
+            <span class="oq-badge oq-badge--lavender">CEFR {{ data.activeTrack.cefrLevel }}</span>
+          </div>
+          <p class="oq-muted lp-summary">{{ data.activeTrack.summary }}</p>
+        </div>
+
+        <div class="lp-overview-banner__right">
+          <oq-progress-bar
+            [value]="data.stats.completedUnits"
+            [max]="data.stats.totalUnits || 1"
+            [label]="
+              'lp.unitsProgress'
+                | lpT: { done: data.stats.completedUnits, total: data.stats.totalUnits }
+            "
+            [showPercent]="true"
+            tone="success"
+          />
+          @if (data.stats.recommendedUnitId; as recId) {
+            <a
+              [routerLink]="['/learning-path/units', recId]"
+              class="oq-btn oq-btn--primary oq-btn--sm"
+            >
+              <oq-icon name="sparkles" [size]="15" />
+              <span>{{ 'lp.continueUnitBtn' | lpT }}</span>
+            </a>
+          }
+        </div>
+      </div>
+    </header>
+
+    @if (data.parts.length === 0) {
+      <oq-empty-state
+        icon="map"
+        [title]="'lp.emptyTitle' | lpT"
+        [description]="'lp.emptyDesc' | lpT"
+      />
+    } @else {
+      <div class="lp-tree">
+        @for (part of data.parts; track part.id; let pIdx = $index) {
+          <section class="lp-part">
+            <div class="lp-part__divider">
+              <span class="lp-part__line" aria-hidden="true"></span>
+              <div class="lp-part__heading">
+                <span class="lp-part__eyebrow">PART {{ part.partNumber }}</span>
+                <h2>{{ part.title }}</h2>
+                <p class="oq-muted">{{ part.subtitle }}</p>
+              </div>
+              <span class="lp-part__line" aria-hidden="true"></span>
+            </div>
+
+            <div class="lp-part__canvas">
+              @if (pIdx === 0) {
+                <a routerLink="/vocabulary" class="lp-notebook-node">
+                  <span class="lp-notebook-node__circle">
+                    <oq-icon name="book-open" [size]="20" />
+                  </span>
+                  <span class="lp-notebook-node__label">{{ 'lp.vocabNotebookNode' | lpT }}</span>
+                </a>
+              }
+
+              <ol class="lp-unit-trail">
+                @for (unit of part.units; track unit.id; let uIdx = $index) {
+                  <li class="lp-node" [style.transform]="nodeTransform(uIdx)">
+                    <a
+                      [routerLink]="['/learning-path/units', unit.id]"
+                      class="lp-unit-card"
+                      [class.lp-unit-card--active]="unit.status === 'active'"
+                      [class.lp-unit-card--completed]="unit.status === 'completed'"
+                      [class.lp-unit-card--locked]="unit.status === 'locked'"
+                    >
+                      <span class="lp-unit-ring" aria-hidden="true">
+                        <svg viewBox="0 0 52 52" class="lp-unit-ring__svg">
+                          <circle
+                            cx="26"
+                            cy="26"
+                            r="22"
+                            class="lp-unit-ring__track"
+                            [attr.stroke-dasharray]="unit.status === 'locked' ? '4 4' : null"
+                          />
+                          @if (unit.progress.percentDone > 0) {
+                            <circle
+                              cx="26"
+                              cy="26"
+                              r="22"
+                              class="lp-unit-ring__fill"
+                              [attr.stroke-dasharray]="ringCircumference"
+                              [attr.stroke-dashoffset]="ringDashOffset(unit)"
+                            />
+                          }
+                        </svg>
+                        <span class="lp-unit-icon" [attr.data-tone]="unit.themeColor">
+                          <oq-icon [name]="unitIcon(unit.icon)" [size]="20" />
+                        </span>
+                      </span>
+
+                      <span class="lp-unit-copy">
+                        <span class="lp-unit-title">{{ unit.title }}</span>
+                        <span class="lp-meta">
+                          @if (unit.status === 'completed') {
+                            <span class="lp-status-done">{{ 'lp.unitCompleted' | lpT }}</span>
+                          } @else if (unit.status === 'locked') {
+                            <span>{{ 'lp.unitLockedHint' | lpT }}</span>
+                          } @else {
+                            <span>
+                              {{
+                                'lp.skillsDoneMeta'
+                                  | lpT
+                                    : {
+                                        done: unit.progress.skillsDone,
+                                        total: unit.progress.totalSkills,
+                                      }
+                              }}
+                            </span>
+                          }
+                        </span>
+                      </span>
+
+                      @if (unit.status === 'completed') {
+                        <span class="lp-unit-check">
+                          <oq-icon name="check" [size]="14" />
+                        </span>
+                      } @else if (unit.status === 'locked') {
+                        <oq-icon name="lock" [size]="13" class="oq-muted" />
+                      }
+                    </a>
+                  </li>
+                }
+              </ol>
+            </div>
+          </section>
+        }
+      </div>
+    }
+  }
+</div>
+
+<oq-modal
+  [open]="showGoalModal()"
+  [title]="'lp.goalModalTitle' | lpT"
+  [description]="'lp.goalModalSubtitle' | lpT"
+  (closed)="showGoalModal.set(false)"
+>
+  <form class="lp-goal-form" (submit)="$event.preventDefault(); saveGoal()">
+    <div class="oq-field">
+      <label for="lp-goal-band">{{ 'lp.goalBandLabel' | lpT }}</label>
+      <select id="lp-goal-band" name="band" [(ngModel)]="draftBand">
+        @if (overview(); as data) {
+          @for (track of data.tracks; track track.id) {
+            <option [value]="track.code">{{ track.title }} (CEFR {{ track.cefrLevel }})</option>
+          }
+        }
+      </select>
+    </div>
+
+    <div class="oq-field">
+      <label for="lp-goal-level">{{ 'lp.currentLevelLabel' | lpT }}</label>
+      <select id="lp-goal-level" name="level" [(ngModel)]="draftLevel">
+        @for (lvl of cefrOptions; track lvl) {
+          <option [value]="lvl">{{ lvl }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="oq-field">
+      <label for="lp-goal-minutes">{{ 'lp.dailyMinutesLabel' | lpT }}</label>
+      <select id="lp-goal-minutes" name="minutes" [(ngModel)]="draftDailyMinutes">
+        @for (m of dailyMinuteOptions; track m) {
+          <option [ngValue]="m">{{ 'lp.minutesOption' | lpT: { min: m } }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="lp-goal-form__actions">
+      <button type="button" class="oq-btn oq-btn--secondary" (click)="showGoalModal.set(false)">
+        {{ 'common.cancel' | t }}
+      </button>
+      <button type="submit" class="oq-btn oq-btn--primary" [disabled]="savingGoal()">
+        {{ (savingGoal() ? 'common.saving' : 'common.save') | t }}
+      </button>
+    </div>
+  </form>
+</oq-modal>

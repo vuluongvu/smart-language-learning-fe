@@ -39,7 +39,11 @@ export type OqIconName =
   | 'copy'
   | 'mic'
   | 'square'
-  | 'volume-2';
+  | 'volume-2'
+  | 'map'
+  | 'home'
+  | 'headphones'
+  | 'pen-line';
 
 @Component({
   selector: 'oq-icon',
@@ -251,6 +255,24 @@ export type OqIconName =
           <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
           <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
           <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+        }
+        @case ('map') {
+          <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21" />
+          <line x1="9" x2="9" y1="3" y2="18" />
+          <line x1="15" x2="15" y1="6" y2="21" />
+        }
+        @case ('home') {
+          <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+          <polyline points="9 22 9 12 15 12 15 22" />
+        }
+        @case ('headphones') {
+          <path
+            d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"
+          />
+        }
+        @case ('pen-line') {
+          <path d="M12 20h9" />
+          <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
         }
       }
     </svg>
