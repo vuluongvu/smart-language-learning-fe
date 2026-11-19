@@ -2,6 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { LearningLanguageService } from '../../shared/services/learning-language.service';
 import { VocabularyListComponent } from './vocabulary-list.component';
 
 describe('VocabularyListComponent', () => {
@@ -349,5 +350,40 @@ describe('VocabularyListComponent', () => {
     reloadReq.flush({
       data: { items: [], meta: { page: 1, limit: 12, total: 0, totalPages: 1 } },
     });
+  });
+
+  it('shows Korean handwriting draw buttons when Korean is active and inserts chosen candidate into search', () => {
+    const langService = TestBed.inject(LearningLanguageService);
+    langService.setLanguage('ko');
+
+    try {
+      const fixture = TestBed.createComponent(VocabularyListComponent);
+      fixture.detectChanges();
+      flushInitialLoad();
+      fixture.detectChanges();
+
+      const el = fixture.nativeElement as HTMLElement;
+      const drawSearchBtn = el.querySelector<HTMLButtonElement>('.search-draw-btn');
+      expect(drawSearchBtn).toBeTruthy();
+
+      drawSearchBtn!.click();
+      fixture.detectChanges();
+      expect(fixture.componentInstance.handwritingMode()).toBe('search');
+      expect(el.textContent).toContain('Handwritten Hangul Input');
+
+      fixture.componentInstance.applyHandwritingCandidate('한국');
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.handwritingMode()).toBeNull();
+      const searchReq = httpTesting.expectOne(
+        (r) =>
+          r.url.endsWith('/vocabulary') && r.method === 'GET' && r.params.get('search') === '한국',
+      );
+      searchReq.flush({
+        data: { items: [], meta: { page: 1, limit: 12, total: 0, totalPages: 1 } },
+      });
+    } finally {
+      langService.setLanguage('en');
+    }
   });
 });

@@ -1,0 +1,258 @@
+.hw-pad {
+  display: grid;
+  gap: var(--oq-space-3);
+}
+
+.hw-target-bar,
+.hw-result__head,
+.hw-actions--split {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--oq-space-2);
+  flex-wrap: wrap;
+}
+
+.hw-target-bar {
+  padding: var(--oq-space-2) var(--oq-space-3);
+  border-radius: var(--oq-radius-md);
+  background: var(--oq-bg-subtle);
+  border: 1px solid var(--oq-border-subtle);
+}
+
+.hw-target-term {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--oq-text-primary);
+  margin-right: auto;
+}
+
+.hw-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 4px;
+  border-radius: var(--oq-radius-md);
+  background: var(--oq-bg-subtle);
+}
+
+.hw-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: var(--oq-radius-sm);
+  background: transparent;
+  color: var(--oq-text-secondary);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &--active {
+    background: var(--oq-bg-surface);
+    color: var(--oq-text-primary);
+    box-shadow: var(--oq-shadow-xs);
+  }
+}
+
+.hw-syllable-strip,
+.hw-actions,
+.hw-guide-stage,
+.hw-candidate-list,
+.hw-actions__left,
+.hw-result__badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.hw-syllable-strip,
+.hw-actions,
+.hw-guide-stage {
+  justify-content: center;
+}
+
+.hw-syllable-btn {
+  min-width: 40px;
+  height: 40px;
+  padding: 0 10px;
+  border-radius: var(--oq-radius-sm);
+  border: 1px solid var(--oq-border-strong);
+  background: var(--oq-bg-surface);
+  color: var(--oq-text-primary);
+  font-size: 1.15rem;
+  font-weight: 700;
+  cursor: pointer;
+
+  &--active {
+    border-color: var(--oq-accent);
+    background: var(--oq-accent-soft);
+    color: var(--oq-accent);
+  }
+}
+
+.hw-guide-pane,
+.hw-freehand-pane {
+  display: grid;
+  gap: var(--oq-space-3);
+}
+
+.hw-paper {
+  position: relative;
+  border: 1.5px solid var(--oq-border-strong);
+  border-radius: var(--oq-radius-md);
+  background: #ffffff;
+  overflow: hidden;
+
+  &--square {
+    width: 200px;
+    height: 200px;
+  }
+
+  &--wide {
+    width: 100%;
+    height: 210px;
+  }
+}
+
+.hw-pad--compact .hw-paper--wide {
+  height: 175px;
+}
+
+.hw-paper__grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    background: #e2e8f0;
+  }
+
+  &::before {
+    inset: 50% 0 auto 0;
+    height: 1px;
+  }
+
+  &::after {
+    inset: 0 auto 0 50%;
+    width: 1px;
+  }
+}
+
+.hw-writer-host,
+.hw-canvas {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+.hw-writer-host {
+  display: grid;
+  place-items: center;
+  font-size: 4rem;
+  color: #172033;
+}
+
+.hw-canvas {
+  display: block;
+  cursor: crosshair;
+}
+
+.hw-canvas-placeholder {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--oq-space-4);
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.875rem;
+  pointer-events: none;
+}
+
+.hw-status-note,
+.hw-status-done,
+.hw-hint-warn {
+  margin: 0;
+  font-size: 0.85rem;
+  text-align: center;
+  color: var(--oq-text-secondary);
+}
+
+.hw-hint-warn {
+  color: var(--oq-pastel-cream-ink);
+}
+
+.hw-status-done {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--oq-pastel-green-ink);
+  font-weight: 600;
+}
+
+.hw-mistakes-pill {
+  margin-left: 6px;
+  font-weight: 600;
+  color: var(--oq-accent);
+}
+
+.hw-result {
+  display: grid;
+  gap: 8px;
+  padding: var(--oq-space-3);
+  border-radius: var(--oq-radius-md);
+  border: 1px solid var(--oq-border-subtle);
+  background: var(--oq-bg-subtle);
+
+  &__label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--oq-text-secondary);
+  }
+
+  &__text {
+    font-size: 1.4rem;
+    color: var(--oq-text-primary);
+  }
+
+  &__feedback {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--oq-text-body);
+  }
+}
+
+.hw-candidates {
+  display: grid;
+  gap: 6px;
+  font-size: 0.8rem;
+}
+
+.hw-chip {
+  padding: 5px 12px;
+  border-radius: var(--oq-radius-full);
+  border: 1px solid var(--oq-border-strong);
+  background: var(--oq-bg-surface);
+  color: var(--oq-text-primary);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+
+  &--active,
+  &:hover {
+    border-color: var(--oq-accent);
+    background: var(--oq-accent-soft);
+    color: var(--oq-accent);
+  }
+}

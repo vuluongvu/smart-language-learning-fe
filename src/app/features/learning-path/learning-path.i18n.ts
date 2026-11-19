@@ -63,6 +63,9 @@ export const LP_EN_TRANSLATIONS = {
   'lpu.syncVocabBtn': 'Save all to Notebook',
   'lpu.flashcardBtn': 'Practice 3D Flashcards',
   'lpu.inNotebookBadge': 'In Notebook',
+  'lpu.writePracticeBtn': 'Practice Writing',
+  'lpu.writeModalTitle': 'Practice Writing Hangul',
+  'lpu.writeModalDesc': 'Follow stroke order first, then write freely and check with AI Tutor.',
   'lpu.vocabSyncedMsg': 'Saved {{added}} new word(s) to topic "{{topic}}".',
   'lpu.nextQuizBtn': 'Next: Listen & Read',
   'lpu.quizSub':
@@ -183,6 +186,9 @@ export const LP_VI_TRANSLATIONS: Record<LpTxKey, string> = {
   'lpu.syncVocabBtn': 'Lưu hết vào Sổ từ vựng',
   'lpu.flashcardBtn': 'Luyện Thẻ ghi nhớ 3D',
   'lpu.inNotebookBadge': 'Đã có trong sổ',
+  'lpu.writePracticeBtn': 'Tập viết',
+  'lpu.writeModalTitle': 'Tập viết chữ Hangul',
+  'lpu.writeModalDesc': 'Xem thứ tự nét trước, sau đó tự viết tay và nhờ AI nhận xét.',
   'lpu.vocabSyncedMsg': 'Đã lưu {{added}} từ mới vào chủ đề "{{topic}}".',
   'lpu.nextQuizBtn': 'Tiếp: Nghe & Đọc hiểu',
   'lpu.quizSub':

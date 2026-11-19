@@ -618,3 +618,36 @@
     font-weight: 700;
   }
 }
+
+.oq-search-draw-btn {
+  position: absolute;
+  right: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: var(--oq-radius-sm);
+  background: transparent;
+  color: var(--oq-text-secondary);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--oq-accent-soft);
+    color: var(--oq-accent);
+  }
+}
+
+.oq-hw-toggle-row {
+  text-align: center;
+}
+
+.oq-hw-drawer {
+  padding: var(--oq-space-4);
+
+  &__hint {
+    margin: 0 0 8px;
+    text-align: center;
+  }
+}

@@ -273,6 +273,12 @@
                       'lpu.inNotebookBadge' | lpT
                     }}</span>
                   }
+                  @if (d.track.languageCode === 'ko') {
+                    <button type="button" class="oq-copy-btn" (click)="openHandwriting(word.term)">
+                      <oq-icon name="pen-line" [size]="13" />
+                      <span>{{ 'lpu.writePracticeBtn' | lpT }}</span>
+                    </button>
+                  }
                   @if (speech.isTtsSupported) {
                     <button
                       type="button"
@@ -653,3 +659,12 @@
     }
   }
 }
+
+<oq-hangul-modal
+  [open]="handwritingTarget() !== null"
+  [title]="'lpu.writeModalTitle' | lpT"
+  [description]="'lpu.writeModalDesc' | lpT"
+  [expectedText]="handwritingTarget() ?? ''"
+  initialTab="guide"
+  (closed)="closeHandwriting()"
+/>

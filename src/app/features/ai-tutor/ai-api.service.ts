@@ -11,6 +11,9 @@ import {
   AiStatus,
   AiTranscribeResponse,
   ConversationInputMode,
+  ExplanationLanguage,
+  HandwritingRecognitionMode,
+  RecognizeHandwritingResult,
   StartConversationRequest,
 } from '../../shared/types/ai.types';
 
@@ -89,6 +92,33 @@ export class AiApiService {
   endConversation(id: number): Observable<AiConversationSessionDetail> {
     return this.http
       .post<ApiEnvelope<AiConversationSessionDetail>>(`${this.baseUrl}/conversations/${id}/end`, {})
+      .pipe(map((res) => res.data));
+  }
+
+  recognizeHandwriting(
+    imageBlob: Blob,
+    options?: {
+      expectedText?: string;
+      explanationLang?: ExplanationLanguage;
+      mode?: HandwritingRecognitionMode;
+    },
+  ): Observable<RecognizeHandwritingResult> {
+    const formData = new FormData();
+    formData.append('image', imageBlob, 'handwriting.png');
+    if (options?.expectedText?.trim()) {
+      formData.append('expectedText', options.expectedText.trim());
+    }
+    if (options?.explanationLang) {
+      formData.append('explanationLang', options.explanationLang);
+    }
+    if (options?.mode) {
+      formData.append('mode', options.mode);
+    }
+    return this.http
+      .post<ApiEnvelope<RecognizeHandwritingResult>>(
+        `${this.baseUrl}/handwriting/recognize`,
+        formData,
+      )
       .pipe(map((res) => res.data));
   }
 }

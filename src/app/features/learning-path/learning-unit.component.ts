@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, of } from 'rxjs';
 import {
   OqEmptyStateComponent,
+  OqHangulModalComponent,
   OqIconComponent,
   OqPageHeaderComponent,
   OqProgressBarComponent,
@@ -33,6 +34,7 @@ export type UnitSkillTab = 'vocab' | 'quiz' | 'writing' | 'speaking';
     OqPageHeaderComponent,
     OqProgressBarComponent,
     OqEmptyStateComponent,
+    OqHangulModalComponent,
     OqIconComponent,
     AiConversationComponent,
     TranslatePipe,
@@ -58,6 +60,7 @@ export class LearningUnitComponent implements OnInit {
   protected readonly detail = signal<LearningPathUnitDetail | null>(null);
   protected readonly activeTab = signal<UnitSkillTab>('vocab');
   protected readonly aiEnabled = signal(false);
+  protected readonly handwritingTarget = signal<string | null>(null);
 
   // Step 1: Vocabulary + Flashcards
   protected readonly syncingVocab = signal(false);
@@ -174,6 +177,14 @@ export class LearningUnitComponent implements OnInit {
     this.speech.stopSpeaking();
     this.actionMessage.set(null);
     this.activeTab.set(tab);
+  }
+
+  protected openHandwriting(term: string): void {
+    this.handwritingTarget.set(term);
+  }
+
+  protected closeHandwriting(): void {
+    this.handwritingTarget.set(null);
   }
 
   speakAudio(text: string, id: string, rate = 0.95): void {

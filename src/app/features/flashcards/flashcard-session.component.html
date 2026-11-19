@@ -226,6 +226,28 @@
           </button>
         </div>
 
+        @if (isKoreanSessionOrCard()) {
+          <div class="oq-hw-toggle-row">
+            <button
+              type="button"
+              class="oq-btn oq-btn--ghost oq-btn--sm"
+              [attr.aria-expanded]="showHandwritingPad()"
+              (click)="toggleHandwritingPad()"
+            >
+              <oq-icon name="pen-line" [size]="15" />
+              <span>{{
+                (showHandwritingPad() ? 'fc.handwritingHide' : 'fc.handwritingToggle') | t
+              }}</span>
+            </button>
+          </div>
+          @if (showHandwritingPad()) {
+            <section class="oq-card oq-hw-drawer">
+              <p class="muted-small oq-hw-drawer__hint">{{ 'fc.handwritingHint' | t }}</p>
+              <oq-hangul-pad [expectedText]="card.term" initialTab="freehand" [compact]="true" />
+            </section>
+          }
+        }
+
         @if (isFlipped()) {
           <div class="rating-grid" role="group" aria-label="Rate how well you remembered this word">
             @for (btn of ratingButtons; track btn.rating) {

@@ -4,6 +4,8 @@ export { OqCardComponent } from './card/card.component';
 export { OqCheckboxComponent } from './checkbox/checkbox.component';
 export { OqDropdownComponent } from './dropdown/dropdown.component';
 export { OqEmptyStateComponent } from './empty-state/empty-state.component';
+export { OqHangulModalComponent } from './hangul-modal/hangul-modal.component';
+export { OqHangulPadComponent } from './hangul-pad/hangul-pad.component';
 export { OqIconComponent, type OqIconName } from './icon/icon.component';
 export { OqInputComponent } from './input/input.component';
 export { OqModalComponent } from './modal/modal.component';
