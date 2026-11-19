@@ -6,12 +6,25 @@ import { I18nService, TranslatePipe } from '../../shared/i18n';
 import { GoogleIdentityService } from '../../shared/services/google-identity.service';
 import { LearningLanguageService } from '../../shared/services/learning-language.service';
 import { ThemeService } from '../../shared/services/theme.service';
+import { DeleteAccountRequest } from '../../shared/types/auth.types';
 import { COMMON_TIMEZONES, extractApiError } from '../../shared/utils/api-error.util';
 import { AuthService } from '../auth/auth.service';
+import {
+  DELETE_ACCOUNT_COOLDOWN_SECONDS,
+  DeleteAccountModalComponent,
+} from './delete-account-modal/delete-account-modal.component';
+
+export { DELETE_ACCOUNT_COOLDOWN_SECONDS };
 
 @Component({
   selector: 'app-settings',
-  imports: [ReactiveFormsModule, OqPageHeaderComponent, OqIconComponent, TranslatePipe],
+  imports: [
+    ReactiveFormsModule,
+    OqPageHeaderComponent,
+    OqIconComponent,
+    DeleteAccountModalComponent,
+    TranslatePipe,
+  ],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss',
 })
@@ -41,9 +54,13 @@ export class SettingsComponent implements OnInit {
     Boolean(this.authService.user()?.linkedProviders.includes('google')),
   );
 
-  protected readonly showDeleteConfirm = signal(false);
+  protected readonly dangerZoneExpanded = signal(false);
+  protected readonly showDeleteModal = signal(false);
   protected readonly deleteBusy = signal(false);
   protected readonly deleteError = signal<string | null>(null);
+
+  protected readonly userEmail = computed(() => this.authService.user()?.email ?? '');
+  protected readonly hasPassword = computed(() => Boolean(this.authService.user()?.hasPassword));
 
   @ViewChild('googleLinkContainer')
   set googleLinkContainerRef(ref: ElementRef<HTMLElement> | undefined) {
@@ -69,10 +86,6 @@ export class SettingsComponent implements OnInit {
     currentPassword: [''],
     newPassword: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(72)]],
     confirmPassword: ['', [Validators.required]],
-  });
-
-  protected readonly deleteForm = this.fb.nonNullable.group({
-    currentPassword: [''],
   });
 
   ngOnInit(): void {
@@ -179,31 +192,47 @@ export class SettingsComponent implements OnInit {
       });
   }
 
-  deleteAccount(): void {
+  toggleDangerZone(): void {
+    this.dangerZoneExpanded.update((expanded) => !expanded);
+  }
+
+  openDeleteModal(): void {
+    this.deleteError.set(null);
+    this.showDeleteModal.set(true);
+  }
+
+  closeDeleteModal(): void {
+    if (this.deleteBusy()) {
+      return;
+    }
+    this.showDeleteModal.set(false);
+    this.deleteError.set(null);
+  }
+
+  deleteAccount(payload: DeleteAccountRequest): void {
+    if (this.deleteBusy()) {
+      return;
+    }
+
     this.deleteBusy.set(true);
     this.deleteError.set(null);
-    const currentPassword = this.deleteForm.getRawValue().currentPassword;
 
-    this.authService
-      .deleteAccount({
-        confirm: true,
-        currentPassword: currentPassword || undefined,
-      })
-      .subscribe({
-        next: () => {
-          this.deleteBusy.set(false);
-          void this.router.navigate(['/login']);
-        },
-        error: (err: unknown) => {
-          this.deleteBusy.set(false);
-          this.deleteError.set(
-            extractApiError(
-              err,
-              this.i18n.lang() === 'vi' ? 'Không thể xóa tài khoản' : 'Failed to delete account',
-            ),
-          );
-        },
-      });
+    this.authService.deleteAccount(payload).subscribe({
+      next: () => {
+        this.deleteBusy.set(false);
+        this.showDeleteModal.set(false);
+        void this.router.navigate(['/login']);
+      },
+      error: (err: unknown) => {
+        this.deleteBusy.set(false);
+        this.deleteError.set(
+          extractApiError(
+            err,
+            this.i18n.lang() === 'vi' ? 'Không thể xóa tài khoản' : 'Failed to delete account',
+          ),
+        );
+      },
+    });
   }
 
   linkGoogle(idToken: string): void {

@@ -259,48 +259,73 @@
         </div>
       }
     </div>
+  </section>
 
-    <div class="danger-block">
-      <h3>{{ 'settings.deleteTitle' | t }}</h3>
-      <p class="section-desc">{{ 'settings.deleteDesc' | t }}</p>
-
-      @if (deleteError()) {
-        <div class="oq-alert oq-alert--error" role="alert">
-          {{ deleteError() }}
+  <section
+    class="oq-card oq-card--danger settings-section danger-zone"
+    aria-labelledby="section-danger-zone"
+  >
+    <div class="danger-zone__head">
+      <div class="danger-zone__title-group">
+        <span class="danger-zone__icon" aria-hidden="true">
+          <oq-icon name="alert-circle" [size]="18" />
+        </span>
+        <div>
+          <h2 id="section-danger-zone">{{ 'settings.dangerZoneTitle' | t }}</h2>
+          <p class="section-desc">{{ 'settings.dangerZoneDesc' | t }}</p>
         </div>
-      }
+      </div>
 
-      @if (!showDeleteConfirm()) {
-        <button type="button" class="oq-btn oq-btn--danger" (click)="showDeleteConfirm.set(true)">
-          {{ 'settings.deleteBtn' | t }}
-        </button>
-      } @else {
-        <form [formGroup]="deleteForm" (ngSubmit)="deleteAccount()">
-          @if (authService.user()?.hasPassword) {
-            <div class="oq-field">
-              <label for="delete-password">{{ 'settings.deletePasswordPrompt' | t }}</label>
-              <input
-                id="delete-password"
-                type="password"
-                formControlName="currentPassword"
-                autocomplete="current-password"
-              />
-            </div>
-          }
-          <div class="actions-row">
-            <button type="submit" class="oq-btn oq-btn--danger" [disabled]="deleteBusy()">
-              {{ deleteBusy() ? ('common.deleting' | t) : ('settings.confirmPermanentDelete' | t) }}
-            </button>
-            <button
-              type="button"
-              class="oq-btn oq-btn--secondary"
-              (click)="showDeleteConfirm.set(false)"
-            >
-              {{ 'common.cancel' | t }}
-            </button>
-          </div>
-        </form>
-      }
+      <button
+        type="button"
+        class="oq-btn oq-btn--secondary oq-btn--sm danger-zone__toggle"
+        [attr.aria-expanded]="dangerZoneExpanded()"
+        aria-controls="danger-zone-panel"
+        data-testid="danger-zone-toggle"
+        (click)="toggleDangerZone()"
+      >
+        <span>
+          {{ (dangerZoneExpanded() ? 'settings.dangerZoneHide' : 'settings.dangerZoneShow') | t }}
+        </span>
+        <oq-icon
+          name="chevron-down"
+          [size]="16"
+          class="danger-zone__chevron"
+          [class.danger-zone__chevron--open]="dangerZoneExpanded()"
+        />
+      </button>
     </div>
+
+    @if (dangerZoneExpanded()) {
+      <div id="danger-zone-panel" class="danger-block">
+        <div class="danger-block__row">
+          <div>
+            <h3>{{ 'settings.deleteTitle' | t }}</h3>
+            <p class="section-desc">{{ 'settings.deleteDesc' | t }}</p>
+          </div>
+          <button
+            type="button"
+            class="oq-btn danger-trigger-btn"
+            data-testid="open-delete-modal-btn"
+            (click)="openDeleteModal()"
+          >
+            <oq-icon name="trash" [size]="16" />
+            <span>{{ 'settings.deleteBtn' | t }}</span>
+          </button>
+        </div>
+      </div>
+    }
   </section>
 </div>
+
+@if (showDeleteModal()) {
+  <app-delete-account-modal
+    [email]="userEmail()"
+    [hasPassword]="hasPassword()"
+    [busy]="deleteBusy()"
+    [error]="deleteError()"
+    (closed)="closeDeleteModal()"
+    (errorCleared)="deleteError.set(null)"
+    (confirmed)="deleteAccount($event)"
+  />
+}
