@@ -17,6 +17,7 @@ let nextModalId = 0;
           class="oq-modal"
           [class.oq-modal--sm]="size() === 'sm'"
           [class.oq-modal--lg]="size() === 'lg'"
+          [class.oq-modal--xl]="size() === 'xl'"
           [attr.role]="role()"
           aria-modal="true"
           [attr.aria-labelledby]="titleId"
@@ -78,6 +79,11 @@ let nextModalId = 0;
         &--lg {
           max-width: 720px;
         }
+
+        &--xl {
+          max-width: 880px;
+          max-height: min(94vh, 940px);
+        }
       }
 
       .oq-modal__head {
@@ -123,7 +129,7 @@ export class OqModalComponent {
   readonly open = input<boolean>(false);
   readonly title = input.required<string>();
   readonly description = input<string | null>(null);
-  readonly size = input<'sm' | 'md' | 'lg'>('md');
+  readonly size = input<'sm' | 'md' | 'lg' | 'xl'>('md');
   readonly role = input<'dialog' | 'alertdialog'>('dialog');
   readonly closeOnBackdrop = input<boolean>(true);
   readonly closed = output<void>();

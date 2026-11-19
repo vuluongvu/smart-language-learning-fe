@@ -7,7 +7,7 @@ import { GoogleIdentityService } from '../../shared/services/google-identity.ser
 import { LearningLanguageService } from '../../shared/services/learning-language.service';
 import { ThemeService } from '../../shared/services/theme.service';
 import { DeleteAccountRequest } from '../../shared/types/auth.types';
-import { COMMON_TIMEZONES, extractApiError } from '../../shared/utils/api-error.util';
+import { extractApiError } from '../../shared/utils/api-error.util';
 import { AuthService } from '../auth/auth.service';
 import {
   DELETE_ACCOUNT_COOLDOWN_SECONDS,
@@ -37,7 +37,6 @@ export class SettingsComponent implements OnInit {
   protected readonly i18n = inject(I18nService);
   protected readonly learningLang = inject(LearningLanguageService);
 
-  protected readonly timezoneOptions = signal<string[]>([...COMMON_TIMEZONES]);
   protected readonly profileBusy = signal(false);
   protected readonly profileMessage = signal<string | null>(null);
   protected readonly profileError = signal<string | null>(null);
@@ -78,7 +77,6 @@ export class SettingsComponent implements OnInit {
   protected readonly profileForm = this.fb.nonNullable.group({
     displayName: ['', [Validators.required, Validators.maxLength(100)]],
     avatarUrl: ['', [Validators.maxLength(500)]],
-    timezone: ['UTC', [Validators.required]],
     isLeaderboardVisible: [true],
   });
 
@@ -95,13 +93,9 @@ export class SettingsComponent implements OnInit {
 
     const user = this.authService.user();
     if (user) {
-      if (!COMMON_TIMEZONES.includes(user.timezone)) {
-        this.timezoneOptions.set([user.timezone, ...COMMON_TIMEZONES]);
-      }
       this.profileForm.patchValue({
         displayName: user.displayName,
         avatarUrl: user.avatarUrl ?? '',
-        timezone: user.timezone,
         isLeaderboardVisible: user.isLeaderboardVisible,
       });
     }
@@ -122,7 +116,6 @@ export class SettingsComponent implements OnInit {
       .updateProfile({
         displayName: raw.displayName.trim(),
         avatarUrl: raw.avatarUrl.trim() ? raw.avatarUrl.trim() : null,
-        timezone: raw.timezone,
         isLeaderboardVisible: raw.isLeaderboardVisible,
       })
       .subscribe({

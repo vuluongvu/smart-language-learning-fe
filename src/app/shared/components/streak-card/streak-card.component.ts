@@ -39,8 +39,7 @@ import { OqIconComponent } from '../icon/icon.component';
               }
             </div>
             <p class="oq-streak-card__meta">
-              <strong>{{ 'streak.longest' | t: { days: longestStreak() } }}</strong> ·
-              {{ 'streak.timezone' | t }} <code>{{ timezone() }}</code>
+              <strong>{{ 'streak.longest' | t: { days: longestStreak() } }}</strong>
             </p>
           </div>
         </div>
@@ -203,13 +202,6 @@ import { OqIconComponent } from '../icon/icon.component';
         margin: 4px 0 0;
         font-size: 0.8125rem;
         color: var(--oq-text-secondary);
-
-        code {
-          padding: 1px 6px;
-          border-radius: 6px;
-          background: var(--oq-bg-surface);
-          font-size: 0.75rem;
-        }
       }
 
       .oq-streak-card__side {
@@ -294,7 +286,6 @@ import { OqIconComponent } from '../icon/icon.component';
 export class OqStreakCardComponent {
   readonly currentStreak = input<number>(0);
   readonly longestStreak = input<number>(0);
-  readonly timezone = input<string>('UTC');
   readonly isActiveToday = input<boolean>(false);
   readonly isAtRiskToday = input<boolean>(false);
   readonly showLinks = input<boolean>(true);

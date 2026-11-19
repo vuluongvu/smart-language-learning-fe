@@ -105,7 +105,7 @@ describe('OqHangulPadComponent', () => {
     expect(hangulWriterCreateMock).toHaveBeenCalledWith(
       expect.any(HTMLElement),
       '안',
-      expect.any(Object),
+      expect.objectContaining({ width: 340, height: 340 }),
     );
 
     const traceBtn = Array.from(el.querySelectorAll<HTMLButtonElement>('button')).find((b) =>

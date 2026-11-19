@@ -30,21 +30,6 @@ export function extractApiError(error: unknown, fallback = 'Something went wrong
   return fallback;
 }
 
-export const COMMON_TIMEZONES: string[] = [
-  'UTC',
-  'Asia/Ho_Chi_Minh',
-  'Asia/Bangkok',
-  'Asia/Tokyo',
-  'Asia/Seoul',
-  'Asia/Singapore',
-  'Europe/London',
-  'Europe/Paris',
-  'America/New_York',
-  'America/Chicago',
-  'America/Los_Angeles',
-  'Australia/Sydney',
-];
-
 export function detectBrowserTimezone(): string {
   try {
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;

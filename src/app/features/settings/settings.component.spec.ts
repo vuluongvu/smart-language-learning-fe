@@ -86,11 +86,12 @@ describe('SettingsComponent', () => {
     expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
   });
 
-  it('hides account deletion controls inside a collapsed Danger Zone by default', () => {
+  it('hides account deletion controls inside a collapsed Danger Zone by default and omits timezone field', () => {
     const fixture = TestBed.createComponent(SettingsComponent);
     fixture.detectChanges();
     const el = fixture.nativeElement as HTMLElement;
 
+    expect(el.querySelector('#settings-timezone')).toBeNull();
     expect(el.querySelector('[data-testid="open-delete-modal-btn"]')).toBeNull();
     expect(el.querySelector('oq-modal')).toBeNull();
 
