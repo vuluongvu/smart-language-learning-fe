@@ -12,6 +12,8 @@ import {
   AiTranscribeResponse,
   ConversationInputMode,
   ExplanationLanguage,
+  GenerateStarterGrammarRequest,
+  GenerateStarterGrammarResponse,
   HandwritingRecognitionMode,
   RecognizeHandwritingResult,
   StartConversationRequest,
@@ -119,6 +121,14 @@ export class AiApiService {
         `${this.baseUrl}/handwriting/recognize`,
         formData,
       )
+      .pipe(map((res) => res.data));
+  }
+
+  generateStarterGrammar(
+    payload: GenerateStarterGrammarRequest,
+  ): Observable<GenerateStarterGrammarResponse> {
+    return this.http
+      .post<ApiEnvelope<GenerateStarterGrammarResponse>>(`${this.baseUrl}/starter-grammar`, payload)
       .pipe(map((res) => res.data));
   }
 }

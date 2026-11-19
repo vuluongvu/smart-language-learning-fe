@@ -89,6 +89,25 @@ export const STARTER_EN_TRANSLATIONS = {
   'st.grammarQuizWrong': 'Not quite — check the grammar tip below:',
   'st.grammarQuizNext': 'Next question',
   'st.grammarQuizRestart': 'Retry grammar check',
+  'st.grammarQuizFilterAll': 'All ({{count}})',
+  'st.grammarQuizFilterChoice': 'Fill & Choice',
+  'st.grammarQuizFilterScramble': 'Word Order',
+  'st.grammarQuizFilterAi': 'AI Generated ({{count}})',
+  'st.grammarScrambleEmpty': 'Tap word tiles below in the right order...',
+  'st.grammarScrambleUndo': 'Undo',
+  'st.grammarScrambleClear': 'Clear',
+  'st.grammarScrambleCheck': 'Check sentence',
+  'st.grammarGenToggle': '+ Create More Grammar & Exercises (AI)',
+  'st.grammarGenTitle': 'Create Custom Grammar & Exercises with AI',
+  'st.grammarGenDesc':
+    'Enter any grammar rule you want to learn — Argon generates a structured lesson card plus 4 interactive exercises right here.',
+  'st.grammarGenTopicPlaceholder': 'e.g., Past Simple, Prepositions of time, Korean -(으)세요...',
+  'st.grammarGenBtn': 'Generate lesson & 4 exercises',
+  'st.grammarGenBusy': 'Creating lesson & exercises...',
+  'st.grammarGenCreated': 'Added "{{title}}" + {{count}} new exercises to your Starter studio!',
+  'st.grammarGenJumpQuiz': 'Practice new exercises',
+  'st.grammarAiBadge': 'AI Created',
+  'st.grammarRemoveCustom': 'Remove custom lesson',
 } as const;
 
 export type StarterTxKey = keyof typeof STARTER_EN_TRANSLATIONS;
@@ -180,6 +199,25 @@ export const STARTER_VI_TRANSLATIONS: Record<StarterTxKey, string> = {
   'st.grammarQuizWrong': 'Chưa chuẩn lắm — xem giải thích bên dưới nhé:',
   'st.grammarQuizNext': 'Câu tiếp theo',
   'st.grammarQuizRestart': 'Làm lại bộ ngữ pháp',
+  'st.grammarQuizFilterAll': 'Tất cả ({{count}})',
+  'st.grammarQuizFilterChoice': 'Chọn đáp án',
+  'st.grammarQuizFilterScramble': 'Sắp xếp câu',
+  'st.grammarQuizFilterAi': 'AI vừa tạo ({{count}})',
+  'st.grammarScrambleEmpty': 'Chạm từng mảnh từ bên dưới theo đúng trật tự câu...',
+  'st.grammarScrambleUndo': 'Bỏ 1 từ',
+  'st.grammarScrambleClear': 'Xóa chọn',
+  'st.grammarScrambleCheck': 'Kiểm tra câu',
+  'st.grammarGenToggle': '+ Tạo thêm Ngữ pháp & Bài tập (AI)',
+  'st.grammarGenTitle': 'Tạo thêm Ngữ pháp & Bài tập theo ý bạn (AI)',
+  'st.grammarGenDesc':
+    'Nhập bất kỳ điểm ngữ pháp nào muốn học thêm — Argon sẽ tạo thẻ công thức chuẩn cùng 4 bài tập tương tác ngay bên dưới.',
+  'st.grammarGenTopicPlaceholder': 'VD: Thì quá khứ đơn, So sánh hơn, Đuôi -(으)세요...',
+  'st.grammarGenBtn': 'Tạo ngữ pháp & 4 bài tập',
+  'st.grammarGenBusy': 'Đang soạn bài & bài tập...',
+  'st.grammarGenCreated': 'Đã thêm "{{title}}" cùng {{count}} bài tập mới vào Starter!',
+  'st.grammarGenJumpQuiz': 'Làm ngay bài vừa tạo',
+  'st.grammarAiBadge': 'Tạo bởi AI',
+  'st.grammarRemoveCustom': 'Xóa bài tự tạo',
 };
 
 export function starterTranslate(

@@ -21,6 +21,7 @@ describe('StarterStudioComponent', () => {
   beforeEach(async () => {
     localStorage.removeItem('argon_learning_course');
     localStorage.removeItem('argon_starter_grammar_done');
+    localStorage.removeItem('argon_starter_grammar_custom_v1');
     speechMock = {
       isTtsSupported: true,
       speakingId: signal<string | null>(null),
@@ -35,6 +36,67 @@ describe('StarterStudioComponent', () => {
           content: 'Sample grammar tip reply',
           model: 'groq-test',
           usage: { totalTokens: 40 },
+        }),
+      ),
+      generateStarterGrammar: vi.fn(() =>
+        of({
+          model: 'groq-test',
+          grammarPoint: {
+            id: 'ai-en-g-test1',
+            category: 'verbs',
+            titleVi: 'Thì Hiện tại tiếp diễn',
+            titleEn: 'Present Continuous Tense',
+            formula: 'S + am/is/are + V-ing',
+            explanationVi: 'Diễn tả hành động đang xảy ra ngay lúc nói.',
+            explanationEn: 'Used for actions happening right now.',
+            rules: [{ labelVi: 'Hiện tại', labelEn: 'Now', sample: 'I am studying' }],
+            examples: [
+              {
+                sentence: 'She is reading a book now.',
+                meaningVi: 'Bây giờ cô ấy đang đọc sách.',
+                meaningEn: 'She is reading a book now.',
+              },
+            ],
+            mistake: 'She reading now.',
+            correction: 'She is reading now.',
+            mistakeNoteVi: 'Cần có "is" trước "reading".',
+            mistakeNoteEn: 'Include "is" before "reading".',
+            aiPromptVi: 'Cho thêm ví dụ Present Continuous.',
+            aiPromptEn: 'Give more Present Continuous examples.',
+            isAiGenerated: true,
+            level: 'A1',
+          },
+          exercises: [
+            {
+              id: 'ai-en-q1',
+              grammarId: 'ai-en-g-test1',
+              kind: 'choice',
+              promptVi: 'Điền dạng đúng:',
+              promptEn: 'Fill in the blank:',
+              stem: 'They ___ studying now.',
+              correctOption: 'are',
+              options: ['am', 'is', 'are', 'be'],
+              completedSentence: 'They are studying now.',
+              explanationVi: 'Chủ ngữ They đi với are.',
+              explanationEn: 'Use "are" with "They".',
+              isAiGenerated: true,
+            },
+            {
+              id: 'ai-en-q2',
+              grammarId: 'ai-en-g-test1',
+              kind: 'scramble',
+              promptVi: 'Sắp xếp câu:',
+              promptEn: 'Order sentence:',
+              stem: 'Tôi đang uống trà.',
+              correctOption: 'I am drinking tea.',
+              options: [],
+              scrambleWords: ['drinking', 'I', 'tea.', 'am'],
+              completedSentence: 'I am drinking tea.',
+              explanationVi: 'S + am + V-ing + O.',
+              explanationEn: 'Keep Subject + am + V-ing + Object.',
+              isAiGenerated: true,
+            },
+          ],
         }),
       ),
     };
@@ -52,6 +114,7 @@ describe('StarterStudioComponent', () => {
   afterEach(() => {
     localStorage.removeItem('argon_learning_course');
     localStorage.removeItem('argon_starter_grammar_done');
+    localStorage.removeItem('argon_starter_grammar_custom_v1');
   });
 
   it('maintains 100% EN/VI key parity for starter-studio i18n dictionary', () => {
@@ -139,7 +202,7 @@ describe('StarterStudioComponent', () => {
     const doneBtn = el.querySelector<HTMLButtonElement>('.st-grammar-done-btn');
     doneBtn?.click();
     fixture.detectChanges();
-    expect(el.textContent).toContain('Mastered: 1 / 6 points');
+    expect(el.textContent).toContain('Mastered: 1 / 10 points');
 
     // Interactive grammar quiz scoring + feedback
     const isOpt = Array.from(el.querySelectorAll<HTMLButtonElement>('.st-grammar-option')).find(
@@ -147,8 +210,45 @@ describe('StarterStudioComponent', () => {
     );
     isOpt?.click();
     fixture.detectChanges();
-    expect(el.textContent).toContain('Score: 1 / 6');
+    expect(el.textContent).toContain('Score: 1 / 14');
     expect(el.textContent).toContain('She is my English teacher.');
+
+    // Interactive word scramble filter & sentence assembly
+    const scramblePill = Array.from(el.querySelectorAll<HTMLButtonElement>('button')).find((b) =>
+      b.textContent?.includes('Word Order'),
+    );
+    scramblePill?.click();
+    fixture.detectChanges();
+    expect(el.textContent).toContain('Tap word tiles below');
+
+    for (const token of ['I', 'drink', 'tea', 'every', 'morning.']) {
+      const btn = Array.from(el.querySelectorAll<HTMLButtonElement>('.stg-word-btn')).find(
+        (b) => b.textContent?.trim() === token,
+      );
+      btn?.click();
+    }
+    fixture.detectChanges();
+    el.querySelector<HTMLButtonElement>('.st-grammar-check-btn')?.click();
+    fixture.detectChanges();
+    expect(el.textContent).toContain('Spot on!');
+
+    // Open AI generator box, pick preset, generate custom grammar + exercises, then remove
+    el.querySelector<HTMLButtonElement>('.st-grammar-gen-toggle')?.click();
+    fixture.detectChanges();
+    const presetBtn = Array.from(
+      el.querySelectorAll<HTMLButtonElement>('.stg-gen-box .oq-pill'),
+    ).find((b) => b.textContent?.includes('Present Continuous'));
+    presetBtn?.click();
+    fixture.detectChanges();
+    el.querySelector<HTMLButtonElement>('.st-grammar-gen-submit')?.click();
+    fixture.detectChanges();
+
+    expect(el.textContent).toContain('Present Continuous Tense');
+    expect(el.textContent).toContain('AI Generated (2)');
+
+    el.querySelector<HTMLButtonElement>('.st-grammar-remove-btn')?.click();
+    fixture.detectChanges();
+    expect(el.textContent).not.toContain('AI Generated (2)');
 
     // Switch to Korean -> Korean A0 grammar & particles appear
     const langSvc = TestBed.inject(LearningLanguageService);
