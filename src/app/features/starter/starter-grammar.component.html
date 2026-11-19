@@ -1,0 +1,226 @@
+@let isVi = i18n.lang() === 'vi';
+
+<section class="oq-card stg-panel">
+  <div class="stg-head">
+    <div>
+      <h2>{{ 'st.grammarTitle' | stT }}</h2>
+      <p class="oq-muted">{{ 'st.grammarDesc' | stT }}</p>
+    </div>
+    <span class="oq-badge oq-badge--success">
+      {{
+        'st.grammarProgress' | stT: { done: grammarDoneCount(), total: allGrammarPoints().length }
+      }}
+    </span>
+  </div>
+
+  <div class="stg-chip-wrap" role="group" [attr.aria-label]="'st.tabGrammar' | stT">
+    <button
+      type="button"
+      class="oq-pill"
+      [class.oq-pill--active]="grammarCategory() === 'all'"
+      (click)="grammarCategory.set('all')"
+    >
+      {{ 'st.grammarFilterAll' | stT }} ({{ allGrammarPoints().length }})
+    </button>
+    <button
+      type="button"
+      class="oq-pill"
+      [class.oq-pill--active]="grammarCategory() === 'order'"
+      (click)="grammarCategory.set('order')"
+    >
+      {{ 'st.grammarFilterOrder' | stT }}
+    </button>
+    <button
+      type="button"
+      class="oq-pill"
+      [class.oq-pill--active]="grammarCategory() === 'particles'"
+      (click)="grammarCategory.set('particles')"
+    >
+      {{ 'st.grammarFilterParticles' | stT }}
+    </button>
+    <button
+      type="button"
+      class="oq-pill"
+      [class.oq-pill--active]="grammarCategory() === 'verbs'"
+      (click)="grammarCategory.set('verbs')"
+    >
+      {{ 'st.grammarFilterVerbs' | stT }}
+    </button>
+  </div>
+
+  <div class="st-grammar-grid">
+    @for (point of filteredGrammarPoints(); track point.id) {
+      <article class="st-grammar-card" [class.st-grammar-card--done]="isGrammarDone(point.id)">
+        <div class="stg-head">
+          <strong class="st-grammar-card__title">
+            {{ isVi ? point.titleVi : point.titleEn }}
+          </strong>
+          <button
+            type="button"
+            class="oq-pill st-grammar-done-btn"
+            [class.oq-pill--active]="isGrammarDone(point.id)"
+            [attr.aria-pressed]="isGrammarDone(point.id)"
+            (click)="toggleGrammarDone(point.id)"
+          >
+            <oq-icon name="check" [size]="13" />
+            <span>{{
+              (isGrammarDone(point.id) ? 'st.grammarDone' : 'st.grammarMarkDone') | stT
+            }}</span>
+          </button>
+        </div>
+
+        <div class="st-formula-box">
+          <span class="oq-badge oq-badge--lavender">{{ 'st.grammarFormulaLabel' | stT }}</span>
+          <code class="st-formula-code">{{ point.formula }}</code>
+        </div>
+
+        <p class="stg-tip">{{ isVi ? point.explanationVi : point.explanationEn }}</p>
+
+        <div class="st-rule-grid">
+          @for (rule of point.rules; track $index) {
+            <div class="st-rule-item">
+              <span class="oq-muted">{{ isVi ? rule.labelVi : rule.labelEn }}</span>
+              <strong>{{ rule.sample }}</strong>
+            </div>
+          }
+        </div>
+
+        <div class="st-examples">
+          <span class="stg-group-label">{{ 'st.grammarExamplesLabel' | stT }}</span>
+          @for (ex of point.examples; track ex.sentence; let exIdx = $index) {
+            <div class="st-example-row">
+              <div>
+                <div class="st-example-main">
+                  <strong>{{ ex.sentence }}</strong>
+                  @if (ex.reading) {
+                    <span class="oq-muted">({{ ex.reading }})</span>
+                  }
+                </div>
+                <span class="stg-tip">{{ isVi ? ex.meaningVi : ex.meaningEn }}</span>
+              </div>
+              @if (speech.isTtsSupported) {
+                <button
+                  type="button"
+                  class="oq-copy-btn"
+                  (click)="speakText(ex.sentence, 'gr-' + point.id + '-' + exIdx)"
+                >
+                  <oq-icon
+                    [name]="
+                      speech.speakingId() === 'gr-' + point.id + '-' + exIdx ? 'square' : 'volume-2'
+                    "
+                    [size]="13"
+                  />
+                  <span>{{ 'st.grammarListenBtn' | stT }}</span>
+                </button>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="st-mistake-box">
+          <span class="st-mistake-label">{{ 'st.grammarAvoidMistake' | stT }}:</span>
+          <div>
+            <del class="st-err-old">{{ point.mistake }}</del> →
+            <strong class="st-err-new">{{ point.correction }}</strong>
+          </div>
+          <span class="stg-tip">{{ isVi ? point.mistakeNoteVi : point.mistakeNoteEn }}</span>
+        </div>
+
+        <div class="stg-card-actions">
+          <button
+            type="button"
+            class="oq-btn oq-btn--ghost oq-btn--sm st-grammar-ai-btn"
+            (click)="askGrammarTutor(point)"
+          >
+            <oq-icon name="sparkles" [size]="14" />
+            <span>{{ 'st.grammarAskAi' | stT }}</span>
+          </button>
+        </div>
+      </article>
+    }
+  </div>
+</section>
+
+@let gq = currentGrammarQuestion();
+<section class="oq-card stg-panel stg-quiz-section">
+  <div class="stg-head">
+    <div>
+      <h2>{{ 'st.grammarQuizTitle' | stT }}</h2>
+      <p class="oq-muted">{{ 'st.grammarQuizDesc' | stT }}</p>
+    </div>
+    <span class="oq-badge oq-badge--success">
+      {{
+        'st.grammarQuizScore'
+          | stT: { score: grammarQuizCorrectCount(), total: grammarQuizPool().length }
+      }}
+    </span>
+  </div>
+
+  <div class="stg-quiz-prompt">
+    <p class="stg-tip">{{ isVi ? gq.promptVi : gq.promptEn }}</p>
+    <p class="stg-quiz-stem">{{ gq.stem }}</p>
+  </div>
+
+  <div class="stg-quiz-options">
+    @for (opt of gq.options; track $index) {
+      <button
+        type="button"
+        class="st-grammar-option"
+        [class.st-grammar-option--correct]="
+          grammarQuizSelected() === opt && opt === gq.correctOption
+        "
+        [class.st-grammar-option--wrong]="grammarQuizSelected() === opt && opt !== gq.correctOption"
+        (click)="pickGrammarAnswer(opt)"
+      >
+        {{ opt }}
+      </button>
+    }
+  </div>
+
+  @if (grammarQuizSelected()) {
+    <div
+      class="oq-alert st-grammar-feedback"
+      [class.oq-alert--success]="grammarQuizIsCorrect()"
+      [class.oq-alert--info]="!grammarQuizIsCorrect()"
+      role="status"
+    >
+      <div class="st-grammar-feedback__text">
+        <strong>
+          {{ (grammarQuizIsCorrect() ? 'st.grammarQuizCorrect' : 'st.grammarQuizWrong') | stT }}
+          "{{ gq.completedSentence }}"
+        </strong>
+        <span>{{ isVi ? gq.explanationVi : gq.explanationEn }}</span>
+      </div>
+      <div class="stg-card-actions">
+        @if (speech.isTtsSupported) {
+          <button
+            type="button"
+            class="oq-copy-btn"
+            (click)="speakText(gq.completedSentence, 'gq-' + gq.id)"
+          >
+            <oq-icon
+              [name]="speech.speakingId() === 'gq-' + gq.id ? 'square' : 'volume-2'"
+              [size]="13"
+            />
+            <span>{{ 'st.grammarListenBtn' | stT }}</span>
+          </button>
+        }
+        <button
+          type="button"
+          class="oq-btn oq-btn--primary oq-btn--sm"
+          (click)="nextGrammarQuestion()"
+        >
+          <span>
+            {{
+              (grammarQuizIndex() + 1 >= grammarQuizPool().length
+                ? 'st.grammarQuizRestart'
+                : 'st.grammarQuizNext'
+              ) | stT
+            }}
+          </span>
+          <oq-icon name="arrow-right" [size]="14" />
+        </button>
+      </div>
+    </div>
+  }
+</section>

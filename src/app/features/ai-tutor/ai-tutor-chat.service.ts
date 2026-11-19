@@ -38,6 +38,7 @@ export class AiTutorChatService {
   private nextTurnSeq = 1;
   private lastLoadedLang: LearningLanguageCode | null = null;
   private statusRequested = false;
+  private pendingFloatingPrompt: string | null = null;
 
   readonly maxMessageLength = MAX_AI_MESSAGE_LENGTH;
   readonly starterPrompts = computed<StarterPrompt[]>(() =>
@@ -86,6 +87,7 @@ export class AiTutorChatService {
       const lang = this.learningLang.activeLang();
       if (this.lastLoadedLang && this.lastLoadedLang !== lang) {
         this.lastLoadedLang = lang;
+        this.pendingFloatingPrompt = null;
         this.clearConversation();
       } else if (!this.lastLoadedLang) {
         this.lastLoadedLang = lang;
@@ -112,6 +114,25 @@ export class AiTutorChatService {
     this.ensureStatusLoaded();
   }
 
+  /** Opens the floating AI tutor drawer and dispatches or pre-fills a starter/grammar prompt. */
+  askInFloating(prompt: string): void {
+    const clean = prompt.trim();
+    if (!clean) {
+      return;
+    }
+    this.floatingOpen.set(true);
+    if (this.isAiEnabled() && !this.sending()) {
+      this.sendMessage(clean);
+      return;
+    }
+    if (!this.statusRequested || this.statusError()) {
+      this.pendingFloatingPrompt = clean;
+      this.loadStatus();
+      return;
+    }
+    this.draftMessage.set(clean);
+  }
+
   closeFloating(): void {
     this.floatingOpen.set(false);
   }
@@ -126,6 +147,10 @@ export class AiTutorChatService {
     if (!this.aiApi) {
       this.aiStatus.set({ enabled: false, model: '' });
       this.statusLoading.set(false);
+      if (this.pendingFloatingPrompt && !this.draftMessage().trim()) {
+        this.draftMessage.set(this.pendingFloatingPrompt);
+      }
+      this.pendingFloatingPrompt = null;
       return;
     }
 
@@ -137,9 +162,23 @@ export class AiTutorChatService {
       next: (status) => {
         this.aiStatus.set(status);
         this.statusLoading.set(false);
+        const queued = this.pendingFloatingPrompt;
+        this.pendingFloatingPrompt = null;
+        if (queued) {
+          if (status.enabled && !this.sending()) {
+            this.sendMessage(queued);
+          } else {
+            this.draftMessage.set(queued);
+          }
+        }
       },
       error: (err: unknown) => {
         this.statusLoading.set(false);
+        const queued = this.pendingFloatingPrompt;
+        this.pendingFloatingPrompt = null;
+        if (queued && !this.draftMessage().trim()) {
+          this.draftMessage.set(queued);
+        }
         this.statusError.set(
           extractApiError(
             err,
