@@ -7,7 +7,7 @@
   [description]="'settings.deleteModalDesc' | t"
   (closed)="requestClose()"
 >
-  <div class="delete-steps" aria-label="Account deletion verification steps">
+  <div class="delete-steps" [attr.aria-label]="'settings.deleteStepsAria' | t">
     <span
       class="delete-step-pill"
       [class.delete-step-pill--active]="step() === 1"
@@ -21,7 +21,11 @@
   </div>
 
   @if (step() === 1) {
-    <div class="delete-warning-box" role="region" aria-label="Account deletion impact">
+    <div
+      class="delete-warning-box"
+      role="region"
+      [attr.aria-label]="'settings.deleteImpactAria' | t"
+    >
       <div class="delete-warning-box__lead">
         <oq-icon name="alert-circle" [size]="18" />
         <strong>{{ 'settings.deleteWarningLead' | t }}</strong>
@@ -154,12 +158,13 @@
       <div class="oq-modal-actions">
         <button
           type="button"
-          class="oq-btn oq-btn--ghost"
+          class="oq-btn oq-btn--secondary"
           data-testid="delete-back-btn"
           [disabled]="busy()"
           (click)="backToStep1()"
         >
-          {{ 'settings.deleteBackBtn' | t }}
+          <oq-icon name="arrow-left" [size]="15" />
+          <span>{{ 'settings.deleteBackBtn' | t }}</span>
         </button>
         <button
           type="button"

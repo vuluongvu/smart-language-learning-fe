@@ -105,7 +105,7 @@
   position: relative;
   border: 1.5px solid var(--oq-border-strong);
   border-radius: var(--oq-radius-md);
-  background: #ffffff;
+  background: var(--oq-hw-paper);
   overflow: hidden;
 
   &--square {
@@ -148,7 +148,7 @@
   &::after {
     content: '';
     position: absolute;
-    background: #e2e8f0;
+    background: var(--oq-hw-grid);
   }
 
   &::before {

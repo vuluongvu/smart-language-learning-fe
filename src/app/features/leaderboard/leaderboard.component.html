@@ -47,11 +47,15 @@
           <div class="my-card__stats">
             <div class="my-stat">
               <span>{{ 'lb.activeLabel' | t }}</span>
-              <strong>{{ lb.myPosition.currentStreak }}d</strong>
+              <strong>{{
+                'progress.daysValue' | t: { count: lb.myPosition.currentStreak }
+              }}</strong>
             </div>
             <div class="my-stat">
               <span>{{ 'lb.bestLabel' | t }}</span>
-              <strong>{{ lb.myPosition.longestStreak }}d</strong>
+              <strong>{{
+                'progress.daysValue' | t: { count: lb.myPosition.longestStreak }
+              }}</strong>
             </div>
           </div>
         </div>

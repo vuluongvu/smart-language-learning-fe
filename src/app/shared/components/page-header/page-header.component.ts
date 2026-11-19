@@ -40,6 +40,7 @@ import { OqIconComponent } from '../icon/icon.component';
       }
 
       .oq-page-header__left {
+        flex: 1 1 320px;
         min-width: 0;
       }
 
@@ -47,7 +48,7 @@ import { OqIconComponent } from '../icon/icon.component';
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
         font-size: 0.8125rem;
         font-weight: 500;
         color: var(--oq-text-secondary);
@@ -59,7 +60,7 @@ import { OqIconComponent } from '../icon/icon.component';
       }
 
       .oq-page-header__eyebrow {
-        display: inline-block;
+        display: block;
         margin-bottom: 4px;
         font-size: 0.75rem;
         font-weight: 600;
@@ -87,6 +88,7 @@ import { OqIconComponent } from '../icon/icon.component';
         flex-wrap: wrap;
         align-items: center;
         gap: 10px;
+        flex-shrink: 0;
 
         &:empty {
           display: none;

@@ -407,7 +407,10 @@ export class OqHangulPadComponent implements AfterViewInit {
     ctx.save?.();
     ctx.setTransform?.(1, 0, 0, 1, 0, 0);
     // Paint opaque paper explicitly so Chromium Skia always invalidates the composited canvas layer on Clear/Undo.
-    ctx.fillStyle = '#ffffff';
+    const isDark =
+      typeof document !== 'undefined' &&
+      document.documentElement.getAttribute('data-theme') === 'dark';
+    ctx.fillStyle = isDark ? '#e8eef6' : '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.restore?.();
     ctx.setTransform?.(dpr, 0, 0, dpr, 0, 0);
