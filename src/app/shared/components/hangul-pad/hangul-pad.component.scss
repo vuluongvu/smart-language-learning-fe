@@ -167,9 +167,15 @@
   cursor: crosshair;
 }
 
+.hw-freehand-pane .hw-paper__grid {
+  z-index: 2;
+  opacity: 0.55;
+}
+
 .hw-canvas-placeholder {
   position: absolute;
   inset: 0;
+  z-index: 2;
   display: grid;
   place-items: center;
   padding: var(--oq-space-4);

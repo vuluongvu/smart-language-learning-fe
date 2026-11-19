@@ -404,7 +404,9 @@ export class OqHangulPadComponent implements AfterViewInit {
     const dpr = typeof window !== 'undefined' ? Math.min(window.devicePixelRatio || 1, 2) : 1;
     ctx.save?.();
     ctx.setTransform?.(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Paint opaque paper explicitly so Chromium Skia always invalidates the composited canvas layer on Clear/Undo.
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.restore?.();
     ctx.setTransform?.(dpr, 0, 0, dpr, 0, 0);
     renderStrokesOnContext(ctx, this.strokes, '#111827', 6.5);
