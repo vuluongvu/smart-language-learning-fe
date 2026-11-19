@@ -301,8 +301,8 @@ export const KO_STARTER_GRAMMAR_POINTS: StarterGrammarPoint[] = [
     mistakeNoteVi: 'Động từ "마셔요" phải đặt ở cuối câu sau tân ngữ "물을".',
     mistakeNoteEn: 'Move the verb "마셔요" to the very end after "물을".',
     aiPromptVi:
-      'Giải thích quy tắc S + O + V tiếng Hàn cho người Việt mới học và cho 3 câu ngắn dễ thuộc.',
-    aiPromptEn: 'Explain Korean S + O + V word order with 3 easy A0 examples.',
+      'Giải thích quy tắc trật tự câu SOV (Chủ ngữ + Tân ngữ + Động từ) tiếng Hàn cho người Việt mới học và cho 3 câu ngắn dễ thuộc.',
+    aiPromptEn: 'Explain Korean SOV (Subject + Object + Verb) word order with 3 easy A0 examples.',
   },
   {
     id: 'ko-g2',
