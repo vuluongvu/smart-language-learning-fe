@@ -72,6 +72,8 @@
   --oq-shadow-sm: 0 2px 6px rgba(23, 32, 51, 0.05);
   --oq-shadow-md: 0 12px 28px -6px rgba(23, 32, 51, 0.1);
   --oq-focus-ring: 0 0 0 3px rgba(240, 68, 112, 0.18);
+  --oq-scrollbar-thumb: rgba(23, 32, 51, 0.14);
+  --oq-scrollbar-thumb-hover: rgba(23, 32, 51, 0.28);
   --oq-transition: 160ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
@@ -125,4 +127,6 @@
   --oq-shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.35);
   --oq-shadow-md: 0 14px 32px rgba(0, 0, 0, 0.5);
   --oq-focus-ring: 0 0 0 3px rgba(240, 91, 126, 0.28);
+  --oq-scrollbar-thumb: rgba(243, 246, 252, 0.14);
+  --oq-scrollbar-thumb-hover: rgba(243, 246, 252, 0.28);
 }
