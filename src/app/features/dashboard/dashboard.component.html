@@ -2,7 +2,23 @@
   <section class="oq-card welcome-card">
     <div class="welcome-card__body">
       <div class="welcome-card__heading">
-        <span class="welcome-card__eyebrow">{{ 'dashboard.eyebrow' | t }}</span>
+        <div class="welcome-card__eyebrow-row">
+          <span class="welcome-card__eyebrow">{{ 'dashboard.eyebrow' | t }}</span>
+          <div class="oq-course-tabs" role="group" [attr.aria-label]="'course.switcherLabel' | t">
+            @for (opt of learningLang.options; track opt.code) {
+              <button
+                type="button"
+                class="oq-course-tab"
+                [class.oq-course-tab--active]="learningLang.activeLang() === opt.code"
+                [attr.aria-pressed]="learningLang.activeLang() === opt.code"
+                (click)="learningLang.setLanguage(opt.code)"
+              >
+                <span class="oq-course-tab__badge">{{ opt.badgeCode }}</span>
+                <span>{{ (opt.code === 'ko' ? 'course.koLabel' : 'course.enLabel') | t }}</span>
+              </button>
+            }
+          </div>
+        </div>
         <h1>
           {{
             'dashboard.welcome'

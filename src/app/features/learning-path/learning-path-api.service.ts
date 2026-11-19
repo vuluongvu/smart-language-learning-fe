@@ -4,6 +4,7 @@ import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiEnvelope } from '../../shared/api/api-response.type';
 import { ExplanationLanguage } from '../../shared/types/ai.types';
+import { LearningLanguageCode } from '../../shared/types/learning-language.types';
 import {
   EvaluateUnitWritingResult,
   GenerateAiPathRequest,
@@ -23,10 +24,16 @@ export class LearningPathApiService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiBaseUrl}/learning-path`;
 
-  getOverview(band?: string): Observable<LearningPathOverview> {
+  getOverview(
+    band?: string,
+    languageCode?: LearningLanguageCode,
+  ): Observable<LearningPathOverview> {
     let params = new HttpParams();
     if (band) {
       params = params.set('band', band);
+    }
+    if (languageCode) {
+      params = params.set('languageCode', languageCode);
     }
     return this.http
       .get<ApiEnvelope<LearningPathOverview>>(this.baseUrl, { params })
@@ -35,6 +42,7 @@ export class LearningPathApiService {
 
   updateGoal(payload: {
     learningGoalBand: LearningGoalBand | string;
+    languageCode?: LearningLanguageCode;
     currentLevel?: string;
     dailyGoalMinutes?: number;
   }): Observable<LearningPathOverview> {

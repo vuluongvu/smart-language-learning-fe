@@ -117,6 +117,7 @@
     [open]="showAiModal()"
     [topics]="[current]"
     [defaultTopicId]="current.id"
+    [languageCode]="current.languageCode ?? learningLang.activeLang()"
     (closed)="showAiModal.set(false)"
     (saved)="onAiSaved($event)"
   />

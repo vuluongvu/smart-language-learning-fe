@@ -274,7 +274,7 @@ describe('VocabularyListComponent', () => {
     const enrichReq = httpTesting.expectOne(
       (r) => r.url.endsWith('/vocabulary/ai/enrich') && r.method === 'POST',
     );
-    expect(enrichReq.request.body).toEqual({ term: 'mitigate' });
+    expect(enrichReq.request.body).toEqual({ term: 'mitigate', languageCode: 'en' });
     enrichReq.flush({
       data: {
         model: 'qwen/qwen3.8-27b',

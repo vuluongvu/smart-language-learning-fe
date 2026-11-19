@@ -348,7 +348,16 @@
             class="oq-btn oq-btn--ghost oq-btn--sm"
             (click)="showTranscript.set(!showTranscript())"
           >
-            {{ (showTranscript() ? 'lpu.hideScriptBtn' : 'lpu.showScriptBtn') | lpT }}
+            {{
+              (showTranscript()
+                ? d.track.languageCode === 'ko'
+                  ? 'lpu.koHideScriptBtn'
+                  : 'lpu.hideScriptBtn'
+                : d.track.languageCode === 'ko'
+                  ? 'lpu.koShowScriptBtn'
+                  : 'lpu.showScriptBtn'
+              ) | lpT
+            }}
           </button>
           <button
             type="button"
@@ -460,13 +469,21 @@
         }
 
         <div class="oq-field">
-          <label for="lpu-writing-input">{{ 'lpu.writingInputLabel' | lpT }}</label>
+          <label for="lpu-writing-input">{{
+            (d.track.languageCode === 'ko' ? 'lpu.koWritingInputLabel' : 'lpu.writingInputLabel')
+              | lpT
+          }}</label>
           <textarea
             id="lpu-writing-input"
             rows="5"
             maxlength="3000"
             [value]="writingDraft()"
-            [placeholder]="'lpu.writingPlaceholder' | lpT"
+            [placeholder]="
+              (d.track.languageCode === 'ko'
+                ? 'lpu.koWritingPlaceholder'
+                : 'lpu.writingPlaceholder'
+              ) | lpT
+            "
             (input)="onWritingInput($event)"
           ></textarea>
         </div>

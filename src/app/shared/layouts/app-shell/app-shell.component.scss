@@ -57,6 +57,26 @@
   gap: 6px;
 }
 
+.shell__course-top-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.shell__course-top-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 5px;
+  background: var(--oq-accent-soft);
+  color: var(--oq-accent);
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+
 .shell__backdrop {
   position: fixed;
   inset: 0;

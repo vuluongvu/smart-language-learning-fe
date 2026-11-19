@@ -12,7 +12,9 @@
   <section class="oq-card conv-setup">
     <div class="conv-setup__head">
       <h2>{{ 'conv.setupTitle' | t }}</h2>
-      <p class="oq-muted">{{ 'conv.setupDesc' | t }}</p>
+      <p class="oq-muted">
+        {{ (activeCourseLang() === 'ko' ? 'conv.koSetupDesc' : 'conv.setupDesc') | t }}
+      </p>
     </div>
 
     <div class="oq-field">
@@ -22,11 +24,13 @@
         type="text"
         maxlength="160"
         [value]="topicInput()"
-        [placeholder]="'conv.topicPlaceholder' | t"
+        [placeholder]="
+          (activeCourseLang() === 'ko' ? 'conv.koTopicPlaceholder' : 'conv.topicPlaceholder') | t
+        "
         (input)="onTopicChange($event)"
       />
       <div class="conv-chips">
-        @for (key of presetTopicKeys; track key) {
+        @for (key of presetTopicKeys(); track key) {
           <button
             type="button"
             class="oq-pill conv-chip"
@@ -59,8 +63,16 @@
 
     <div class="conv-setup__grid">
       <div class="oq-field">
-        <span class="oq-label">{{ 'conv.levelLabel' | t }}</span>
-        <div class="conv-pills" role="group" [attr.aria-label]="'conv.levelLabel' | t">
+        <span class="oq-label">{{
+          (activeCourseLang() === 'ko' ? 'conv.koLevelLabel' : 'conv.levelLabel') | t
+        }}</span>
+        <div
+          class="conv-pills"
+          role="group"
+          [attr.aria-label]="
+            (activeCourseLang() === 'ko' ? 'conv.koLevelLabel' : 'conv.levelLabel') | t
+          "
+        >
           @for (lvl of levels; track lvl) {
             <button
               type="button"
@@ -331,7 +343,9 @@
         @if (turn.userAnswer) {
           <div class="conv-bubble conv-bubble--user">
             <div class="conv-bubble__meta">
-              <span>{{ 'conv.yourReplyLabel' | t }}</span>
+              <span>{{
+                (s.languageCode === 'ko' ? 'conv.koYourReplyLabel' : 'conv.yourReplyLabel') | t
+              }}</span>
             </div>
             <p class="conv-bubble__text">{{ turn.userAnswer }}</p>
           </div>
@@ -471,12 +485,16 @@
         </div>
       } @else if (transcribing()) {
         <div class="conv-recording-bar conv-recording-bar--busy" role="status">
-          <span>{{ 'conv.micTranscribing' | t }}</span>
+          <span>{{
+            (s.languageCode === 'ko' ? 'conv.koMicTranscribing' : 'conv.micTranscribing') | t
+          }}</span>
         </div>
       }
 
       <div class="oq-field conv-composer__field">
-        <label for="conv-reply-input">{{ 'conv.replyLabel' | t }}</label>
+        <label for="conv-reply-input">{{
+          (s.languageCode === 'ko' ? 'conv.koReplyLabel' : 'conv.replyLabel') | t
+        }}</label>
         <textarea
           id="conv-reply-input"
           rows="3"
@@ -489,7 +507,9 @@
         ></textarea>
       </div>
       <div class="conv-composer__foot">
-        <span class="oq-field-hint">{{ 'conv.replyHint' | t }}</span>
+        <span class="oq-field-hint">{{
+          (s.languageCode === 'ko' ? 'conv.koReplyHint' : 'conv.replyHint') | t
+        }}</span>
         <div class="conv-composer__actions">
           <button
             type="button"
@@ -505,7 +525,9 @@
                 ? autoSendVoice()
                   ? 'conv.micStopSendBtn'
                   : 'conv.micStopBtn'
-                : 'conv.micSpeakBtn'
+                : s.languageCode === 'ko'
+                  ? 'conv.koMicSpeakBtn'
+                  : 'conv.micSpeakBtn'
               ) | t
             }}</span>
           </button>

@@ -7,6 +7,7 @@ import {
   OqProgressBarComponent,
 } from '../../shared/components';
 import { I18nService, TranslatePipe, TxKey } from '../../shared/i18n';
+import { SpeechService } from '../../shared/services/speech.service';
 import {
   FlashcardCardView,
   FlashcardSessionDetail,
@@ -43,6 +44,7 @@ export class FlashcardSessionComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   protected readonly i18n = inject(I18nService);
+  protected readonly speech = inject(SpeechService);
 
   readonly session = signal<FlashcardSessionDetail | null>(null);
   readonly currentIndex = signal(0);
@@ -283,6 +285,7 @@ export class FlashcardSessionComponent implements OnInit {
 
     this.api
       .createSession({
+        languageCode: s.languageCode,
         topicId: s.topicId,
         vocabularyIds: s.forgottenVocabularyIds,
       })

@@ -80,6 +80,7 @@ describe('TopicsListComponent', () => {
     expect(postReq.request.body).toEqual({
       name: 'Travel',
       description: 'Airport and hotel phrases',
+      languageCode: 'en',
     });
     postReq.flush({
       data: {

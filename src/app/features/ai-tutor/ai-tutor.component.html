@@ -1,7 +1,7 @@
 <div class="ai-page">
   <oq-page-header
     [eyebrow]="'ai.eyebrow' | t"
-    [title]="'ai.title' | t"
+    [title]="(learningLang.isKorean() ? 'ai.koTitle' : 'ai.title') | t"
     [subtitle]="'ai.subtitle' | t"
   >
     <div actions class="ai-head-actions">
@@ -95,8 +95,10 @@
             <div class="ai-welcome__badge" aria-hidden="true">
               <oq-icon name="sparkles" [size]="24" />
             </div>
-            <h2>{{ 'ai.emptyTitle' | t }}</h2>
-            <p class="oq-muted">{{ 'ai.emptyDesc' | t }}</p>
+            <h2>{{ (learningLang.isKorean() ? 'ai.koEmptyTitle' : 'ai.emptyTitle') | t }}</h2>
+            <p class="oq-muted">
+              {{ (learningLang.isKorean() ? 'ai.koEmptyDesc' : 'ai.emptyDesc') | t }}
+            </p>
 
             <div class="ai-guided-callout">
               <span>{{ 'ai.tryGuidedBanner' | t }}</span>
@@ -110,7 +112,7 @@
             </div>
 
             <div class="ai-starters">
-              @for (starter of starterPrompts; track starter.id) {
+              @for (starter of starterPrompts(); track starter.id) {
                 <button
                   type="button"
                   class="ai-starter"

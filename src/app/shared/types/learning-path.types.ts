@@ -1,6 +1,8 @@
 import { AiConversationSessionDetail, ConversationSuggestedWord } from './ai.types';
+import type { LearningLanguageCode } from './learning-language.types';
 
-export type LearningGoalBand = 'band_45_55' | 'band_55_65' | 'band_65_75';
+export type LearningGoalBand =
+  'band_45_55' | 'band_55_65' | 'band_65_75' | 'topik_1_2' | 'topik_3_4' | 'topik_5_6';
 export type UnitNodeStatus = 'completed' | 'active' | 'locked';
 
 export interface LearningPathTrackSummary {
@@ -97,6 +99,7 @@ export interface LearningPathPartView {
 }
 
 export interface LearningPathOverview {
+  languageCode?: LearningLanguageCode;
   goal: {
     learningGoalBand: LearningGoalBand | string;
     currentLevel: string;
@@ -177,6 +180,7 @@ export interface GenerateAiPathRequest {
   currentLevel?: string;
   unitCount?: number;
   explanationLang?: 'vi' | 'en';
+  languageCode?: LearningLanguageCode;
 }
 
 export interface GenerateStudyGuideResult {

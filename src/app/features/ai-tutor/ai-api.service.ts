@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -31,9 +31,13 @@ export class AiApiService {
       .pipe(map((res) => res.data));
   }
 
-  listConversations(): Observable<AiConversationSessionSummary[]> {
+  listConversations(languageCode?: 'en' | 'ko'): Observable<AiConversationSessionSummary[]> {
+    let params = new HttpParams();
+    if (languageCode) {
+      params = params.set('languageCode', languageCode);
+    }
     return this.http
-      .get<ApiEnvelope<AiConversationSessionSummary[]>>(`${this.baseUrl}/conversations`)
+      .get<ApiEnvelope<AiConversationSessionSummary[]>>(`${this.baseUrl}/conversations`, { params })
       .pipe(map((res) => res.data));
   }
 
