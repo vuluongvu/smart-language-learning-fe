@@ -123,6 +123,17 @@ describe('OqHangulPadComponent', () => {
       '녕',
       expect.any(Object),
     );
+
+    const freehandTab = Array.from(el.querySelectorAll<HTMLButtonElement>('[role="tab"]')).find(
+      (b) => b.textContent?.includes('Freehand Draw'),
+    )!;
+    freehandTab.click();
+    fixture.detectChanges();
+    await new Promise((r) => setTimeout(r, 15));
+    fixture.detectChanges();
+
+    expect(freehandTab.getAttribute('aria-selected')).toBe('true');
+    expect(el.querySelector('canvas.hw-canvas')).toBeTruthy();
   });
 
   it('records freehand strokes, calls AI recognition, displays feedback, and emits selected candidate', async () => {
