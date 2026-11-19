@@ -289,4 +289,50 @@ describe('StarterStudioComponent', () => {
     };
     expect(aiApiMock.chat).toHaveBeenCalledTimes(1);
   });
+
+  it('prevents ungrammatical sentence combinations and hides drill spoiler hints until requested', () => {
+    const fixture = TestBed.createComponent(StarterStudioComponent);
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+
+    const comp = fixture.componentInstance as unknown as {
+      activeTab: ReturnType<typeof signal<'alphabet' | 'builder' | 'grammar' | 'drill'>>;
+      selectedSubjIdx: ReturnType<typeof signal<number>>;
+      selectedVerbIdx: ReturnType<typeof signal<number>>;
+      selectedObjIdx: ReturnType<typeof signal<number>>;
+      selectSentenceVerb: (idx: number) => void;
+      pickDrillOption: (opt: string) => void;
+      toggleDrillHint: () => void;
+      drillCorrectCount: ReturnType<typeof signal<number>>;
+    };
+
+    comp.activeTab.set('builder');
+    fixture.detectChanges();
+    // Switching from "am" (with "happy today") to "like" auto-selects a valid noun ("coffee")
+    comp.selectSentenceVerb(1);
+    fixture.detectChanges();
+    expect(el.textContent).toContain('I like coffee.');
+    expect(el.textContent).not.toContain('I like happy today.');
+
+    // Even if object index points to "coffee" while verb is "am", builtSentence falls back to valid "happy today"
+    comp.selectedVerbIdx.set(0);
+    comp.selectedObjIdx.set(2);
+    fixture.detectChanges();
+    expect(el.textContent).toContain('I am happy today.');
+    expect(el.textContent).not.toContain('I am coffee.');
+
+    // Drill hides spoiler hint before user clicks Show Hint or picks an answer
+    comp.activeTab.set('drill');
+    fixture.detectChanges();
+    expect(el.querySelector('.st-drill-hint')).toBeNull();
+
+    comp.toggleDrillHint();
+    fixture.detectChanges();
+    expect(el.querySelector('.st-drill-hint')).not.toBeNull();
+
+    // Wrong first attempt followed by right attempt does not increment first-try score
+    comp.pickDrillOption('Book');
+    comp.pickDrillOption('Apple');
+    expect(comp.drillCorrectCount()).toBe(0);
+  });
 });

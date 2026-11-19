@@ -78,14 +78,14 @@ export class LearningPathComponent implements OnInit {
   protected readonly aiGenError = signal<string | null>(null);
   protected readonly deletingAiTrack = signal(false);
 
-  protected draftBand: LearningGoalBand | string = 'band_45_55';
-  protected draftLevel = 'B1';
+  protected draftBand: LearningGoalBand | string = 'starter_a0';
+  protected draftLevel = 'A0';
   protected draftDailyMinutes = 15;
 
   protected aiGoalTopic = '';
   protected aiLearningFocus = '';
-  protected aiTargetBand: LearningGoalBand | string = 'band_45_55';
-  protected aiCurrentLevel = 'B1';
+  protected aiTargetBand: LearningGoalBand | string = 'starter_a0';
+  protected aiCurrentLevel = 'A0';
   protected aiUnitCount = 3;
 
   protected readonly totalProgressPercent = computed(() => {

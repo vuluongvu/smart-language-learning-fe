@@ -47,6 +47,8 @@ export interface SentenceBlockOption {
   text: string;
   meaningVi: string;
   meaningEn: string;
+  validVerbs?: string[];
+  omitCopulaInVi?: boolean;
 }
 
 export interface StarterDrillQuestion {
@@ -85,7 +87,7 @@ export const ENGLISH_ALPHABET: EnglishLetterCard[] = [
     letter: 'C',
     lowercase: 'c',
     nameIpa: '/siː/',
-    viHint: 'xi',
+    viHint: 'tên "xi" · ghép từ đọc /k/',
     sampleWord: 'Cat',
     sampleIpa: '/kæt/',
     sampleMeaningVi: 'Con mèo',
@@ -96,7 +98,7 @@ export const ENGLISH_ALPHABET: EnglishLetterCard[] = [
     letter: 'D',
     lowercase: 'd',
     nameIpa: '/diː/',
-    viHint: 'đi',
+    viHint: 'đi (âm /d/)',
     sampleWord: 'Day',
     sampleIpa: '/deɪ/',
     sampleMeaningVi: 'Ngày',
@@ -107,7 +109,7 @@ export const ENGLISH_ALPHABET: EnglishLetterCard[] = [
     letter: 'E',
     lowercase: 'e',
     nameIpa: '/iː/',
-    viHint: 'i',
+    viHint: 'tên "i" · ghép ngắn đọc /e/',
     sampleWord: 'Egg',
     sampleIpa: '/eɡ/',
     sampleMeaningVi: 'Quả trứng',
@@ -118,7 +120,7 @@ export const ENGLISH_ALPHABET: EnglishLetterCard[] = [
     letter: 'F',
     lowercase: 'f',
     nameIpa: '/ef/',
-    viHint: 'ép',
+    viHint: 'ép (răng chạm môi /f/)',
     sampleWord: 'Fish',
     sampleIpa: '/fɪʃ/',
     sampleMeaningVi: 'Con cá',
@@ -129,7 +131,7 @@ export const ENGLISH_ALPHABET: EnglishLetterCard[] = [
     letter: 'G',
     lowercase: 'g',
     nameIpa: '/dʒiː/',
-    viHint: 'gi',
+    viHint: 'tên "gi" · ghép từ đọc /g/',
     sampleWord: 'Good',
     sampleIpa: '/ɡʊd/',
     sampleMeaningVi: 'Tốt / khỏe',
@@ -140,7 +142,7 @@ export const ENGLISH_ALPHABET: EnglishLetterCard[] = [
     letter: 'H',
     lowercase: 'h',
     nameIpa: '/eɪtʃ/',
-    viHint: 'ếch',
+    viHint: 'tên "ếch" · ghép từ đọc /h/',
     sampleWord: 'Home',
     sampleIpa: '/hoʊm/',
     sampleMeaningVi: 'Ngôi nhà',
@@ -305,7 +307,7 @@ export const ENGLISH_ALPHABET: EnglishLetterCard[] = [
     letter: 'W',
     lowercase: 'w',
     nameIpa: '/ˈdʌbljuː/',
-    viHint: 'đắp-bờ-liu',
+    viHint: 'tên "đắp-bờ-liu" · đọc /w/',
     sampleWord: 'Water',
     sampleIpa: '/ˈwɔːtər/',
     sampleMeaningVi: 'Nước uống',
@@ -316,7 +318,7 @@ export const ENGLISH_ALPHABET: EnglishLetterCard[] = [
     letter: 'X',
     lowercase: 'x',
     nameIpa: '/eks/',
-    viHint: 'éc-xì',
+    viHint: 'tên "éc-xì" · âm cuối /ks/',
     sampleWord: 'Box',
     sampleIpa: '/bɑːks/',
     sampleMeaningVi: 'Cái hộp',
@@ -327,7 +329,7 @@ export const ENGLISH_ALPHABET: EnglishLetterCard[] = [
     letter: 'Y',
     lowercase: 'y',
     nameIpa: '/waɪ/',
-    viHint: 'oai',
+    viHint: 'tên "oai" · đầu từ đọc /j/',
     sampleWord: 'Yes',
     sampleIpa: '/jes/',
     sampleMeaningVi: 'Vâng / có',
@@ -418,12 +420,50 @@ export const EN_SENTENCE_VERBS: Array<{
 ];
 
 export const EN_SENTENCE_OBJECTS: SentenceBlockOption[] = [
-  { text: 'happy today', meaningVi: 'rất vui hôm nay', meaningEn: 'happy today' },
-  { text: 'a student', meaningVi: 'một học sinh', meaningEn: 'a student' },
-  { text: 'coffee', meaningVi: 'cà phê', meaningEn: 'coffee' },
-  { text: 'water', meaningVi: 'nước uống', meaningEn: 'water' },
-  { text: 'from Vietnam', meaningVi: 'đến từ Việt Nam', meaningEn: 'from Vietnam' },
+  {
+    text: 'happy today',
+    meaningVi: 'rất vui hôm nay',
+    meaningEn: 'happy today',
+    validVerbs: ['am'],
+    omitCopulaInVi: true,
+  },
+  {
+    text: 'a student',
+    meaningVi: 'một học sinh',
+    meaningEn: 'a student',
+    validVerbs: ['am'],
+  },
+  {
+    text: 'coffee',
+    meaningVi: 'cà phê',
+    meaningEn: 'coffee',
+    validVerbs: ['like', 'want', 'have'],
+  },
+  {
+    text: 'water',
+    meaningVi: 'nước uống',
+    meaningEn: 'water',
+    validVerbs: ['like', 'want', 'have'],
+  },
+  {
+    text: 'from Vietnam',
+    meaningVi: 'đến từ Việt Nam',
+    meaningEn: 'from Vietnam',
+    validVerbs: ['am'],
+    omitCopulaInVi: true,
+  },
+  {
+    text: 'a new book',
+    meaningVi: 'một quyển sách mới',
+    meaningEn: 'a new book',
+    validVerbs: ['like', 'want', 'have'],
+  },
 ];
+
+export function isObjectValidForVerb(obj: SentenceBlockOption, verbBase: string): boolean {
+  if (!obj.validVerbs || obj.validVerbs.length === 0) return true;
+  return obj.validVerbs.includes(verbBase);
+}
 
 export function resolveVerbForm(
   subject: string,
@@ -438,11 +478,34 @@ export function resolveVerbForm(
   return verbSpec.text;
 }
 
+export function buildSentenceExplanation(
+  subject: string,
+  verbSpec: (typeof EN_SENTENCE_VERBS)[number],
+  conjugated: string,
+): { noteVi: string; noteEn: string } {
+  if (verbSpec.beFormForSubject) {
+    return {
+      noteVi: `Mẹo ngữ pháp: Chủ ngữ "${subject}" luôn đi với động từ to be "${conjugated}", theo sau là tính từ, danh từ nghề nghiệp hoặc nơi xuất xứ.`,
+      noteEn: `Grammar tip: Subject "${subject}" pairs with "${conjugated}", followed by an adjective, role, or origin.`,
+    };
+  }
+  if (subject === 'He' || subject === 'She') {
+    return {
+      noteVi: `Mẹo ngữ pháp: Chủ ngữ số ít "${subject}" khiến động từ "${verbSpec.text}" đổi thành "${conjugated}" và chỉ đi với danh từ chỉ đồ vật.`,
+      noteEn: `Grammar tip: Third-person singular "${subject}" changes "${verbSpec.text}" to "${conjugated}" + a noun object.`,
+    };
+  }
+  return {
+    noteVi: `Mẹo ngữ pháp: Chủ ngữ "${subject}" giữ nguyên động từ gốc "${conjugated}" và kết hợp với danh từ chỉ đồ vật.`,
+    noteEn: `Grammar tip: Subject "${subject}" keeps the base verb "${conjugated}" + a noun object.`,
+  };
+}
+
 // Ordered indices match Unicode Hangul Jamo Lead (Choseong) table (0..18)
 export const KOREAN_CONSONANTS: KoreanJamoCard[] = [
   {
     jamo: 'ㄱ',
-    name: '기역',
+    name: '기역 (gi-yeok)',
     roman: 'g / k',
     tipVi: 'Đầu chữ đọc nhẹ giữa g và k; cuối âm đọc như c/k nhẹ.',
     tipEn: 'Soft g/k at the start; light final k.',
@@ -455,7 +518,7 @@ export const KOREAN_CONSONANTS: KoreanJamoCard[] = [
   },
   {
     jamo: 'ㄴ',
-    name: '니은',
+    name: '니은 (ni-eun)',
     roman: 'n',
     tipVi: 'Giống hệt chữ N tiếng Việt.',
     tipEn: 'Clean N sound.',
@@ -468,7 +531,7 @@ export const KOREAN_CONSONANTS: KoreanJamoCard[] = [
   },
   {
     jamo: 'ㄷ',
-    name: '디귿',
+    name: '디귿 (di-geut)',
     roman: 'd / t',
     tipVi: 'Nhẹ giữa đ/d và t không bật hơi mạnh.',
     tipEn: 'Soft unaspirated d/t.',
@@ -481,7 +544,7 @@ export const KOREAN_CONSONANTS: KoreanJamoCard[] = [
   },
   {
     jamo: 'ㄹ',
-    name: '리을',
+    name: '리을 (ri-eul)',
     roman: 'r / l',
     tipVi: 'Giữa âm tiết đọc nhẹ như r; cuối âm tiết uốn lưỡi thành l.',
     tipEn: 'Soft tap r before vowel; light l at syllable end.',
@@ -494,7 +557,7 @@ export const KOREAN_CONSONANTS: KoreanJamoCard[] = [
   },
   {
     jamo: 'ㅁ',
-    name: '미음',
+    name: '미음 (mi-eum)',
     roman: 'm',
     tipVi: 'Giống hệt chữ M tiếng Việt.',
     tipEn: 'Clean M sound.',
@@ -507,7 +570,7 @@ export const KOREAN_CONSONANTS: KoreanJamoCard[] = [
   },
   {
     jamo: 'ㅂ',
-    name: '비읍',
+    name: '비읍 (bi-eup)',
     roman: 'b / p',
     tipVi: 'Khép môi đọc nhẹ giữa b và p.',
     tipEn: 'Soft bilabial b/p.',
@@ -520,7 +583,7 @@ export const KOREAN_CONSONANTS: KoreanJamoCard[] = [
   },
   {
     jamo: 'ㅅ',
-    name: '시옷',
+    name: '시옷 (si-ot)',
     roman: 's',
     tipVi: 'Đọc s nhẹ; đứng trước ㅣ đọc gần giống "x/sh".',
     tipEn: 'Soft s (becomes sh before i).',
@@ -533,7 +596,7 @@ export const KOREAN_CONSONANTS: KoreanJamoCard[] = [
   },
   {
     jamo: 'ㅇ',
-    name: '이응',
+    name: '이응 (i-eung)',
     roman: 'câm / -ng',
     tipVi: 'Đứng ĐẦU chữ là ÂM CÂM; đứng CUỐI đọc là "-ng".',
     tipEn: 'Silent at start; "-ng" at the bottom (Batchim).',
@@ -546,7 +609,7 @@ export const KOREAN_CONSONANTS: KoreanJamoCard[] = [
   },
   {
     jamo: 'ㅈ',
-    name: '지읒',
+    name: '지읒 (ji-eut)',
     roman: 'j',
     tipVi: 'Mặt lưỡi chạm vòm miệng nhẹ (gần gi/ch nhẹ).',
     tipEn: 'Soft palatal j.',
@@ -559,7 +622,7 @@ export const KOREAN_CONSONANTS: KoreanJamoCard[] = [
   },
   {
     jamo: 'ㅊ',
-    name: '치읓',
+    name: '치읓 (chi-eut)',
     roman: 'ch (bật hơi)',
     tipVi: 'Như ㅈ nhưng thổi mạnh luồng hơi ra.',
     tipEn: 'Strongly aspirated ch.',
@@ -572,7 +635,7 @@ export const KOREAN_CONSONANTS: KoreanJamoCard[] = [
   },
   {
     jamo: 'ㅋ',
-    name: '키읔',
+    name: '키읔 (ki-euk)',
     roman: 'k (bật hơi)',
     tipVi: 'Như ㄱ nhưng bật hơi mạnh hơn hẳn.',
     tipEn: 'Strongly aspirated k.',
@@ -585,7 +648,7 @@ export const KOREAN_CONSONANTS: KoreanJamoCard[] = [
   },
   {
     jamo: 'ㅌ',
-    name: '티읕',
+    name: '티읕 (ti-eut)',
     roman: 't (bật hơi)',
     tipVi: 'Đọc như "thờ" bật hơi nhẹ gió.',
     tipEn: 'Strongly aspirated t.',
@@ -598,7 +661,7 @@ export const KOREAN_CONSONANTS: KoreanJamoCard[] = [
   },
   {
     jamo: 'ㅍ',
-    name: '피읖',
+    name: '피읖 (pi-eup)',
     roman: 'p (bật hơi)',
     tipVi: 'Mím môi bật luồng hơi ra ("p" gió).',
     tipEn: 'Strongly aspirated p.',
@@ -611,7 +674,7 @@ export const KOREAN_CONSONANTS: KoreanJamoCard[] = [
   },
   {
     jamo: 'ㅎ',
-    name: '히읗',
+    name: '히읗 (hi-eut)',
     roman: 'h',
     tipVi: 'Giống chữ H tiếng Việt.',
     tipEn: 'Clean H sound.',
@@ -820,50 +883,50 @@ export function buildStarterQuizPool(lang: LearningLanguageCode): StarterDrillQu
       {
         id: 'ko-d1',
         promptAudioText: '아',
-        hintVi: 'Nguyên âm đơn nét dọc bên phải (âm câm ㅇ)',
-        hintEn: 'Basic vowel "a" with silent initial',
-        correctOption: '아 (a)',
-        options: ['아 (a)', '오 (o)', '우 (u)', '이 (i)'],
+        hintVi: 'Đọc là "a" — nguyên âm đơn có nét dọc bên phải âm câm ㅇ',
+        hintEn: 'Pronounced "a" — basic vertical vowel with silent initial ㅇ',
+        correctOption: '아',
+        options: ['아', '오', '우', '이'],
       },
       {
         id: 'ko-d2',
         promptAudioText: '우유',
-        hintVi: 'Từ 2 âm tiết nghĩa là "sữa"',
-        hintEn: '2-syllable word meaning "milk"',
-        correctOption: '우유 (u-yu)',
-        options: ['아이 (a-i)', '우유 (u-yu)', '오이 (o-i)', '여우 (yeo-u)'],
+        hintVi: 'Đọc là "u-yu" — từ 2 âm tiết nghĩa là "sữa"',
+        hintEn: 'Pronounced "u-yu" — 2-syllable word meaning "milk"',
+        correctOption: '우유',
+        options: ['아이', '우유', '오이', '여우'],
       },
       {
         id: 'ko-d3',
         promptAudioText: '나무',
-        hintVi: 'ㄴ + ㅏ và ㅁ + ㅜ ("cái cây")',
-        hintEn: 'Consonant word meaning "tree"',
-        correctOption: '나무 (na-mu)',
-        options: ['바다 (ba-da)', '모자 (mo-ja)', '나무 (na-mu)', '가방 (ga-bang)'],
+        hintVi: 'Đọc là "na-mu" (ㄴ + ㅏ và ㅁ + ㅜ) — nghĩa là "cái cây"',
+        hintEn: 'Pronounced "na-mu" — word meaning "tree"',
+        correctOption: '나무',
+        options: ['바다', '모자', '나무', '가방'],
       },
       {
         id: 'ko-d4',
         promptAudioText: '물',
-        hintVi: 'Từ có Batchim ㄹ ở cuối ("nước")',
-        hintEn: 'Batchim word meaning "water"',
-        correctOption: '물 (mul)',
-        options: ['물 (mul)', '밥 (bap)', '집 (jip)', '산 (san)'],
+        hintVi: 'Đọc là "mul" — từ có âm cuối (Batchim) ㄹ ở đáy, nghĩa là "nước"',
+        hintEn: 'Pronounced "mul" — word with final ㄹ meaning "water"',
+        correctOption: '물',
+        options: ['물', '밥', '집', '산'],
       },
       {
         id: 'ko-d5',
         promptAudioText: '안녕하세요',
-        hintVi: 'Lời chào lịch sự quen thuộc nhất',
-        hintEn: 'Most common polite greeting',
+        hintVi: 'Đọc là "an-nyeong-ha-se-yo" — lời chào lịch sự quen thuộc nhất',
+        hintEn: 'Pronounced "an-nyeong-ha-se-yo" — polite greeting "Hello"',
         correctOption: '안녕하세요',
         options: ['안녕하세요', '감사합니다', '죄송합니다', '주세요'],
       },
       {
         id: 'ko-d6',
         promptAudioText: '커피',
-        hintVi: 'Phụ âm bật hơi ㅋ + ㅓ và ㅍ + ㅣ',
-        hintEn: 'Aspirated consonant word for "coffee"',
-        correctOption: '커피 (keo-pi)',
-        options: ['커피 (keo-pi)', '사과 (sa-gwa)', '포도 (po-do)', '모자 (mo-ja)'],
+        hintVi: 'Đọc là "keo-pi" (ㅋ + ㅓ và ㅍ + ㅣ) — nghĩa là "cà phê"',
+        hintEn: 'Pronounced "keo-pi" — word for "coffee"',
+        correctOption: '커피',
+        options: ['커피', '사과', '포도', '모자'],
       },
     ];
   }
@@ -872,48 +935,48 @@ export function buildStarterQuizPool(lang: LearningLanguageCode): StarterDrillQu
     {
       id: 'en-d1',
       promptAudioText: 'apple',
-      hintVi: 'Từ mẫu cho chữ A (/ˈæpl/)',
-      hintEn: 'Starter word for letter A (/ˈæpl/)',
+      hintVi: '2 âm tiết bắt đầu bằng âm /æ/ — nghĩa tiếng Việt: "Quả táo"',
+      hintEn: '2 syllables starting with /æ/ — red fruit on letter A card',
       correctOption: 'Apple',
       options: ['Apple', 'Book', 'Water', 'Milk'],
     },
     {
       id: 'en-d2',
       promptAudioText: 'water',
-      hintVi: 'Đồ uống sinh tồn hằng ngày (/ˈwɔːtər/)',
-      hintEn: 'Essential drink (/ˈwɔːtər/)',
+      hintVi: 'Bắt đầu bằng âm /w/ chu môi — nghĩa tiếng Việt: "Nước uống"',
+      hintEn: 'Starts with rounded /w/ sound — essential daily drink',
       correctOption: 'Water',
       options: ['Rice', 'Tea', 'Water', 'Pen'],
     },
     {
       id: 'en-d3',
       promptAudioText: 'thank you',
-      hintVi: 'Lời cảm ơn lịch sự',
-      hintEn: 'Polite gratitude phrase',
+      hintVi: 'Cụm 2 từ bắt đầu bằng âm /θ/ — nghĩa tiếng Việt: "Cảm ơn bạn"',
+      hintEn: '2-word polite gratitude phrase starting with /θ/',
       correctOption: 'Thank you',
       options: ['Sorry', 'Hello', 'Thank you', 'Good'],
     },
     {
       id: 'en-d4',
       promptAudioText: 'twenty',
-      hintVi: 'Số đếm 20',
-      hintEn: 'Number 20',
+      hintVi: '2 âm tiết bắt đầu bằng /tw/ — từ chỉ số đếm "Hai mươi (20)"',
+      hintEn: '2 syllables starting with /tw/ — number 20',
       correctOption: 'Twenty',
       options: ['One', 'Five', 'Ten', 'Twenty'],
     },
     {
       id: 'en-d5',
       promptAudioText: 'friend',
-      hintVi: 'Người bạn (/frend/)',
-      hintEn: 'Someone close to you (/frend/)',
+      hintVi: '1 âm tiết bắt đầu bằng /fr/ và kết thúc /nd/ — nghĩa: "Người bạn"',
+      hintEn: '1 syllable starting with /fr/ — someone close to you',
       correctOption: 'Friend',
       options: ['Home', 'Friend', 'Book', 'Coffee'],
     },
     {
       id: 'en-d6',
       promptAudioText: 'coffee',
-      hintVi: 'Đồ uống quán cà phê',
-      hintEn: 'Café drink',
+      hintVi: '2 âm tiết bắt đầu bằng âm /k/ — nghĩa tiếng Việt: "Cà phê"',
+      hintEn: '2 syllables starting with /k/ — popular café drink',
       correctOption: 'Coffee',
       options: ['Coffee', 'Rice', 'Name', 'Happy'],
     },

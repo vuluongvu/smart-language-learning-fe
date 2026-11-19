@@ -105,6 +105,24 @@
       <span>{{ 'nav.mobileHome' | t }}</span>
     </a>
     <a
+      routerLink="/starter"
+      routerLinkActive="shell__bottom-link--active"
+      ariaCurrentWhenActive="page"
+      class="shell__bottom-link"
+    >
+      <oq-icon name="target" [size]="18" />
+      <span>{{ 'nav.mobileStarter' | t }}</span>
+    </a>
+    <a
+      routerLink="/learning-path"
+      routerLinkActive="shell__bottom-link--active"
+      ariaCurrentWhenActive="page"
+      class="shell__bottom-link"
+    >
+      <oq-icon name="map" [size]="18" />
+      <span>{{ 'nav.mobilePath' | t }}</span>
+    </a>
+    <a
       routerLink="/vocabulary"
       routerLinkActive="shell__bottom-link--active"
       ariaCurrentWhenActive="page"
@@ -121,24 +139,6 @@
     >
       <oq-icon name="layers" [size]="18" />
       <span>{{ 'nav.mobileCards' | t }}</span>
-    </a>
-    <a
-      routerLink="/quizzes"
-      routerLinkActive="shell__bottom-link--active"
-      ariaCurrentWhenActive="page"
-      class="shell__bottom-link"
-    >
-      <oq-icon name="help-circle" [size]="18" />
-      <span>{{ 'nav.mobileQuizzes' | t }}</span>
-    </a>
-    <a
-      routerLink="/progress"
-      routerLinkActive="shell__bottom-link--active"
-      ariaCurrentWhenActive="page"
-      class="shell__bottom-link"
-    >
-      <oq-icon name="bar-chart" [size]="18" />
-      <span>{{ 'nav.mobileStreak' | t }}</span>
     </a>
   </nav>
 </div>
