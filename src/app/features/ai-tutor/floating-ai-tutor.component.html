@@ -1,0 +1,191 @@
+@if (!hideOnTutorPage()) {
+  <div class="ft-wrap">
+    @if (chat.floatingOpen()) {
+      <section
+        id="floating-ai-panel"
+        class="ft-panel"
+        role="dialog"
+        aria-modal="false"
+        [attr.aria-label]="(learningLang.isKorean() ? 'ai.koTitle' : 'ai.title') | t"
+      >
+        <header class="ft-head">
+          <div class="ft-head__title">
+            <span class="ft-head__badge" aria-hidden="true">
+              <oq-icon name="sparkles" [size]="15" />
+            </span>
+            <div>
+              <strong>{{ (learningLang.isKorean() ? 'ai.koTitle' : 'ai.title') | t }}</strong>
+              <span class="oq-badge" [class.oq-badge--success]="chat.isAiEnabled()">
+                {{ learningLang.activeOption().badgeCode }}
+              </span>
+            </div>
+          </div>
+
+          <div class="ft-head__actions">
+            <a
+              routerLink="/ai-tutor"
+              class="oq-btn oq-btn--ghost oq-btn--sm"
+              (click)="openFullTutor()"
+            >
+              <span>{{ 'ai.floatingExpandBtn' | t }}</span>
+              <oq-icon name="arrow-right" [size]="13" />
+            </a>
+            @if (chat.messages().length > 0) {
+              <button
+                type="button"
+                class="ft-icon-btn"
+                [attr.aria-label]="'ai.clearChat' | t"
+                [disabled]="chat.sending()"
+                (click)="chat.clearConversation()"
+              >
+                <oq-icon name="trash" [size]="15" />
+              </button>
+            }
+            <button
+              type="button"
+              class="ft-icon-btn"
+              [attr.aria-label]="'ai.floatingCloseAria' | t"
+              (click)="chat.closeFloating()"
+            >
+              <oq-icon name="x" [size]="16" />
+            </button>
+          </div>
+        </header>
+
+        <div #floatingFeed class="ft-body" role="log" aria-live="polite">
+          @if (chat.statusLoading()) {
+            <p class="oq-muted ft-center">{{ 'ai.checkingStatus' | t }}</p>
+          } @else if (chat.statusError()) {
+            <div class="oq-alert oq-alert--error" role="alert">
+              <span>{{ chat.statusError() }}</span>
+              <button type="button" class="oq-inline-retry" (click)="chat.loadStatus()">
+                {{ 'common.retry' | t }}
+              </button>
+            </div>
+          } @else if (chat.aiStatus() && !chat.isAiEnabled()) {
+            <div class="oq-alert oq-alert--info">
+              <span>{{ 'ai.disabledDesc' | t }}</span>
+            </div>
+          }
+
+          @if (chat.messages().length === 0 && !chat.sending()) {
+            <div class="ft-welcome">
+              <p class="oq-muted">
+                {{ (learningLang.isKorean() ? 'ai.koEmptyDesc' : 'ai.emptyDesc') | t }}
+              </p>
+              <div class="ft-starters">
+                @for (starter of chat.starterPrompts().slice(0, 4); track starter.id) {
+                  <button
+                    type="button"
+                    class="ft-starter"
+                    [disabled]="chat.sending()"
+                    (click)="chat.useStarterPrompt(starter.promptKey)"
+                  >
+                    <strong>{{ starter.titleKey | t }}</strong>
+                    <span>{{ starter.promptKey | t }}</span>
+                  </button>
+                }
+              </div>
+            </div>
+          } @else {
+            <div class="ft-thread">
+              @for (turn of chat.messages(); track turn.id) {
+                <article class="ft-msg" [class.ft-msg--user]="turn.role === 'user'">
+                  @if (turn.role === 'assistant') {
+                    <div class="ft-msg__tools">
+                      <strong>{{ 'ai.tutorLabel' | t }}</strong>
+                      <div class="ft-msg__btns">
+                        @if (speech.isTtsSupported) {
+                          <button
+                            type="button"
+                            class="oq-copy-btn"
+                            (click)="speakTurn(turn.id, turn.content)"
+                          >
+                            <oq-icon
+                              [name]="
+                                speech.speakingId() === 'ft-' + turn.id ? 'square' : 'volume-2'
+                              "
+                              [size]="12"
+                            />
+                            <span>{{ 'conv.listenBtn' | t }}</span>
+                          </button>
+                        }
+                        <button type="button" class="oq-copy-btn" (click)="chat.copyReply(turn)">
+                          <oq-icon
+                            [name]="chat.copiedMessageId() === turn.id ? 'check' : 'copy'"
+                            [size]="12"
+                          />
+                          <span>{{
+                            (chat.copiedMessageId() === turn.id ? 'ai.copied' : 'ai.copy') | t
+                          }}</span>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="ft-bubble oq-markdown" [innerHTML]="turn.renderedHtml ?? ''"></div>
+                  } @else {
+                    <div class="ft-bubble ft-bubble--user">{{ turn.content }}</div>
+                  }
+                </article>
+              }
+
+              @if (chat.sending()) {
+                <article class="ft-msg" aria-busy="true">
+                  <div class="ft-bubble">{{ 'ai.thinking' | t }}</div>
+                </article>
+              }
+            </div>
+          }
+        </div>
+
+        @if (chat.chatError()) {
+          <div class="oq-alert oq-alert--error ft-err" role="alert">
+            <span>{{ chat.chatError() }}</span>
+            @if (chat.lastFailedPrompt()) {
+              <button type="button" class="oq-inline-retry" (click)="chat.retryLastMessage()">
+                {{ 'ai.retryLast' | t }}
+              </button>
+            }
+          </div>
+        }
+
+        <form class="ft-compose" (submit)="$event.preventDefault(); chat.sendMessage()">
+          <textarea
+            rows="2"
+            [attr.maxlength]="chat.maxMessageLength"
+            [attr.aria-label]="'ai.inputLabel' | t"
+            [value]="chat.draftMessage()"
+            [disabled]="!chat.isAiEnabled() || chat.sending()"
+            [placeholder]="
+              (chat.isAiEnabled() ? 'ai.inputPlaceholder' : 'ai.inputPlaceholderDisabled') | t
+            "
+            (input)="chat.onDraftInput($event)"
+            (keydown)="chat.onComposerKeydown($event)"
+          ></textarea>
+          <div class="ft-compose__foot">
+            <span class="oq-muted ft-hint">{{ 'ai.floatingHint' | t }}</span>
+            <button
+              type="submit"
+              class="oq-btn oq-btn--primary oq-btn--sm"
+              [disabled]="!chat.canSend()"
+            >
+              <oq-icon name="send" [size]="14" />
+              <span>{{ (chat.sending() ? 'ai.sending' : 'ai.send') | t }}</span>
+            </button>
+          </div>
+        </form>
+      </section>
+    }
+
+    <button
+      type="button"
+      class="ft-fab"
+      [attr.aria-expanded]="chat.floatingOpen()"
+      aria-controls="floating-ai-panel"
+      [attr.aria-label]="(chat.floatingOpen() ? 'ai.floatingCloseAria' : 'ai.floatingOpenAria') | t"
+      (click)="chat.toggleFloating()"
+    >
+      <oq-icon [name]="chat.floatingOpen() ? 'x' : 'sparkles'" [size]="19" />
+      <span class="ft-fab__label">{{ 'ai.floatingShortLabel' | t }}</span>
+    </button>
+  </div>
+}
