@@ -363,4 +363,87 @@ describe('LearningUnitComponent', () => {
     expect(el.textContent).toContain('Tailored study summary for describing homes.');
     expect(el.textContent).toContain('There is / There are');
   });
+
+  it('shows Practice Writing button for Korean units and opens the Hangul handwriting modal', async () => {
+    pathApiMock.getUnitDetail.mockReturnValue(
+      of({
+        id: 201,
+        unitNumber: 1,
+        slug: 'korean-greetings',
+        title: 'Korean Greetings',
+        topicName: 'Greetings',
+        icon: 'sparkles',
+        themeColor: 'pink',
+        grammarFocus: '-입니다',
+        isCustomAiTrack: false,
+        studyGuide: null,
+        track: {
+          id: 2,
+          code: 'ko_hangul_foundation',
+          title: 'TOPIK I · Hangul Foundation',
+          cefrLevel: 'A1',
+          languageCode: 'ko',
+          summary: 'Hangul basics',
+        },
+        part: { id: 20, partNumber: 1, title: 'Hangul', subtitle: 'Greetings' },
+        vocabulary: [
+          {
+            term: '안녕',
+            pronunciation: '[annyeong]',
+            partOfSpeech: 'phrase',
+            definition: 'Xin chào thân mật',
+            example: '안녕, 잘 지냈어?',
+            notes: 'Informal greeting',
+            inNotebook: false,
+          },
+        ],
+        readingListening: {
+          title: 'Dialogue',
+          audioScript: '안녕하세요.',
+          translation: 'Xin chào.',
+          questions: [],
+        },
+        writing: {
+          prompt: 'Write a greeting.',
+          minSentences: 2,
+          targetBand: 'TOPIK I',
+          targetTerms: ['안녕'],
+          sampleAnswer: '안녕하세요.',
+        },
+        speakingTopicPrompt: 'Greet someone politely',
+        progress: {
+          vocabCompleted: false,
+          quizCompleted: false,
+          quizScore: null,
+          writingCompleted: false,
+          writingSubmission: null,
+          writingFeedback: null,
+          speakingCompleted: false,
+          speakingSessionId: null,
+          topicId: null,
+          skillsDone: 0,
+          totalSkills: 4,
+          percentDone: 0,
+          completedAt: null,
+        },
+      }),
+    );
+
+    const fixture = TestBed.createComponent(LearningUnitComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const el = fixture.nativeElement as HTMLElement;
+    const writeBtn = Array.from(el.querySelectorAll<HTMLButtonElement>('button')).find((b) =>
+      b.textContent?.includes('Practice Writing'),
+    );
+    expect(writeBtn).toBeTruthy();
+
+    writeBtn!.click();
+    fixture.detectChanges();
+
+    expect(el.textContent).toContain('Practice Writing Hangul');
+    expect(el.querySelector('oq-hangul-pad')).toBeTruthy();
+  });
 });

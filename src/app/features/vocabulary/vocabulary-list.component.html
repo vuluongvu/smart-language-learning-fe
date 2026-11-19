@@ -108,6 +108,17 @@
             [placeholder]="'vocab.searchPlaceholder' | t"
             [attr.aria-label]="'vocab.searchPlaceholder' | t"
           />
+          @if (learningLang.isKorean()) {
+            <button
+              type="button"
+              class="oq-search-draw-btn search-draw-btn"
+              [title]="'vocab.drawSearchTitle' | t"
+              [attr.aria-label]="'vocab.drawSearchTitle' | t"
+              (click)="openHandwriting('search')"
+            >
+              <oq-icon name="pen-line" [size]="15" />
+            </button>
+          }
         </div>
 
         <select
@@ -295,6 +306,17 @@
                 (learningLang.isKorean() ? 'vocab.koTermPlaceholder' : 'vocab.termPlaceholder') | t
               "
             />
+            @if (learningLang.isKorean()) {
+              <button
+                type="button"
+                class="oq-btn oq-btn--secondary oq-btn--sm"
+                [title]="'vocab.drawTermTitle' | t"
+                [attr.aria-label]="'vocab.drawTermTitle' | t"
+                (click)="openHandwriting('term')"
+              >
+                <oq-icon name="pen-line" [size]="15" />
+              </button>
+            }
             <button
               type="button"
               class="oq-btn oq-btn--ai"
@@ -764,3 +786,13 @@
     }
   }
 </div>
+
+<oq-hangul-modal
+  [open]="handwritingMode() !== null"
+  [title]="'vocab.drawModalTitle' | t"
+  [description]="'vocab.drawModalDesc' | t"
+  [allowGuideTab]="false"
+  initialTab="freehand"
+  (textSelected)="applyHandwritingCandidate($event)"
+  (closed)="closeHandwriting()"
+/>

@@ -3,6 +3,7 @@ import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angu
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
   OqEmptyStateComponent,
+  OqHangulModalComponent,
   OqIconComponent,
   OqModalComponent,
   OqStatCardComponent,
@@ -58,6 +59,7 @@ const POS_TONE_MAP: Record<string, VocabPosTone> = {
     RouterLink,
     OqModalComponent,
     OqEmptyStateComponent,
+    OqHangulModalComponent,
     OqIconComponent,
     OqStatCardComponent,
     AiVocabModalComponent,
@@ -137,6 +139,7 @@ export class VocabularyListComponent implements OnInit, OnDestroy {
 
   protected readonly confirmDeleteItem = signal<VocabularyItem | null>(null);
   protected readonly isDeleting = signal(false);
+  readonly handwritingMode = signal<'search' | 'term' | null>(null);
 
   protected readonly formatProgressStatus = formatProgressStatusLabel;
 
@@ -343,6 +346,7 @@ export class VocabularyListComponent implements OnInit, OnDestroy {
   }
 
   cancelForm(): void {
+    if (this.handwritingMode()) return;
     this.showForm.set(false);
     this.editingItem.set(null);
     this.duplicateCheck.set(null);
@@ -552,5 +556,31 @@ export class VocabularyListComponent implements OnInit, OnDestroy {
         );
       },
     });
+  }
+
+  openHandwriting(mode: 'search' | 'term'): void {
+    this.handwritingMode.set(mode);
+  }
+
+  closeHandwriting(): void {
+    this.handwritingMode.set(null);
+  }
+
+  applyHandwritingCandidate(text: string): void {
+    const clean = text.trim();
+    if (!clean) return;
+    const mode = this.handwritingMode();
+    if (mode === 'search') {
+      this.search = clean;
+      this.handwritingMode.set(null);
+      this.loadVocabulary(1);
+      return;
+    }
+    if (mode === 'term') {
+      this.form.controls.term.setValue(clean);
+      this.form.controls.term.markAsDirty();
+      this.handwritingMode.set(null);
+      this.onTermBlur();
+    }
   }
 }

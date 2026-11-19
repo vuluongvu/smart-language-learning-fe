@@ -120,3 +120,14 @@ export interface AiTranscribeResponse {
   model: string;
   text: string;
 }
+
+export type HandwritingRecognitionMode = 'recognize' | 'evaluate';
+
+export interface RecognizeHandwritingResult {
+  model: string;
+  recognizedText: string;
+  candidates: string[];
+  isMatch: boolean | null;
+  feedback: string | null;
+  usage?: AiTokenUsage;
+}
