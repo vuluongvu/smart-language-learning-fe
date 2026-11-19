@@ -3,7 +3,6 @@ import { AppLocale, I18nService } from '../../shared/i18n';
 
 export const STARTER_EN_TRANSLATIONS = {
   'st.backDashboard': 'Back to Dashboard',
-  'st.eyebrow': 'Absolute Beginner Studio · A0 → A1',
   'st.title': 'Start From Zero',
   'st.subtitle':
     'Learn letters, sounds, Hangul syllable building, core beginner grammar, and listening — zero AI tokens required.',
@@ -122,7 +121,6 @@ export type StarterTxKey = keyof typeof STARTER_EN_TRANSLATIONS;
 
 export const STARTER_VI_TRANSLATIONS: Record<StarterTxKey, string> = {
   'st.backDashboard': 'Về Tổng quan',
-  'st.eyebrow': 'Phòng học vỡ lòng · Từ con số 0 (A0 → A1)',
   'st.title': 'Bắt đầu từ con số 0',
   'st.subtitle':
     'Làm quen mặt chữ, phát âm chậm rãi, ghép âm tiết Hangul, nắm ngữ pháp nền tảng và luyện nghe miễn phí AI token.',
