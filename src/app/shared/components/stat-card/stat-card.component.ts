@@ -59,7 +59,13 @@ export type OqStatTone = 'default' | 'accent' | 'success' | 'warning' | 'cream' 
   `,
   styles: [
     `
+      :host {
+        display: block;
+        height: 100%;
+      }
+
       .oq-stat-card {
+        height: 100%;
         display: flex;
         flex-direction: column;
         gap: 8px;

@@ -32,7 +32,11 @@
     </div>
   </oq-page-header>
 
-  <div class="ai-mode-tabs" role="tablist" [attr.aria-label]="'ai.title' | t">
+  <div
+    class="ai-mode-tabs"
+    role="tablist"
+    [attr.aria-label]="(learningLang.isKorean() ? 'ai.koTitle' : 'ai.title') | t"
+  >
     <button
       type="button"
       role="tab"

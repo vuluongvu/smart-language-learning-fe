@@ -1,8 +1,16 @@
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+  grid-template-columns: 1fr;
   gap: var(--oq-space-4);
   margin-bottom: var(--oq-space-5);
+
+  @media (min-width: 560px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (min-width: 1240px) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
 .setup-card {

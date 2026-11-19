@@ -11,7 +11,7 @@
       aria-controls="app-sidebar-nav"
     >
       <oq-icon name="menu" [size]="18" />
-      <span>{{ 'common.menu' | t }}</span>
+      <span class="shell__menu-label">{{ 'common.menu' | t }}</span>
     </button>
 
     <a class="shell__brand" routerLink="/dashboard">
@@ -32,7 +32,7 @@
         [title]="'course.switchAria' | t"
       >
         <span class="shell__course-top-badge">{{ learningLang.activeOption().badgeCode }}</span>
-        <span>{{ learningLang.activeOption().nativeLabel }}</span>
+        <span class="shell__course-top-label">{{ learningLang.activeOption().nativeLabel }}</span>
       </button>
       <button
         type="button"
@@ -60,7 +60,7 @@
         "
       >
         <oq-icon [name]="themeService.theme() === 'light' ? 'moon' : 'sun'" [size]="15" />
-        <span>{{
+        <span class="shell__theme-label">{{
           (themeService.theme() === 'light' ? 'common.darkShort' : 'common.lightShort') | t
         }}</span>
       </button>
