@@ -1,5 +1,6 @@
 import { Component, DestroyRef, computed, effect, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
   OqHangulModalComponent,
   OqIconComponent,
@@ -22,9 +23,10 @@ import {
   composeHangulSyllable,
   resolveVerbForm,
 } from './starter-curriculum.data';
+import { StarterGrammarComponent } from './starter-grammar.component';
 import { StarterTranslatePipe } from './starter-studio.i18n';
 
-export type StarterTab = 'alphabet' | 'builder' | 'drill';
+export type StarterTab = 'alphabet' | 'builder' | 'grammar' | 'drill';
 
 @Component({
   selector: 'app-starter-studio',
@@ -33,6 +35,7 @@ export type StarterTab = 'alphabet' | 'builder' | 'drill';
     OqPageHeaderComponent,
     OqHangulModalComponent,
     OqIconComponent,
+    StarterGrammarComponent,
     StarterTranslatePipe,
   ],
   templateUrl: './starter-studio.component.html',
@@ -42,6 +45,7 @@ export class StarterStudioComponent {
   protected readonly speech = inject(SpeechService);
   protected readonly i18n = inject(I18nService);
   protected readonly learningLang = inject(LearningLanguageService);
+  private readonly route = inject(ActivatedRoute, { optional: true });
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly activeTab = signal<StarterTab>('alphabet');
@@ -120,6 +124,13 @@ export class StarterStudioComponent {
         this.speech.stopSpeaking();
       }
       this.lastLang = lang;
+    });
+
+    this.route?.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      const tab = params.get('tab');
+      if (tab === 'alphabet' || tab === 'builder' || tab === 'grammar' || tab === 'drill') {
+        this.activeTab.set(tab);
+      }
     });
 
     this.destroyRef.onDestroy(() => {
