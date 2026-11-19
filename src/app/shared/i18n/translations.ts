@@ -801,6 +801,11 @@ export const EN_TRANSLATIONS = {
   'ai.tabGuided': 'Conversation Practice',
   'ai.tryGuidedBanner': 'Want structured speaking practice with error analysis & session wrap-up?',
   'ai.tryGuidedBtn': 'Open Conversation Setup',
+  'ai.floatingShortLabel': 'AI Tutor',
+  'ai.floatingOpenAria': 'Open floating AI Tutor',
+  'ai.floatingCloseAria': 'Close floating AI Tutor',
+  'ai.floatingExpandBtn': 'Full view',
+  'ai.floatingHint': 'Ask anytime from any tab · Enter to send',
 
   // Guided Conversation Practice
   'conv.setupTitle': 'Set Up Conversation Practice',
@@ -1730,6 +1735,11 @@ export const VI_TRANSLATIONS: Record<TxKey, string> = {
   'ai.tryGuidedBanner':
     'Muốn luyện hội thoại theo chủ đề kèm sửa lỗi chi tiết & tổng kết cuối buổi?',
   'ai.tryGuidedBtn': 'Mở Thiết lập cuộc hội thoại',
+  'ai.floatingShortLabel': 'Gia sư AI',
+  'ai.floatingOpenAria': 'Mở nhanh Gia sư AI',
+  'ai.floatingCloseAria': 'Thu gọn Gia sư AI',
+  'ai.floatingExpandBtn': 'Mở rộng',
+  'ai.floatingHint': 'Hỏi đáp mọi lúc ở bất kỳ tab nào · Enter để gửi',
 
   // Guided Conversation Practice
   'conv.setupTitle': 'Thiết lập cuộc hội thoại',

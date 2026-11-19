@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../../features/auth/auth.service';
+import { FloatingAiTutorComponent } from '../../../features/ai-tutor/floating-ai-tutor.component';
 import { OqIconComponent } from '../../components/icon/icon.component';
 import { OqSidebarComponent } from '../../components/sidebar/sidebar.component';
 import { I18nService, TranslatePipe } from '../../i18n';
@@ -14,6 +15,7 @@ import { ThemeService } from '../../services/theme.service';
     RouterLink,
     RouterLinkActive,
     OqSidebarComponent,
+    FloatingAiTutorComponent,
     OqIconComponent,
     TranslatePipe,
   ],

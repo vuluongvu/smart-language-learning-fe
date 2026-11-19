@@ -90,6 +90,10 @@
     </div>
   </main>
 
+  @defer (on idle) {
+    <app-floating-ai-tutor />
+  }
+
   <nav class="shell__bottom-nav" aria-label="Mobile navigation">
     <a
       routerLink="/dashboard"
