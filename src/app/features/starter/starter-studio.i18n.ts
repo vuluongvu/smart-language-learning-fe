@@ -5,12 +5,19 @@ export const STARTER_EN_TRANSLATIONS = {
   'st.backDashboard': 'Back to Dashboard',
   'st.title': 'Start From Zero',
   'st.subtitle':
-    'Learn letters, sounds, Hangul syllable building, core beginner grammar, and listening — zero AI tokens required.',
+    'Learn the A–Z alphabet, letter sounds, grammatical 3-block sentences, core beginner grammar, and listening step by step.',
+  'st.subtitleKo':
+    'Learn Hangul vowels and consonants, trace strokes, combine square syllable blocks, and build core Korean grammar from zero.',
   'st.speedLabel': 'Audio speed',
   'st.speedSlow': '0.78x Extra slow',
   'st.speedNormal': '0.95x Natural',
   'st.goA0PathBtn': 'Open A0 Learning Path',
   'st.askAiBtn': 'Ask A0 Tutor',
+  'st.guideTitle': 'Recommended 4-Step Beginner Path:',
+  'st.guideEnBody':
+    'Step 1: Start with Vowels (5) or Lesson 1 (A–G) → Step 2: Build 3-word sentences in "2. Build" → Step 3: Read Rules 1–3 in "3. Grammar" → Step 4: Test your ears in "4. Listen".',
+  'st.guideKoBody':
+    'Step 1: Filter "Vowels (10)" first, then "Consonants (14)" → Step 2: Combine blocks in "2. Build" → Step 3: Read Rules 1–2 in "3. Grammar" → Step 4: Test your ears in "4. Listen".',
 
   'st.tabAlphabet': '1. Alphabet',
   'st.tabBuilder': '2. Build',
@@ -19,6 +26,10 @@ export const STARTER_EN_TRANSLATIONS = {
   'st.filterAll': 'All',
   'st.enFilterVowels': 'Vowels (5)',
   'st.enFilterConsonants': 'Consonants (21)',
+  'st.enFilterLesson1': 'Lesson 1: A–G (7)',
+  'st.enFilterLesson2': 'Lesson 2: H–N (7)',
+  'st.enFilterLesson3': 'Lesson 3: O–U (7)',
+  'st.enFilterLesson4': 'Lesson 4: V–Z (5)',
   'st.koFilterConsonants': 'Consonants (14)',
   'st.koFilterVowels': 'Vowels (10)',
 
@@ -47,16 +58,16 @@ export const STARTER_EN_TRANSLATIONS = {
     'Pick a consonant + vowel + optional bottom Batchim to see and hear how Korean square blocks are formed live.',
   'st.koPickConsonant': '1. Pick initial consonant',
   'st.koPickVowel': '2. Pick vowel',
-  'st.koPickBatchim': '3. Optional bottom Batchim',
+  'st.koPickBatchim': '3. Optional final consonant at bottom (Batchim)',
   'st.koCombinedResult': 'Live combined Hangul syllable',
   'st.koWriteCombined': 'Trace this syllable',
 
   'st.enBuilderTitle': 'Build Your First 3-Block English Sentence',
   'st.enBuilderDesc':
-    'Tap Subject + Action + Ending below. Argon automatically matches am/is/are and reads the whole sentence slowly.',
+    'Tap Subject + Verb + Matching Ending below. Only grammatically valid endings are shown for each verb.',
   'st.enPickSubject': '1. Who (Subject)',
   'st.enPickVerb': '2. Action / Be',
-  'st.enPickEnding': '3. Description / Noun',
+  'st.enPickEnding': '3. Matching Ending (Valid for selected verb)',
   'st.enSentencePreview': 'Your complete sentence',
   'st.enSpeakSlow': 'Listen slow (0.78x)',
   'st.enSpeakNormal': 'Listen natural',
@@ -64,7 +75,11 @@ export const STARTER_EN_TRANSLATIONS = {
   'st.drillTitle': 'No-Stress Listen & Match Drill',
   'st.drillDesc':
     'Train your ears first! Press Listen, then pick the matching card. Wrong answers never lose points.',
-  'st.drillStreak': 'Correct streak: {{score}} / {{total}}',
+  'st.drillStreak': 'First-try score: {{score}} / {{total}}',
+  'st.drillListenInstruction':
+    'Tap Play pronunciation first, listen carefully, and choose the matching word below.',
+  'st.drillShowHint': 'Show meaning & sound hint',
+  'st.drillHideHint': 'Hide hint',
   'st.drillPlayPrompt': 'Play pronunciation',
   'st.drillCorrectFeedback': 'Spot on! Listen one more time and tap Next whenever ready.',
   'st.drillWrongFeedback': 'Close! Listen at slow speed again and pick the matching sound.',
@@ -123,12 +138,19 @@ export const STARTER_VI_TRANSLATIONS: Record<StarterTxKey, string> = {
   'st.backDashboard': 'Về Tổng quan',
   'st.title': 'Bắt đầu từ con số 0',
   'st.subtitle':
-    'Làm quen mặt chữ, phát âm chậm rãi, ghép âm tiết Hangul, nắm ngữ pháp nền tảng và luyện nghe miễn phí AI token.',
+    'Làm quen bảng chữ cái A–Z, nghe phát âm chậm 0.78x, ghép câu đúng ngữ pháp và luyện nghe nhận diện từ vựng nền tảng.',
+  'st.subtitleKo':
+    'Làm quen chữ Hangul (10 nguyên âm & 14 phụ âm), tập viết nét, ghép ô chữ vuông, nắm ngữ pháp nhập môn và luyện nghe từ số 0.',
   'st.speedLabel': 'Tốc độ đọc',
   'st.speedSlow': '0.78x Siêu chậm',
   'st.speedNormal': '0.95x Tự nhiên',
   'st.goA0PathBtn': 'Vào Lộ trình A0',
   'st.askAiBtn': 'Hỏi Gia sư A0',
+  'st.guideTitle': 'Gợi ý thứ tự học cho người mới 100%:',
+  'st.guideEnBody':
+    'Bước 1: Chọn "Nguyên âm (5)" hoặc "Bài 1: A–G" để nghe từng chữ → Bước 2: Sang "2. Ghép & Câu" ghép 3–4 câu đúng chuẩn → Bước 3: Xem quy tắc 1–3 ở "3. Ngữ pháp" → Bước 4: Luyện tai ở "4. Nghe & Chọn".',
+  'st.guideKoBody':
+    'Bước 1: Chọn "Nguyên âm (10)" học trước rồi tới "Phụ âm (14)" → Bước 2: Sang "2. Ghép & Câu" ghép ô chữ vuông → Bước 3: Xem quy tắc 1–2 ở "3. Ngữ pháp" → Bước 4: Luyện tai ở "4. Nghe & Chọn".',
 
   'st.tabAlphabet': '1. Chữ & Âm',
   'st.tabBuilder': '2. Ghép & Câu',
@@ -137,6 +159,10 @@ export const STARTER_VI_TRANSLATIONS: Record<StarterTxKey, string> = {
   'st.filterAll': 'Tất cả',
   'st.enFilterVowels': 'Nguyên âm (5)',
   'st.enFilterConsonants': 'Phụ âm (21)',
+  'st.enFilterLesson1': 'Bài 1: A–G (7)',
+  'st.enFilterLesson2': 'Bài 2: H–N (7)',
+  'st.enFilterLesson3': 'Bài 3: O–U (7)',
+  'st.enFilterLesson4': 'Bài 4: V–Z (5)',
   'st.koFilterConsonants': 'Phụ âm (14)',
   'st.koFilterVowels': 'Nguyên âm (10)',
 
@@ -164,16 +190,16 @@ export const STARTER_VI_TRANSLATIONS: Record<StarterTxKey, string> = {
     'Chọn Phụ âm đầu + Nguyên âm + Âm cuối (nếu cần) để thấy ngay khối chữ Hangul thật và nghe phát âm.',
   'st.koPickConsonant': '1. Chọn phụ âm đầu',
   'st.koPickVowel': '2. Chọn nguyên âm',
-  'st.koPickBatchim': '3. Chọn âm cuối Batchim (tùy chọn)',
+  'st.koPickBatchim': '3. Chọn âm cuối dưới đáy chữ (Batchim — tùy chọn)',
   'st.koCombinedResult': 'Chữ Hangul vừa ghép',
   'st.koWriteCombined': 'Tập viết chữ này',
 
   'st.enBuilderTitle': 'Lắp ghép câu tiếng Anh 3 mảnh đầu tiên',
   'st.enBuilderDesc':
-    'Chọn Chủ ngữ + Động từ + Phần sau để xem câu đúng ngữ pháp tự động và bấm nghe lặp lại.',
+    'Chọn Chủ ngữ + Động từ + Phần sau phù hợp. Hệ thống tự động lọc các vế đúng ngữ pháp cho từng động từ.',
   'st.enPickSubject': '1. Ai (Chủ ngữ)',
-  'st.enPickVerb': '2. Là / Thích / Muốn',
-  'st.enPickEnding': '3. Trạng thái / Đồ vật',
+  'st.enPickVerb': '2. Là / Thích / Muốn / Có',
+  'st.enPickEnding': '3. Phần sau phù hợp với động từ đã chọn',
   'st.enSentencePreview': 'Câu hoàn chỉnh của bạn',
   'st.enSpeakSlow': 'Nghe siêu chậm (0.78x)',
   'st.enSpeakNormal': 'Nghe tự nhiên',
@@ -181,7 +207,11 @@ export const STARTER_VI_TRANSLATIONS: Record<StarterTxKey, string> = {
   'st.drillTitle': 'Luyện phản xạ tai: Nghe & Chọn đúng (Không áp lực)',
   'st.drillDesc':
     'Bấm nút Nghe phát âm rồi chọn ô chữ đúng bên dưới. Trả lời nhầm không sao cả, nghe lại và thử tiếp nhé!',
-  'st.drillStreak': 'Đúng liên tiếp: {{score}} / {{total}}',
+  'st.drillStreak': 'Đúng ngay lần đầu: {{score}} / {{total}}',
+  'st.drillListenInstruction':
+    'Hãy bấm "Nghe phát âm" trước để luyện tai nhận diện âm, cần trợ giúp mới bấm Xem gợi ý.',
+  'st.drillShowHint': 'Xem gợi ý nghĩa & phát âm',
+  'st.drillHideHint': 'Ẩn gợi ý',
   'st.drillPlayPrompt': 'Nghe phát âm',
   'st.drillCorrectFeedback': 'Chính xác! Bạn có thể bấm nghe lại lần nữa rồi qua câu tiếp theo.',
   'st.drillWrongFeedback': 'Gần đúng rồi! Bấm Nghe lại chậm 0.78x rồi chọn lại nhé.',

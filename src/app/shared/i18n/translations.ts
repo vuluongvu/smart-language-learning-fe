@@ -59,6 +59,8 @@ export const EN_TRANSLATIONS = {
   'nav.leaderboard': 'Leaderboard',
   'nav.settings': 'Settings & Profile',
   'nav.mobileHome': 'Home',
+  'nav.mobileStarter': 'Zero A0',
+  'nav.mobilePath': 'Path',
   'nav.mobileVocab': 'Vocab',
   'nav.mobileCards': 'Cards',
   'nav.mobileQuizzes': 'Quizzes',
@@ -176,6 +178,10 @@ export const EN_TRANSLATIONS = {
   'dashboard.doneTodayDesc':
     'No vocabulary words left to review. Keep expanding your vocabulary bank!',
   'dashboard.addNewVocabCta': 'Add new vocabulary',
+  'dashboard.openA0Path': 'Open A0 Path',
+  'dashboard.newLearnerTitle': 'Start your first lesson today!',
+  'dashboard.newLearnerDesc':
+    'You have 0 saved words so far. Begin with "Start From Zero (A0)" or Unit 1 of the A0 Learning Path to learn and save your first essential words.',
 
   // Topics & Topic Detail
   'topics.eyebrow': 'Organization',
@@ -1001,6 +1007,8 @@ export const VI_TRANSLATIONS: Record<TxKey, string> = {
   'nav.leaderboard': 'Bảng xếp hạng',
   'nav.settings': 'Cài đặt & Hồ sơ',
   'nav.mobileHome': 'Trang chủ',
+  'nav.mobileStarter': 'Từ số 0',
+  'nav.mobilePath': 'Lộ trình',
   'nav.mobileVocab': 'Từ vựng',
   'nav.mobileCards': 'Thẻ',
   'nav.mobileQuizzes': 'Kiểm tra',
@@ -1118,6 +1126,10 @@ export const VI_TRANSLATIONS: Record<TxKey, string> = {
   'dashboard.doneTodayDesc':
     'Không còn từ vựng nào cần ôn tập. Hãy tiếp tục mở rộng vốn từ của mình nhé.',
   'dashboard.addNewVocabCta': 'Thêm từ vựng mới',
+  'dashboard.openA0Path': 'Vào Lộ trình A0',
+  'dashboard.newLearnerTitle': 'Bắt đầu bài học đầu tiên hôm nay!',
+  'dashboard.newLearnerDesc':
+    'Bạn chưa có từ vựng nào đã lưu. Hãy bắt đầu tại "Từ con số 0 (A0)" hoặc Bài 1 trong Lộ trình A0 để học và lưu bộ từ sống còn đầu tiên nhé.',
 
   // Topics & Topic Detail
   'topics.eyebrow': 'Sắp xếp nội dung',

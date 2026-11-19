@@ -1,6 +1,7 @@
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { AiApiService } from '../ai-tutor/ai-api.service';
 import { AiTutorChatService } from '../ai-tutor/ai-tutor-chat.service';
+import { AuthService } from '../auth/auth.service';
 import { OqIconComponent } from '../../shared/components';
 import { I18nService } from '../../shared/i18n';
 import { LearningLanguageService } from '../../shared/services/learning-language.service';
@@ -36,9 +37,13 @@ const EMPTY_CUSTOM_STORE: CustomGrammarStore = {
   ko: { points: [], exercises: [] },
 };
 
-function loadMasteredGrammarIds(): string[] {
+function scopedStorageKey(baseKey: string, userId?: number | null): string {
+  return typeof userId === 'number' && userId > 0 ? `${baseKey}_u${userId}` : baseKey;
+}
+
+function loadMasteredGrammarIds(userId?: number | null): string[] {
   try {
-    const raw = localStorage.getItem(GRAMMAR_DONE_STORAGE_KEY);
+    const raw = localStorage.getItem(scopedStorageKey(GRAMMAR_DONE_STORAGE_KEY, userId));
     if (!raw) return [];
     const parsed: unknown = JSON.parse(raw);
     return Array.isArray(parsed)
@@ -49,17 +54,17 @@ function loadMasteredGrammarIds(): string[] {
   }
 }
 
-function saveMasteredGrammarIds(ids: string[]): void {
+function saveMasteredGrammarIds(ids: string[], userId?: number | null): void {
   try {
-    localStorage.setItem(GRAMMAR_DONE_STORAGE_KEY, JSON.stringify(ids));
+    localStorage.setItem(scopedStorageKey(GRAMMAR_DONE_STORAGE_KEY, userId), JSON.stringify(ids));
   } catch {
     // Ignore storage quota or private-mode errors cleanly.
   }
 }
 
-function loadCustomGrammarStore(): CustomGrammarStore {
+function loadCustomGrammarStore(userId?: number | null): CustomGrammarStore {
   try {
-    const raw = localStorage.getItem(CUSTOM_GRAMMAR_STORAGE_KEY);
+    const raw = localStorage.getItem(scopedStorageKey(CUSTOM_GRAMMAR_STORAGE_KEY, userId));
     if (!raw) return structuredClone(EMPTY_CUSTOM_STORE);
     const parsed = JSON.parse(raw) as Partial<CustomGrammarStore>;
     return {
@@ -77,9 +82,12 @@ function loadCustomGrammarStore(): CustomGrammarStore {
   }
 }
 
-function saveCustomGrammarStore(store: CustomGrammarStore): void {
+function saveCustomGrammarStore(store: CustomGrammarStore, userId?: number | null): void {
   try {
-    localStorage.setItem(CUSTOM_GRAMMAR_STORAGE_KEY, JSON.stringify(store));
+    localStorage.setItem(
+      scopedStorageKey(CUSTOM_GRAMMAR_STORAGE_KEY, userId),
+      JSON.stringify(store),
+    );
   } catch {
     // Ignore storage quota or private-mode errors cleanly.
   }
@@ -97,14 +105,20 @@ export class StarterGrammarComponent {
   protected readonly speech = inject(SpeechService);
   protected readonly i18n = inject(I18nService);
   protected readonly learningLang = inject(LearningLanguageService);
+  private readonly auth = inject(AuthService, { optional: true });
   private readonly aiApi = inject(AiApiService, { optional: true });
   private readonly aiChat = inject(AiTutorChatService, { optional: true });
+  private readonly userId = computed(() => this.auth?.user()?.id ?? null);
 
   // Grammar catalog & mastery tracking
   protected readonly grammarCategory = signal<'all' | StarterGrammarCategory>('all');
   protected readonly selectedGrammarId = signal<string | null>(null);
-  protected readonly customStore = signal<CustomGrammarStore>(loadCustomGrammarStore());
-  protected readonly masteredGrammarIds = signal<string[]>(loadMasteredGrammarIds());
+  protected readonly customStore = signal<CustomGrammarStore>(
+    loadCustomGrammarStore(this.auth?.user()?.id ?? null),
+  );
+  protected readonly masteredGrammarIds = signal<string[]>(
+    loadMasteredGrammarIds(this.auth?.user()?.id ?? null),
+  );
 
   protected readonly customGrammarPoints = computed(
     () => this.customStore()[this.learningLang.activeLang()].points,
@@ -185,8 +199,18 @@ export class StarterGrammarComponent {
   });
 
   private lastLang: LearningLanguageCode | null = null;
+  private lastUserId: number | null | undefined = undefined;
 
   constructor() {
+    effect(() => {
+      const uid = this.userId();
+      if (this.lastUserId !== undefined && this.lastUserId !== uid) {
+        this.masteredGrammarIds.set(loadMasteredGrammarIds(uid));
+        this.customStore.set(loadCustomGrammarStore(uid));
+      }
+      this.lastUserId = uid;
+    });
+
     effect(() => {
       const lang = this.learningLang.activeLang();
       if (this.lastLang !== null && this.lastLang !== lang) {
@@ -228,7 +252,7 @@ export class StarterGrammarComponent {
     const current = this.masteredGrammarIds();
     const next = current.includes(id) ? current.filter((item) => item !== id) : [...current, id];
     this.masteredGrammarIds.set(next);
-    saveMasteredGrammarIds(next);
+    saveMasteredGrammarIds(next, this.userId());
   }
 
   askGrammarTutor(point: StarterGrammarPoint): void {
@@ -276,7 +300,7 @@ export class StarterGrammarComponent {
           nextStore[lang].points = [res.grammarPoint, ...nextStore[lang].points];
           nextStore[lang].exercises = [...nextStore[lang].exercises, ...res.exercises];
           this.customStore.set(nextStore);
-          saveCustomGrammarStore(nextStore);
+          saveCustomGrammarStore(nextStore, this.userId());
 
           this.grammarCategory.set('all');
           this.selectedGrammarId.set(res.grammarPoint.id);
@@ -307,7 +331,7 @@ export class StarterGrammarComponent {
     nextStore[lang].points = nextStore[lang].points.filter((p) => p.id !== grammarId);
     nextStore[lang].exercises = nextStore[lang].exercises.filter((q) => q.grammarId !== grammarId);
     this.customStore.set(nextStore);
-    saveCustomGrammarStore(nextStore);
+    saveCustomGrammarStore(nextStore, this.userId());
 
     if (this.selectedGrammarId() === grammarId) {
       this.selectedGrammarId.set(null);
