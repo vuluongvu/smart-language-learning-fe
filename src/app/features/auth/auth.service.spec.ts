@@ -132,4 +132,37 @@ describe('AuthService', () => {
     });
     expect(service.user()?.linkedProviders).toEqual(['local']);
   });
+
+  it('sends confirmation email when deleting account and clears session on success', () => {
+    tokenStorage.setTokens('access-1', 'refresh-1');
+
+    let message = '';
+    service
+      .deleteAccount({
+        confirm: true,
+        confirmEmail: 'learner@example.com',
+        currentPassword: 'Password123!',
+      })
+      .subscribe((res) => {
+        message = res.message;
+      });
+
+    const req = httpMock.expectOne(`${environment.apiBaseUrl}/users/me`);
+    expect(req.request.method).toBe('DELETE');
+    expect(req.request.body).toEqual({
+      confirm: true,
+      confirmEmail: 'learner@example.com',
+      currentPassword: 'Password123!',
+    });
+    req.flush({
+      statusCode: 200,
+      message: 'Success',
+      timestamp: '2026-01-01T00:00:00.000Z',
+      data: { message: 'Account deleted successfully' },
+    });
+
+    expect(message).toBe('Account deleted successfully');
+    expect(service.isAuthenticated()).toBe(false);
+    expect(tokenStorage.getAccessToken()).toBeNull();
+  });
 });

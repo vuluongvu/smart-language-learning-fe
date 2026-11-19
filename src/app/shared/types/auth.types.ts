@@ -62,5 +62,6 @@ export interface ChangePasswordRequest {
 
 export interface DeleteAccountRequest {
   confirm: boolean;
+  confirmEmail: string;
   currentPassword?: string;
 }
