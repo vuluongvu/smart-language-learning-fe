@@ -134,8 +134,18 @@ describe('StarterStudioComponent', () => {
     fixture.detectChanges();
 
     const el = fixture.nativeElement as HTMLElement;
-    expect(el.textContent).toContain('Apple');
-    expect(el.textContent).toContain('Zero');
+    const letterGrid = () => el.querySelector('.st-letter-grid')?.textContent ?? '';
+    expect(letterGrid()).toContain('Apple');
+    expect(letterGrid()).toContain('Zero');
+
+    // Tab 1 filter focuses vowels cleanly
+    const vowelsBtn = Array.from(el.querySelectorAll<HTMLButtonElement>('button')).find((b) =>
+      b.textContent?.includes('Vowels (5)'),
+    );
+    vowelsBtn?.click();
+    fixture.detectChanges();
+    expect(letterGrid()).toContain('Apple');
+    expect(letterGrid()).not.toContain('Zero');
 
     const comp = fixture.componentInstance as unknown as {
       activeTab: ReturnType<typeof signal<'alphabet' | 'builder' | 'grammar' | 'drill'>>;
@@ -261,6 +271,14 @@ describe('StarterStudioComponent', () => {
     fixture.detectChanges();
     expect(el.textContent).toContain('-이에요 / -예요');
     expect(el.textContent).toContain('저는 학생___.');
+
+    // Stepping Next lesson moves Master-Detail active card to Lesson 2
+    const nextLessonBtn = Array.from(el.querySelectorAll<HTMLButtonElement>('.st-step-btn')).find(
+      (b) => b.textContent?.includes('Next lesson'),
+    );
+    nextLessonBtn?.click();
+    fixture.detectChanges();
+    expect(el.textContent).toContain('2 / 10');
 
     // Ask AI Tutor button opens floating tutor and sends context question
     const askAiBtn = el.querySelector<HTMLButtonElement>('.st-grammar-ai-btn');

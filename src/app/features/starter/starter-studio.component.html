@@ -6,7 +6,7 @@
     [title]="'st.title' | stT"
     [subtitle]="'st.subtitle' | stT"
   >
-    <div actions class="st-head-actions">
+    <div actions class="st-chip-wrap">
       <div class="oq-course-tabs" role="group" aria-label="Starter language">
         @for (opt of learningLang.options; track opt.code) {
           <button
@@ -81,12 +81,8 @@
         [queryParams]="a0PathLinkQuery()"
         class="oq-btn oq-btn--primary oq-btn--sm"
       >
-        <oq-icon name="map" [size]="15" />
         <span>{{ 'st.goA0PathBtn' | stT }}</span>
-      </a>
-      <a routerLink="/ai-tutor" class="oq-btn oq-btn--secondary oq-btn--sm">
-        <oq-icon name="sparkles" [size]="15" />
-        <span>{{ 'st.askAiBtn' | stT }}</span>
+        <oq-icon name="arrow-right" [size]="14" />
       </a>
     </div>
   </section>
@@ -94,129 +90,160 @@
   @switch (activeTab()) {
     @case ('alphabet') {
       @if (learningLang.isKorean()) {
-        <section class="oq-card st-panel">
-          <div class="st-panel__head">
-            <div>
-              <h2>{{ 'st.koConsonantsTitle' | stT }}</h2>
-              <p class="oq-muted">{{ 'st.koConsonantsDesc' | stT }}</p>
+        <div class="st-chip-wrap" role="group" aria-label="Korean alphabet section filter">
+          <button
+            type="button"
+            class="oq-pill"
+            [class.oq-pill--active]="koJamoFilter() === 'all'"
+            (click)="koJamoFilter.set('all')"
+          >
+            {{ 'st.filterAll' | stT }} (24)
+          </button>
+          <button
+            type="button"
+            class="oq-pill"
+            [class.oq-pill--active]="koJamoFilter() === 'consonants'"
+            (click)="koJamoFilter.set('consonants')"
+          >
+            {{ 'st.koFilterConsonants' | stT }}
+          </button>
+          <button
+            type="button"
+            class="oq-pill"
+            [class.oq-pill--active]="koJamoFilter() === 'vowels'"
+            (click)="koJamoFilter.set('vowels')"
+          >
+            {{ 'st.koFilterVowels' | stT }}
+          </button>
+        </div>
+
+        @if (koJamoFilter() !== 'vowels') {
+          <section class="oq-card st-panel">
+            <div class="st-panel__head">
+              <div>
+                <h2>{{ 'st.koConsonantsTitle' | stT }}</h2>
+                <p class="oq-muted">{{ 'st.koConsonantsDesc' | stT }}</p>
+              </div>
             </div>
-          </div>
 
-          <div class="st-jamo-grid">
-            @for (item of koreanConsonants; track item.jamo; let idx = $index) {
-              <article class="st-jamo-card">
-                <div class="st-jamo-card__top">
-                  <span class="st-jamo-glyph">{{ item.jamo }}</span>
-                  <div class="st-jamo-meta">
-                    <strong>{{ item.name }}</strong>
-                    <span class="oq-badge oq-badge--lavender">[{{ item.roman }}]</span>
+            <div class="st-jamo-grid">
+              @for (item of koreanConsonants; track item.jamo; let idx = $index) {
+                <article class="st-jamo-card">
+                  <div class="st-jamo-card__top">
+                    <span class="st-jamo-glyph">{{ item.jamo }}</span>
+                    <div class="st-chip-wrap">
+                      <strong>{{ item.name }}</strong>
+                      <span class="oq-badge oq-badge--lavender">[{{ item.roman }}]</span>
+                    </div>
                   </div>
-                </div>
-                <p class="st-tip">{{ i18n.lang() === 'vi' ? item.tipVi : item.tipEn }}</p>
-                <div class="st-sample-row">
-                  <span>
-                    <strong>{{ item.sampleWord }}</strong> ({{ item.sampleReading }}) —
-                    {{ i18n.lang() === 'vi' ? item.sampleMeaningVi : item.sampleMeaningEn }}
-                  </span>
-                </div>
-                <div class="st-card-actions">
-                  @if (speech.isTtsSupported) {
+                  <p class="st-tip">{{ i18n.lang() === 'vi' ? item.tipVi : item.tipEn }}</p>
+                  <div class="st-chip-wrap st-sample-text">
+                    <span>
+                      <strong>{{ item.sampleWord }}</strong> ({{ item.sampleReading }}) —
+                      {{ i18n.lang() === 'vi' ? item.sampleMeaningVi : item.sampleMeaningEn }}
+                    </span>
+                  </div>
+                  <div class="st-card-actions">
+                    @if (speech.isTtsSupported) {
+                      <button
+                        type="button"
+                        class="oq-copy-btn"
+                        (click)="speakConsonantSyllable(item.jamoIndex, 'ko-c-' + idx)"
+                      >
+                        <oq-icon
+                          [name]="speech.speakingId() === 'ko-c-' + idx ? 'square' : 'volume-2'"
+                          [size]="13"
+                        />
+                        <span>{{ 'st.listenLetter' | stT }}</span>
+                      </button>
+                      <button
+                        type="button"
+                        class="oq-copy-btn"
+                        (click)="speakText(item.sampleWord, 'ko-cw-' + idx)"
+                      >
+                        <oq-icon
+                          [name]="speech.speakingId() === 'ko-cw-' + idx ? 'square' : 'volume-2'"
+                          [size]="13"
+                        />
+                        <span>{{ item.sampleWord }}</span>
+                      </button>
+                    }
                     <button
                       type="button"
                       class="oq-copy-btn"
-                      (click)="speakConsonantSyllable(item.jamoIndex, 'ko-c-' + idx)"
+                      (click)="openHandwriting(item.sampleWord)"
                     >
-                      <oq-icon
-                        [name]="speech.speakingId() === 'ko-c-' + idx ? 'square' : 'volume-2'"
-                        [size]="13"
-                      />
-                      <span>{{ 'st.listenLetter' | stT }}</span>
+                      <oq-icon name="pen-line" [size]="13" />
+                      <span>{{ 'st.practiceStroke' | stT }}</span>
                     </button>
-                    <button
-                      type="button"
-                      class="oq-copy-btn"
-                      (click)="speakText(item.sampleWord, 'ko-cw-' + idx)"
-                    >
-                      <oq-icon
-                        [name]="speech.speakingId() === 'ko-cw-' + idx ? 'square' : 'volume-2'"
-                        [size]="13"
-                      />
-                      <span>{{ item.sampleWord }}</span>
-                    </button>
-                  }
-                  <button
-                    type="button"
-                    class="oq-copy-btn"
-                    (click)="openHandwriting(item.sampleWord)"
-                  >
-                    <oq-icon name="pen-line" [size]="13" />
-                    <span>{{ 'st.practiceStroke' | stT }}</span>
-                  </button>
-                </div>
-              </article>
-            }
-          </div>
-        </section>
-
-        <section class="oq-card st-panel">
-          <div class="st-panel__head">
-            <div>
-              <h2>{{ 'st.koVowelsTitle' | stT }}</h2>
-              <p class="oq-muted">{{ 'st.koVowelsDesc' | stT }}</p>
+                  </div>
+                </article>
+              }
             </div>
-          </div>
+          </section>
+        }
 
-          <div class="st-jamo-grid">
-            @for (item of koreanVowels; track item.jamo; let idx = $index) {
-              <article class="st-jamo-card st-jamo-card--vowel">
-                <div class="st-jamo-card__top">
-                  <span class="st-jamo-glyph">{{ item.jamo }}</span>
-                  <div class="st-jamo-meta">
-                    <strong>{{ item.name }}</strong>
-                    <span class="oq-badge">[{{ item.roman }}]</span>
+        @if (koJamoFilter() !== 'consonants') {
+          <section class="oq-card st-panel">
+            <div class="st-panel__head">
+              <div>
+                <h2>{{ 'st.koVowelsTitle' | stT }}</h2>
+                <p class="oq-muted">{{ 'st.koVowelsDesc' | stT }}</p>
+              </div>
+            </div>
+
+            <div class="st-jamo-grid">
+              @for (item of koreanVowels; track item.jamo; let idx = $index) {
+                <article class="st-jamo-card st-jamo-card--vowel">
+                  <div class="st-jamo-card__top">
+                    <span class="st-jamo-glyph">{{ item.jamo }}</span>
+                    <div class="st-chip-wrap">
+                      <strong>{{ item.name }}</strong>
+                      <span class="oq-badge">[{{ item.roman }}]</span>
+                    </div>
                   </div>
-                </div>
-                <p class="st-tip">{{ i18n.lang() === 'vi' ? item.tipVi : item.tipEn }}</p>
-                <div class="st-sample-row">
-                  <span>
-                    <strong>{{ item.sampleWord }}</strong> ({{ item.sampleReading }}) —
-                    {{ i18n.lang() === 'vi' ? item.sampleMeaningVi : item.sampleMeaningEn }}
-                  </span>
-                </div>
-                <div class="st-card-actions">
-                  @if (speech.isTtsSupported) {
-                    <button
-                      type="button"
-                      class="oq-copy-btn"
-                      (click)="speakVowelSyllable(item.jamoIndex, 'ko-v-' + idx)"
-                    >
-                      <oq-icon
-                        [name]="speech.speakingId() === 'ko-v-' + idx ? 'square' : 'volume-2'"
-                        [size]="13"
-                      />
-                      <span>{{ 'st.listenLetter' | stT }}</span>
+                  <p class="st-tip">{{ i18n.lang() === 'vi' ? item.tipVi : item.tipEn }}</p>
+                  <div class="st-chip-wrap st-sample-text">
+                    <span>
+                      <strong>{{ item.sampleWord }}</strong> ({{ item.sampleReading }}) —
+                      {{ i18n.lang() === 'vi' ? item.sampleMeaningVi : item.sampleMeaningEn }}
+                    </span>
+                  </div>
+                  <div class="st-card-actions">
+                    @if (speech.isTtsSupported) {
+                      <button
+                        type="button"
+                        class="oq-copy-btn"
+                        (click)="speakVowelSyllable(item.jamoIndex, 'ko-v-' + idx)"
+                      >
+                        <oq-icon
+                          [name]="speech.speakingId() === 'ko-v-' + idx ? 'square' : 'volume-2'"
+                          [size]="13"
+                        />
+                        <span>{{ 'st.listenLetter' | stT }}</span>
+                      </button>
+                      <button
+                        type="button"
+                        class="oq-copy-btn"
+                        (click)="speakText(item.sampleWord, 'ko-vw-' + idx)"
+                      >
+                        <oq-icon
+                          [name]="speech.speakingId() === 'ko-vw-' + idx ? 'square' : 'volume-2'"
+                          [size]="13"
+                        />
+                        <span>{{ item.sampleWord }}</span>
+                      </button>
+                    }
+                    <button type="button" class="oq-copy-btn" (click)="openHandwriting(item.name)">
+                      <oq-icon name="pen-line" [size]="13" />
+                      <span>{{ 'st.practiceStroke' | stT }}</span>
                     </button>
-                    <button
-                      type="button"
-                      class="oq-copy-btn"
-                      (click)="speakText(item.sampleWord, 'ko-vw-' + idx)"
-                    >
-                      <oq-icon
-                        [name]="speech.speakingId() === 'ko-vw-' + idx ? 'square' : 'volume-2'"
-                        [size]="13"
-                      />
-                      <span>{{ item.sampleWord }}</span>
-                    </button>
-                  }
-                  <button type="button" class="oq-copy-btn" (click)="openHandwriting(item.name)">
-                    <oq-icon name="pen-line" [size]="13" />
-                    <span>{{ 'st.practiceStroke' | stT }}</span>
-                  </button>
-                </div>
-              </article>
-            }
-          </div>
-        </section>
+                  </div>
+                </article>
+              }
+            </div>
+          </section>
+        }
       } @else {
         <section class="oq-card st-panel">
           <div class="st-panel__head">
@@ -224,10 +251,36 @@
               <h2>{{ 'st.enLettersTitle' | stT }}</h2>
               <p class="oq-muted">{{ 'st.enLettersDesc' | stT }}</p>
             </div>
+            <div class="st-chip-wrap" role="group" aria-label="English alphabet filter">
+              <button
+                type="button"
+                class="oq-pill"
+                [class.oq-pill--active]="enLetterFilter() === 'all'"
+                (click)="enLetterFilter.set('all')"
+              >
+                {{ 'st.filterAll' | stT }} (26)
+              </button>
+              <button
+                type="button"
+                class="oq-pill"
+                [class.oq-pill--active]="enLetterFilter() === 'vowels'"
+                (click)="enLetterFilter.set('vowels')"
+              >
+                {{ 'st.enFilterVowels' | stT }}
+              </button>
+              <button
+                type="button"
+                class="oq-pill"
+                [class.oq-pill--active]="enLetterFilter() === 'consonants'"
+                (click)="enLetterFilter.set('consonants')"
+              >
+                {{ 'st.enFilterConsonants' | stT }}
+              </button>
+            </div>
           </div>
 
           <div class="st-letter-grid">
-            @for (card of englishLetters; track card.letter; let idx = $index) {
+            @for (card of filteredEnglishLetters(); track card.letter; let idx = $index) {
               <article class="st-letter-card" [class.st-letter-card--vowel]="card.isVowel">
                 <div class="st-letter-card__head">
                   <span class="st-letter-big">{{ card.letter }}{{ card.lowercase }}</span>
@@ -235,13 +288,13 @@
                     {{ (card.isVowel ? 'st.vowelTag' : 'st.consonantTag') | stT }}
                   </span>
                 </div>
-                <div class="st-letter-phonetic">
+                <div class="st-chip-wrap">
                   <span>{{ card.nameIpa }}</span>
                   @if (i18n.lang() === 'vi') {
                     <span class="oq-muted">· "{{ card.viHint }}"</span>
                   }
                 </div>
-                <div class="st-sample-row">
+                <div class="st-chip-wrap st-sample-text">
                   <strong>{{ card.sampleWord }}</strong>
                   <span class="oq-muted">{{ card.sampleIpa }}</span>
                   <span
@@ -290,8 +343,8 @@
 
           <div class="st-phonics-grid">
             @for (tip of englishPhonics; track tip.id) {
-              <article class="st-phonics-card">
-                <div class="st-phonics-card__top">
+              <article class="st-jamo-card">
+                <div class="st-chip-wrap">
                   <span class="oq-badge oq-badge--lavender">{{ tip.symbol }}</span>
                   <strong>{{ i18n.lang() === 'vi' ? tip.labelVi : tip.labelEn }}</strong>
                 </div>
@@ -343,7 +396,7 @@
             <div class="st-mixer-controls">
               <div class="st-mixer-group">
                 <span class="st-group-label">{{ 'st.koPickConsonant' | stT }}</span>
-                <div class="st-chip-wrap">
+                <div class="st-jamo-picker-grid">
                   @for (c of koreanConsonants; track c.jamo; let idx = $index) {
                     <button
                       type="button"
@@ -359,7 +412,7 @@
 
               <div class="st-mixer-group">
                 <span class="st-group-label">{{ 'st.koPickVowel' | stT }}</span>
-                <div class="st-chip-wrap">
+                <div class="st-jamo-picker-grid st-jamo-picker-grid--vowels">
                   @for (v of koreanVowels; track v.jamo; let idx = $index) {
                     <button
                       type="button"
@@ -375,7 +428,7 @@
 
               <div class="st-mixer-group">
                 <span class="st-group-label">{{ 'st.koPickBatchim' | stT }}</span>
-                <div class="st-chip-wrap">
+                <div class="st-batchim-grid">
                   @for (b of batchimOptions; track b.label; let idx = $index) {
                     <button
                       type="button"
@@ -481,6 +534,13 @@
 
           <div class="st-sentence-stage">
             <span class="oq-muted">{{ 'st.enSentencePreview' | stT }}</span>
+            <div class="st-chip-wrap" aria-hidden="true">
+              <span class="oq-badge oq-badge--lavender">{{ builtSentence().subject }}</span>
+              <span>+</span>
+              <span class="oq-badge oq-badge--success">{{ builtSentence().verb }}</span>
+              <span>+</span>
+              <span class="oq-badge">{{ builtSentence().ending }}</span>
+            </div>
             <p class="st-sentence-output">{{ builtSentence().english }}</p>
             <p class="oq-muted">
               → {{ i18n.lang() === 'vi' ? builtSentence().meaningVi : builtSentence().meaningEn }}

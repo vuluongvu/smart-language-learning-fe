@@ -1,75 +1,76 @@
 :host,
 .stg-panel,
 .stg-gen-box,
-.stg-gen-head,
-.stg-card-title-wrap,
+.st-grammar-card,
 .st-rule-item,
-.st-examples,
 .st-mistake-box,
-.st-grammar-feedback__text {
+.stg-col {
   display: flex;
   flex-direction: column;
-  gap: var(--oq-space-3);
+  gap: 8px;
 }
 
 .stg-panel {
-  gap: var(--oq-space-4);
+  gap: 14px;
 }
 
-.stg-gen-head,
-.stg-card-title-wrap,
 .st-rule-item,
-.st-examples,
 .st-mistake-box,
-.st-grammar-feedback__text {
+.stg-col {
   gap: 4px;
 }
 
 .stg-head,
+.stg-card-head,
 .st-formula-box,
 .st-example-row,
 .st-grammar-feedback,
-.stg-gen-success,
-.stg-gen-form {
+.stg-chip-wrap,
+.stg-card-actions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   flex-wrap: wrap;
-  gap: var(--oq-space-2);
+  gap: 8px;
+}
+
+.stg-head,
+.stg-card-head,
+.st-example-row,
+.st-grammar-feedback {
+  justify-content: space-between;
+}
+
+.stg-card-head {
+  align-items: flex-start;
+  flex-wrap: nowrap;
 }
 
 .stg-head h2 {
-  margin: 0 0 4px;
-  font-size: 1.125rem;
+  margin: 0 0 2px;
+  font-size: 1.12rem;
 }
 
-.stg-head-actions,
-.stg-chip-wrap,
-.stg-card-actions,
-.stg-level-group,
-.st-example-main {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--oq-space-2);
+.stg-card-actions {
+  flex-shrink: 0;
+}
+
+.stg-group-label,
+.stg-tip {
+  font-size: 0.8125rem;
+  color: var(--oq-text-secondary);
 }
 
 .stg-group-label {
-  font-size: 0.875rem;
   font-weight: 600;
-  color: var(--oq-text-secondary);
 }
 
 .stg-tip {
   margin: 0;
-  font-size: 0.8125rem;
-  line-height: 1.45;
-  color: var(--oq-text-secondary);
 }
 
 .stg-gen-box {
-  padding: var(--oq-space-4);
-  border-radius: var(--oq-radius-md);
+  padding: 14px;
+  border-radius: 12px;
   border: 1px dashed var(--oq-accent);
   background: var(--oq-accent-soft);
 }
@@ -79,46 +80,95 @@
   min-width: 0;
 }
 
-.st-grammar-grid {
+.stg-workbench {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
-  gap: var(--oq-space-3);
+  grid-template-columns: minmax(240px, 300px) minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.stg-nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 520px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.stg-nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 42px;
+  padding: 8px 11px;
+  border-radius: 12px;
+  border: 1px solid var(--oq-border-subtle);
+  background: var(--oq-bg-subtle);
+  color: var(--oq-text-primary);
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &--active {
+    background: var(--oq-accent-soft);
+    border-color: var(--oq-accent);
+    color: var(--oq-accent);
+  }
+
+  &--done:not(&--active) {
+    border-color: var(--oq-success);
+  }
+}
+
+.stg-nav-item__title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stg-nav-item__badges {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.stg-nav-check {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--oq-success);
+  color: #fff;
+  display: grid;
+  place-items: center;
 }
 
 .st-grammar-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--oq-space-3);
-  padding: var(--oq-space-4);
-  border-radius: var(--oq-radius-md);
+  padding: 16px;
+  border-radius: 12px;
   border: 1px solid var(--oq-border-subtle);
   background: var(--oq-bg-surface);
+  gap: 12px;
 
   &--ai {
     border-color: var(--oq-accent);
   }
 
   &--done {
-    border-color: rgba(16, 185, 129, 0.45);
-    background: rgba(16, 185, 129, 0.04);
+    border-color: var(--oq-success);
   }
 
   &__title {
-    font-size: 1rem;
-    line-height: 1.35;
+    font-size: 1.05rem;
   }
 }
 
-.st-formula-box {
-  justify-content: flex-start;
-  padding: 8px 10px;
-  border-radius: var(--oq-radius-sm);
-  background: var(--oq-bg-subtle);
-}
-
 .st-formula-code {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.85rem;
+  font-family: ui-monospace, monospace;
+  font-size: 0.875rem;
   font-weight: 700;
   color: var(--oq-accent);
 }
@@ -129,11 +179,12 @@
   gap: 8px;
 }
 
+.st-formula-box,
 .st-rule-item,
 .st-example-row,
 .st-mistake-box {
-  padding: 8px 10px;
-  border-radius: var(--oq-radius-sm);
+  padding: 8px 11px;
+  border-radius: 8px;
   background: var(--oq-bg-subtle);
   font-size: 0.8125rem;
 }
@@ -155,15 +206,20 @@
   color: var(--oq-success);
 }
 
+.oq-copy-btn {
+  min-height: 36px;
+  padding: 6px 12px;
+}
+
 .stg-quiz-prompt,
 .stg-scramble-stage {
   display: flex;
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  gap: var(--oq-space-2);
-  padding: var(--oq-space-4);
-  border-radius: var(--oq-radius-lg);
+  gap: 8px;
+  padding: 14px;
+  border-radius: 14px;
   background: var(--oq-bg-subtle);
 }
 
@@ -173,7 +229,7 @@
 }
 
 .stg-scramble-stage {
-  min-height: 60px;
+  min-height: 54px;
   border: 1px dashed var(--oq-border-strong);
 }
 
@@ -183,29 +239,26 @@
 
 .stg-quiz-stem {
   margin: 0;
-  font-size: 1.0625rem;
+  font-size: 1.05rem;
   font-weight: 700;
 }
 
 .stg-quiz-options {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: var(--oq-space-3);
+  gap: 10px;
 }
 
 .st-grammar-option {
-  padding: 12px 16px;
-  border-radius: var(--oq-radius-md);
+  min-height: 44px;
+  padding: 10px 14px;
+  border-radius: 12px;
   border: 1px solid var(--oq-border-subtle);
   background: var(--oq-bg-surface);
   color: var(--oq-text-primary);
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-
-  &:hover:not(:disabled) {
-    border-color: var(--oq-accent);
-  }
 
   &:disabled {
     opacity: 0.45;
@@ -214,15 +267,40 @@
 
   &--correct {
     border-color: var(--oq-success);
-    background: rgba(16, 185, 129, 0.14);
+    background: var(--oq-success-soft);
   }
 
   &--wrong {
     border-color: var(--oq-danger);
-    background: rgba(239, 68, 68, 0.12);
+    background: var(--oq-danger-soft);
   }
 }
 
-.stg-word-btn {
-  padding: 9px 14px;
+@media (max-width: 900px) {
+  .stg-workbench {
+    grid-template-columns: 1fr;
+  }
+
+  .stg-nav-list {
+    flex-direction: row;
+    max-height: none;
+    overflow-x: auto;
+    padding: 0 0 6px;
+  }
+
+  .stg-nav-item {
+    flex: 0 0 auto;
+    max-width: 220px;
+  }
+}
+
+@media (max-width: 640px) {
+  .stg-panel,
+  .st-grammar-card {
+    padding: 14px;
+  }
+
+  .stg-card-head {
+    flex-wrap: wrap;
+  }
 }
