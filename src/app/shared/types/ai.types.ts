@@ -131,3 +131,71 @@ export interface RecognizeHandwritingResult {
   feedback: string | null;
   usage?: AiTokenUsage;
 }
+
+export type StarterGrammarCategory = 'order' | 'particles' | 'verbs';
+export type StarterGrammarLevel = 'A0' | 'A1' | 'A2';
+export type StarterGrammarExerciseKind = 'choice' | 'scramble';
+
+export interface StarterGrammarExample {
+  sentence: string;
+  reading?: string;
+  meaningVi: string;
+  meaningEn: string;
+}
+
+export interface StarterGrammarRulePart {
+  labelVi: string;
+  labelEn: string;
+  sample: string;
+}
+
+export interface StarterGrammarPoint {
+  id: string;
+  category: StarterGrammarCategory;
+  titleVi: string;
+  titleEn: string;
+  formula: string;
+  explanationVi: string;
+  explanationEn: string;
+  rules: StarterGrammarRulePart[];
+  examples: StarterGrammarExample[];
+  mistake: string;
+  correction: string;
+  mistakeNoteVi: string;
+  mistakeNoteEn: string;
+  aiPromptVi: string;
+  aiPromptEn: string;
+  isAiGenerated?: boolean;
+  level?: StarterGrammarLevel;
+}
+
+export interface StarterGrammarQuestion {
+  id: string;
+  grammarId: string;
+  kind: StarterGrammarExerciseKind;
+  promptVi: string;
+  promptEn: string;
+  stem: string;
+  correctOption: string;
+  options: string[];
+  scrambleWords?: string[];
+  completedSentence: string;
+  explanationVi: string;
+  explanationEn: string;
+  isAiGenerated?: boolean;
+}
+
+export interface GenerateStarterGrammarRequest {
+  topic: string;
+  level?: StarterGrammarLevel;
+  languageCode?: LearningLanguageCode;
+  explanationLanguage?: ExplanationLanguage;
+  exerciseCount?: number;
+}
+
+export interface GenerateStarterGrammarResponse {
+  model: string;
+  grammarPoint: StarterGrammarPoint;
+  exercises: StarterGrammarQuestion[];
+  usage?: AiTokenUsage;
+}
