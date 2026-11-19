@@ -1,6 +1,7 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { AiApiService } from '../ai-tutor/ai-api.service';
 import { AuthService } from '../auth/auth.service';
@@ -208,5 +209,41 @@ describe('LearningPathComponent', () => {
 
     expect(pathApiMock.getOverview).toHaveBeenLastCalledWith(undefined, 'ko');
     expect(koTab?.getAttribute('aria-pressed')).toBe('true');
+  });
+
+  it('displays API errors inside the AI generator modal and clears them when reopened', () => {
+    pathApiMock.generateAiPath.mockReturnValue(
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 429,
+            error: { message: 'AI rate limit reached. Please wait about 12s and try again.' },
+          }),
+      ),
+    );
+
+    const fixture = TestBed.createComponent(LearningPathComponent);
+    fixture.detectChanges();
+
+    const comp = fixture.componentInstance as unknown as {
+      openAiGenModal: () => void;
+      applyAiPreset: (t: string) => void;
+      submitAiGenerate: () => void;
+    };
+    comp.openAiGenModal();
+    comp.applyAiPreset('Travel English for Business');
+    comp.submitAiGenerate();
+    fixture.detectChanges();
+
+    const modalAlert = (fixture.nativeElement as HTMLElement).querySelector(
+      '.lp-goal-form .oq-alert--error',
+    );
+    expect(modalAlert?.textContent).toContain('AI rate limit reached');
+
+    comp.openAiGenModal();
+    fixture.detectChanges();
+    expect(
+      (fixture.nativeElement as HTMLElement).querySelector('.lp-goal-form .oq-alert--error'),
+    ).toBeNull();
   });
 });
