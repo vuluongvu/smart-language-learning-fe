@@ -445,6 +445,7 @@ export class OqSidebarComponent {
     {
       labelKey: 'nav.study',
       items: [
+        { labelKey: 'nav.starter', route: '/starter', icon: 'target' },
         { labelKey: 'nav.learningPath', route: '/learning-path', icon: 'map' },
         { labelKey: 'nav.dashboard', route: '/dashboard', icon: 'layout-dashboard' },
         { labelKey: 'nav.vocabulary', route: '/vocabulary', icon: 'book-open' },

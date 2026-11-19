@@ -1,0 +1,239 @@
+.st-shell,
+.st-panel,
+.st-mixer-controls,
+.st-sentence-columns {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oq-space-4);
+}
+
+.st-head-actions,
+.st-tabs,
+.st-cta-links,
+.st-card-actions,
+.st-chip-wrap,
+.st-letter-card__head,
+.st-jamo-card__top,
+.st-phonics-card__top,
+.st-jamo-meta,
+.st-letter-phonetic,
+.st-sample-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--oq-space-2);
+}
+
+.st-cta-bar,
+.st-panel__head,
+.st-letter-card__head,
+.st-jamo-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--oq-space-3);
+}
+
+.st-speed-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.st-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border-radius: var(--oq-radius-pill);
+  border: 1px solid var(--oq-border-subtle);
+  background: var(--oq-bg-surface);
+  color: var(--oq-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--oq-border-strong);
+    color: var(--oq-text-primary);
+  }
+
+  &--active {
+    background: var(--oq-accent);
+    border-color: var(--oq-accent);
+    color: #fff;
+  }
+}
+
+.st-panel__head h2 {
+  margin: 0 0 4px;
+  font-size: 1.125rem;
+}
+
+.st-letter-grid,
+.st-jamo-grid,
+.st-phonics-grid,
+.st-drill-options {
+  display: grid;
+  gap: var(--oq-space-3);
+}
+
+.st-letter-grid {
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+}
+
+.st-jamo-grid,
+.st-phonics-grid {
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+}
+
+.st-drill-options {
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+
+.st-letter-card,
+.st-jamo-card,
+.st-phonics-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--oq-space-2);
+  padding: var(--oq-space-3);
+  border: 1px solid var(--oq-border-subtle);
+  border-radius: var(--oq-radius-md);
+  background: var(--oq-bg-subtle);
+}
+
+.st-letter-card--vowel,
+.st-jamo-card--vowel {
+  border-color: rgba(242, 100, 80, 0.32);
+  background: rgba(242, 100, 80, 0.05);
+}
+
+.st-letter-big {
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.st-jamo-glyph {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--oq-accent);
+}
+
+.st-letter-phonetic,
+.st-sample-row {
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.st-tip {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--oq-text-secondary);
+}
+
+.st-card-actions {
+  margin-top: auto;
+
+  &--center {
+    justify-content: center;
+  }
+}
+
+.st-mixer-layout {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: var(--oq-space-5);
+  align-items: start;
+
+  @media (max-width: 820px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.st-mixer-group {
+  display: grid;
+  gap: var(--oq-space-2);
+}
+
+.st-group-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--oq-text-secondary);
+}
+
+.st-jamo-pill {
+  min-width: 44px;
+  font-size: 1.0625rem;
+  font-weight: 700;
+}
+
+.st-mixer-preview,
+.st-sentence-stage,
+.st-drill-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--oq-space-3);
+  padding: var(--oq-space-4);
+  border-radius: var(--oq-radius-lg);
+  background: var(--oq-bg-subtle);
+}
+
+.st-mixer-preview,
+.st-sentence-stage {
+  border: 1px dashed var(--oq-border-strong);
+}
+
+.st-hangul-stage {
+  font-size: 4.5rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.st-roman-badge {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--oq-accent);
+}
+
+.st-sentence-output {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.st-drill-hint {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.st-drill-option {
+  padding: 14px 16px;
+  border-radius: var(--oq-radius-md);
+  border: 1px solid var(--oq-border-subtle);
+  background: var(--oq-bg-surface);
+  color: var(--oq-text-primary);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--oq-accent);
+  }
+
+  &--correct {
+    border-color: var(--oq-success);
+    background: rgba(16, 185, 129, 0.14);
+  }
+
+  &--wrong {
+    border-color: var(--oq-danger);
+    background: rgba(239, 68, 68, 0.12);
+  }
+}

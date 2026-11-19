@@ -130,8 +130,12 @@ describe('AiTutorComponent', () => {
 
     expect(el.textContent).toContain('Active · llama-3.1-8b-instant');
 
-    const firstStarter = el.querySelector<HTMLButtonElement>('.ai-starter');
-    firstStarter?.click();
+    const starters = Array.from(el.querySelectorAll<HTMLButtonElement>('.ai-starter'));
+    expect(starters[0]?.textContent).toContain('Absolute beginner (A0)');
+    const compareStarter = starters.find((btn) =>
+      btn.textContent?.includes('Compare similar words'),
+    );
+    compareStarter?.click();
     fixture.detectChanges();
 
     expect(aiApiMock.chat).toHaveBeenCalledTimes(1);
@@ -265,7 +269,9 @@ describe('AiTutorComponent', () => {
     expect(el.textContent).toContain('AI Korean Tutor');
     expect(el.textContent).toContain('은/는 vs 이/가 particles');
 
-    el.querySelector<HTMLButtonElement>('.ai-starter')?.click();
+    const koStarters = Array.from(el.querySelectorAll<HTMLButtonElement>('.ai-starter'));
+    expect(koStarters[0]?.textContent).toContain('Hangul from zero (A0)');
+    koStarters.find((btn) => btn.textContent?.includes('은/는 vs 이/가 particles'))?.click();
     fixture.detectChanges();
 
     expect(aiApiMock.chat).toHaveBeenCalledWith({

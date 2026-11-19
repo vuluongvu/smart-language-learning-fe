@@ -62,12 +62,16 @@ export class AiTutorComponent implements OnInit {
   protected readonly starterPrompts = computed<StarterPrompt[]>(() =>
     this.learningLang.isKorean()
       ? [
+          { id: 'zero', titleKey: 'ai.koStarter0Title', promptKey: 'ai.koStarter0Prompt' },
+          { id: 'zero-mix', titleKey: 'ai.koStarter0BTitle', promptKey: 'ai.koStarter0BPrompt' },
           { id: 'particles', titleKey: 'ai.koStarter1Title', promptKey: 'ai.koStarter1Prompt' },
           { id: 'grammar', titleKey: 'ai.koStarter2Title', promptKey: 'ai.koStarter2Prompt' },
           { id: 'honorifics', titleKey: 'ai.koStarter3Title', promptKey: 'ai.koStarter3Prompt' },
           { id: 'roleplay', titleKey: 'ai.koStarter4Title', promptKey: 'ai.koStarter4Prompt' },
         ]
       : [
+          { id: 'zero', titleKey: 'ai.starter0Title', promptKey: 'ai.starter0Prompt' },
+          { id: 'zero-build', titleKey: 'ai.starter0BTitle', promptKey: 'ai.starter0BPrompt' },
           { id: 'compare', titleKey: 'ai.starter1Title', promptKey: 'ai.starter1Prompt' },
           { id: 'grammar', titleKey: 'ai.starter2Title', promptKey: 'ai.starter2Prompt' },
           { id: 'business', titleKey: 'ai.starter3Title', promptKey: 'ai.starter3Prompt' },

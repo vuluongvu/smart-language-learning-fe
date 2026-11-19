@@ -114,7 +114,7 @@ export interface CreateVocabularyPayload {
 }
 
 export type AiGenerateMode = 'topic' | 'passage' | 'image';
-export type CefrLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
+export type CefrLevel = 'A0' | 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
 
 export interface AiVocabularyDraft {
   term: string;

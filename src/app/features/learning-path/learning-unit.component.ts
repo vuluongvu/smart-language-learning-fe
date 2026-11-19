@@ -103,9 +103,15 @@ export class LearningUnitComponent implements OnInit {
     return questions.length > 0 && questions.every((q) => answers[q.id] !== undefined);
   });
 
-  protected readonly canSubmitWriting = computed(
-    () => this.aiEnabled() && !this.evaluatingWriting() && this.writingDraft().trim().length >= 10,
-  );
+  protected readonly canSubmitWriting = computed(() => {
+    const d = this.detail();
+    const isBeginnerZero = d?.track.cefrLevel === 'A0';
+    const isKorean = d?.track.languageCode === 'ko';
+    const minChars = isBeginnerZero ? (isKorean ? 2 : 4) : isKorean ? 5 : 10;
+    return (
+      this.aiEnabled() && !this.evaluatingWriting() && this.writingDraft().trim().length >= minChars
+    );
+  });
 
   constructor() {
     this.destroyRef.onDestroy(() => {

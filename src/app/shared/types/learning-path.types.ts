@@ -2,7 +2,14 @@ import { AiConversationSessionDetail, ConversationSuggestedWord } from './ai.typ
 import type { LearningLanguageCode } from './learning-language.types';
 
 export type LearningGoalBand =
-  'band_45_55' | 'band_55_65' | 'band_65_75' | 'topik_1_2' | 'topik_3_4' | 'topik_5_6';
+  | 'starter_a0'
+  | 'band_45_55'
+  | 'band_55_65'
+  | 'band_65_75'
+  | 'ko_starter_a0'
+  | 'topik_1_2'
+  | 'topik_3_4'
+  | 'topik_5_6';
 export type UnitNodeStatus = 'completed' | 'active' | 'locked';
 
 export interface LearningPathTrackSummary {
