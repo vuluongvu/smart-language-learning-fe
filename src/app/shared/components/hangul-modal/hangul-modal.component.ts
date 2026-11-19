@@ -11,7 +11,7 @@ import { OqModalComponent } from '../modal/modal.component';
       [open]="open()"
       [title]="title()"
       [description]="description()"
-      size="lg"
+      size="xl"
       (closed)="closed.emit()"
     >
       @if (open()) {
