@@ -29,9 +29,9 @@ interface StrokePoint {
 
 type StrokePath = StrokePoint[];
 
-const GUIDE_BOX_SIZE = 200;
-const DEFAULT_CANVAS_LOGICAL_WIDTH = 420;
-const DEFAULT_CANVAS_LOGICAL_HEIGHT = 210;
+const GUIDE_BOX_SIZE = 260;
+const DEFAULT_CANVAS_LOGICAL_WIDTH = 640;
+const DEFAULT_CANVAS_LOGICAL_HEIGHT = 320;
 
 @Component({
   selector: 'oq-hangul-pad',
@@ -320,7 +320,7 @@ export class OqHangulPadComponent implements AfterViewInit {
       const instance = HangulWriterCtor.create(host, char, {
         width: GUIDE_BOX_SIZE,
         height: GUIDE_BOX_SIZE,
-        padding: 14,
+        padding: 18,
         showOutline: true,
         showCharacter: true,
         strokeColor: '#172033',
@@ -328,7 +328,7 @@ export class OqHangulPadComponent implements AfterViewInit {
         highlightColor: '#f04470',
         drawingColor: '#f04470',
         radicalColor: '#0369a1',
-        drawingWidth: 7,
+        drawingWidth: 9,
         strokeAnimationSpeed: 1.25,
         delayBetweenStrokes: 240,
       });
@@ -365,7 +365,7 @@ export class OqHangulPadComponent implements AfterViewInit {
       rect.height > 40
         ? Math.round(rect.height)
         : this.compact()
-          ? 180
+          ? 260
           : DEFAULT_CANVAS_LOGICAL_HEIGHT;
     const dpr = typeof window !== 'undefined' ? Math.min(window.devicePixelRatio || 1, 2) : 1;
 
@@ -409,7 +409,7 @@ export class OqHangulPadComponent implements AfterViewInit {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.restore?.();
     ctx.setTransform?.(dpr, 0, 0, dpr, 0, 0);
-    renderStrokesOnContext(ctx, this.strokes, '#111827', 6.5);
+    renderStrokesOnContext(ctx, this.strokes, '#111827', 8);
   }
 
   private async exportInkPngBlob(): Promise<Blob | null> {
@@ -427,7 +427,7 @@ export class OqHangulPadComponent implements AfterViewInit {
     // Pure opaque white background + bold dark ink guarantees high Vision OCR accuracy
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
-    renderStrokesOnContext(ctx, this.strokes, '#000000', 10);
+    renderStrokesOnContext(ctx, this.strokes, '#000000', 12);
 
     return await new Promise<Blob | null>((resolve) => {
       if (typeof exportCanvas.toBlob === 'function') {
