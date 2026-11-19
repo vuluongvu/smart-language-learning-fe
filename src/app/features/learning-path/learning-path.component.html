@@ -76,6 +76,29 @@
         </span>
       </div>
 
+      <div class="oq-card oq-card--pastel-lavender lp-overview-banner">
+        <div>
+          <strong>{{ 'lp.zeroBannerTitle' | lpT }}</strong>
+          <p class="oq-muted lp-summary">{{ 'lp.zeroBannerDesc' | lpT }}</p>
+        </div>
+        <div class="lp-overview-banner__badges">
+          <a routerLink="/starter" class="oq-btn oq-btn--secondary oq-btn--sm">
+            <oq-icon name="target" [size]="15" />
+            <span>{{ 'lp.openStarterBtn' | lpT }}</span>
+          </a>
+          @if (data.activeTrack.cefrLevel !== 'A0') {
+            <button
+              type="button"
+              class="oq-btn oq-btn--primary oq-btn--sm"
+              (click)="switchToStarterTrack()"
+            >
+              <oq-icon name="sparkles" [size]="15" />
+              <span>{{ 'lp.switchA0TrackBtn' | lpT }}</span>
+            </button>
+          }
+        </div>
+      </div>
+
       <div class="oq-card oq-card--pastel-cream lp-overview-banner">
         <div>
           <div class="lp-overview-banner__badges">
@@ -312,6 +335,20 @@
 
     <div class="lp-overview-banner__badges">
       <span class="lp-meta">{{ 'lp.aiPresetsLabel' | lpT }}</span>
+      <button
+        type="button"
+        class="oq-btn oq-btn--ghost oq-btn--sm"
+        (click)="
+          applyAiPreset(
+            learningLang.isKorean()
+              ? 'Korean Hangul Alphabet, Greetings & Survival Words for Complete Beginners (A0)'
+              : 'Absolute Beginner English: Alphabet Phonics, Greetings & Simple 3-Word Sentences (A0)',
+            true
+          )
+        "
+      >
+        {{ (learningLang.isKorean() ? 'lp.koAiPresetZero' : 'lp.aiPresetZero') | lpT }}
+      </button>
       <button
         type="button"
         class="oq-btn oq-btn--ghost oq-btn--sm"

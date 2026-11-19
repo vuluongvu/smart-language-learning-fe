@@ -48,6 +48,7 @@ export const EN_TRANSLATIONS = {
   'nav.insights': 'Insights',
   'nav.settingsGroup': 'Settings',
   'nav.dashboard': 'Dashboard',
+  'nav.starter': 'Start From Zero (A0)',
   'nav.learningPath': 'Learning Path',
   'nav.vocabulary': 'All Vocabulary',
   'nav.topics': 'Topics',
@@ -111,6 +112,7 @@ export const EN_TRANSLATIONS = {
   'dashboard.subtitle':
     'Track your vocabulary mastery, quiz accuracy, and daily streak consistency.',
   'dashboard.reviewFlashcards': 'Review Flashcards',
+  'dashboard.startFromZero': 'Start From Zero (A0)',
   'dashboard.createQuiz': 'Create Quiz',
   'dashboard.addWord': 'Add Word',
   'dashboard.aiTutor': 'AI Tutor',
@@ -748,6 +750,12 @@ export const EN_TRANSLATIONS = {
   'ai.emptyDesc': 'Pick a quick prompt below or type any English question to practice right away.',
   'ai.koEmptyDesc':
     'Pick a quick prompt below or type any Korean (한국어) or grammar question to practice right away.',
+  'ai.starter0Title': 'Absolute beginner (A0)',
+  'ai.starter0Prompt':
+    'I am starting English from complete zero (A0). Teach me 5 essential greeting words with simple pronunciation tips in Vietnamese and let me practice replying 1 short sentence.',
+  'ai.starter0BTitle': 'First 3-word sentences (A0)',
+  'ai.starter0BPrompt':
+    'Teach me how to build 3 easy English sentences with "I am" and "I like" for complete beginners, explained simply in Vietnamese.',
   'ai.starter1Title': 'Compare similar words',
   'ai.starter1Prompt': 'Explain the difference between "affect" and "effect" with simple examples.',
   'ai.starter2Title': 'Fix my grammar',
@@ -757,6 +765,12 @@ export const EN_TRANSLATIONS = {
   'ai.starter3Prompt': 'Give me 3 natural business email sentences using the verb "implement".',
   'ai.starter4Title': 'Coffee-shop roleplay',
   'ai.starter4Prompt': "Let's practice a short English dialogue at a coffee shop. You start!",
+  'ai.koStarter0Title': 'Hangul from zero (A0)',
+  'ai.koStarter0Prompt':
+    'I know zero Korean yet (A0). Teach me how basic Korean vowels (아, 어, 오, 우, 이) work with Vietnamese pronunciation hints and 3 easy starter words.',
+  'ai.koStarter0BTitle': 'Combine Hangul syllables (A0)',
+  'ai.koStarter0BPrompt':
+    'Show me how to combine Korean consonants (ㄱ, ㄴ, ㅁ, ㅂ, ㅎ) with vowels (ㅏ, ㅗ, ㅜ) step by step for a total beginner.',
   'ai.koStarter1Title': '은/는 vs 이/가 particles',
   'ai.koStarter1Prompt':
     'Explain the difference between topic particle 은/는 and subject particle 이/가 with simple Korean examples.',
@@ -867,12 +881,14 @@ export const EN_TRANSLATIONS = {
   'conv.newVocabEmpty': 'No extra vocabulary items extracted for this short session.',
   'conv.tipsTitle': 'Suggestions to Improve',
   'conv.newSessionBtn': 'Start New Topic',
+  'conv.presetStarterA0': 'Absolute Zero: Say Hello & Your Name',
   'conv.preset1': 'Weekend Activities',
   'conv.preset2': 'Self Introduction',
   'conv.preset3': 'Job Interview',
   'conv.preset4': 'Ordering at a Café',
   'conv.preset5': 'Travel & Airport',
   'conv.preset6': 'Daily Work Standup',
+  'conv.koPresetStarterA0': 'Hangul Zero: Hello & First Words',
   'conv.koPreset1': 'Weekend in Seoul',
   'conv.koPreset2': 'Self Introduction (자기소개)',
   'conv.koPreset3': 'Ordering Food & Coffee',
@@ -969,6 +985,7 @@ export const VI_TRANSLATIONS: Record<TxKey, string> = {
   'nav.insights': 'Thống kê',
   'nav.settingsGroup': 'Cài đặt',
   'nav.dashboard': 'Tổng quan',
+  'nav.starter': 'Từ con số 0 (A0)',
   'nav.learningPath': 'Lộ trình học',
   'nav.vocabulary': 'Kho từ vựng',
   'nav.topics': 'Chủ đề',
@@ -1032,6 +1049,7 @@ export const VI_TRANSLATIONS: Record<TxKey, string> = {
   'dashboard.learnerFallback': 'Học viên',
   'dashboard.subtitle': 'Theo dõi mức độ thành thạo từ vựng, độ chính xác và chuỗi ngày học.',
   'dashboard.reviewFlashcards': 'Ôn tập thẻ',
+  'dashboard.startFromZero': 'Học từ số 0 (A0)',
   'dashboard.createQuiz': 'Tạo bài kiểm tra',
   'dashboard.addWord': 'Thêm từ',
   'dashboard.aiTutor': 'Gia sư AI',
@@ -1657,6 +1675,12 @@ export const VI_TRANSLATIONS: Record<TxKey, string> = {
   'ai.emptyDesc': 'Chọn một gợi ý nhanh bên dưới hoặc nhập câu hỏi tiếng Anh để luyện tập ngay.',
   'ai.koEmptyDesc':
     'Chọn một gợi ý nhanh bên dưới hoặc hỏi bất kỳ từ vựng Hangul / ngữ pháp tiếng Hàn nào.',
+  'ai.starter0Title': 'Người mới từ số 0 (A0)',
+  'ai.starter0Prompt':
+    'Mình chưa biết gì về tiếng Anh (A0). Hãy dạy mình 5 từ chào hỏi cơ bản nhất kèm mẹo đọc dễ hiểu bằng tiếng Việt và cho mình tập nói 1 câu cực ngắn.',
+  'ai.starter0BTitle': 'Ghép câu 3 từ đầu tiên (A0)',
+  'ai.starter0BPrompt':
+    'Hãy hướng dẫn mình cách ghép 3 câu tiếng Anh siêu ngắn với "I am" và "I like" cho người mới bắt đầu từ con số 0.',
   'ai.starter1Title': 'Phân biệt từ dễ nhầm',
   'ai.starter1Prompt':
     'Giải thích sự khác nhau giữa "affect" và "effect" kèm ví dụ đơn giản dễ nhớ.',
@@ -1669,6 +1693,12 @@ export const VI_TRANSLATIONS: Record<TxKey, string> = {
   'ai.starter4Title': 'Hội thoại quán cà phê',
   'ai.starter4Prompt':
     'Hãy luyện một đoạn hội thoại tiếng Anh ngắn ở quán cà phê. Bạn bắt đầu trước nhé!',
+  'ai.koStarter0Title': 'Chưa biết Hangul (A0)',
+  'ai.koStarter0Prompt':
+    'Mình chưa biết gì về tiếng Hàn (A0). Hãy giải thích 5 nguyên âm cơ bản (아, 어, 오, 우, 이) với mẹo đọc tiếng Việt và 3 từ ghép siêu dễ.',
+  'ai.koStarter0BTitle': 'Cách ghép chữ Hangul (A0)',
+  'ai.koStarter0BPrompt':
+    'Hãy hướng dẫn mình từng bước ghép phụ âm (ㄱ, ㄴ, ㅁ, ㅂ, ㅎ) với nguyên âm (ㅏ, ㅗ, ㅜ) dành cho người chưa biết gì.',
   'ai.koStarter1Title': 'Trợ từ 은/는 và 이/가',
   'ai.koStarter1Prompt':
     'Giải thích sự khác nhau giữa trợ từ chủ đề 은/는 và trợ từ chủ ngữ 이/가 kèm ví dụ tiếng Hàn đơn giản.',
@@ -1778,12 +1808,14 @@ export const VI_TRANSLATIONS: Record<TxKey, string> = {
   'conv.newVocabEmpty': 'Chưa có từ vựng bổ sung cho phiên ngắn này.',
   'conv.tipsTitle': 'Gợi ý cải thiện',
   'conv.newSessionBtn': 'Thiết lập hội thoại mới',
+  'conv.presetStarterA0': 'Từ số 0: Chào hỏi & Nói tên',
   'conv.preset1': 'Hoạt động cuối tuần',
   'conv.preset2': 'Giới thiệu bản thân',
   'conv.preset3': 'Phỏng vấn xin việc',
   'conv.preset4': 'Gọi đồ tại quán cà phê',
   'conv.preset5': 'Du lịch & Sân bay',
   'conv.preset6': 'Họp công việc hằng ngày',
+  'conv.koPresetStarterA0': 'Nhập môn A0: Chào & Gọi nước',
   'conv.koPreset1': 'Cuối tuần ở Seoul',
   'conv.koPreset2': 'Tự giới thiệu (자기소개)',
   'conv.koPreset3': 'Gọi đồ ăn & Cà phê',

@@ -246,4 +246,23 @@ describe('LearningPathComponent', () => {
       (fixture.nativeElement as HTMLElement).querySelector('.lp-goal-form .oq-alert--error'),
     ).toBeNull();
   });
+
+  it('switches to A0 starter track and configures A0 preset inside AI path generator', () => {
+    const fixture = TestBed.createComponent(LearningPathComponent);
+    fixture.detectChanges();
+
+    const comp = fixture.componentInstance as unknown as {
+      switchToStarterTrack: () => void;
+      applyAiPreset: (t: string, zero?: boolean) => void;
+      aiCurrentLevel: string;
+      aiTargetBand: string;
+    };
+
+    comp.switchToStarterTrack();
+    expect(pathApiMock.getOverview).toHaveBeenLastCalledWith('starter_a0', 'en');
+
+    comp.applyAiPreset('Absolute Beginner English (A0)', true);
+    expect(comp.aiCurrentLevel).toBe('A0');
+    expect(comp.aiTargetBand).toBe('starter_a0');
+  });
 });

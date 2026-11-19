@@ -1,6 +1,6 @@
 import { Component, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { catchError, of } from 'rxjs';
 import {
   OqEmptyStateComponent,
@@ -41,6 +41,7 @@ const RING_CIRCUMFERENCE = 138.23;
   styleUrl: './learning-path.component.scss',
 })
 export class LearningPathComponent implements OnInit {
+  private readonly route = inject(ActivatedRoute, { optional: true });
   private readonly pathApi = inject(LearningPathApiService);
   private readonly authService = inject(AuthService);
   private readonly aiApi = inject(AiApiService);
@@ -58,7 +59,7 @@ export class LearningPathComponent implements OnInit {
   }
 
   protected readonly ringCircumference = RING_CIRCUMFERENCE;
-  protected readonly cefrOptions = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+  protected readonly cefrOptions = ['A0', 'A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
   protected readonly dailyMinuteOptions = [10, 15, 20, 30, 45];
   protected readonly aiUnitCountOptions = [2, 3, 4];
 
@@ -100,7 +101,8 @@ export class LearningPathComponent implements OnInit {
       .getStatus()
       .pipe(catchError(() => of({ enabled: false, model: '' })))
       .subscribe((st) => this.aiEnabled.set(st.enabled === true));
-    this.loadOverview();
+    const requestedBand = this.route?.snapshot?.queryParamMap?.get('band') ?? undefined;
+    this.loadOverview(requestedBand);
   }
 
   loadOverview(band?: string): void {
@@ -223,8 +225,17 @@ export class LearningPathComponent implements OnInit {
     this.showAiGenModal.set(true);
   }
 
-  applyAiPreset(text: string): void {
+  switchToStarterTrack(): void {
+    const starterCode = this.learningLang.isKorean() ? 'ko_starter_a0' : 'starter_a0';
+    this.loadOverview(starterCode);
+  }
+
+  applyAiPreset(text: string, zeroBeginner = false): void {
     this.aiGoalTopic = text;
+    if (zeroBeginner) {
+      this.aiCurrentLevel = 'A0';
+      this.aiTargetBand = this.learningLang.isKorean() ? 'ko_starter_a0' : 'starter_a0';
+    }
   }
 
   submitAiGenerate(): void {

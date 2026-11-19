@@ -62,13 +62,14 @@ export class AiConversationComponent implements OnInit {
   private copyTimer: ReturnType<typeof setTimeout> | null = null;
 
   protected readonly maxReplyLength = MAX_CONV_REPLY_LENGTH;
-  protected readonly levels: ConversationLevel[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+  protected readonly levels: ConversationLevel[] = ['A0', 'A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
   protected readonly activeCourseLang = computed<LearningLanguageCode>(
     () => this.activeSession()?.languageCode ?? this.learningLang.activeLang(),
   );
   protected readonly presetTopicKeys = computed<TxKey[]>(() =>
     this.activeCourseLang() === 'ko'
       ? [
+          'conv.koPresetStarterA0',
           'conv.koPreset1',
           'conv.koPreset2',
           'conv.koPreset3',
@@ -77,6 +78,7 @@ export class AiConversationComponent implements OnInit {
           'conv.koPreset6',
         ]
       : [
+          'conv.presetStarterA0',
           'conv.preset1',
           'conv.preset2',
           'conv.preset3',
