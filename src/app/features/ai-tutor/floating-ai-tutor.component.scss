@@ -1,5 +1,6 @@
 .ft-wrap {
   position: fixed;
+  left: 24px;
   right: 24px;
   bottom: 24px;
   z-index: 45;
@@ -41,7 +42,7 @@
 }
 
 .ft-panel {
-  width: min(400px, calc(100vw - 24px));
+  width: min(400px, 100%);
   max-height: min(72vh, 560px);
   display: flex;
   flex-direction: column;
@@ -89,11 +90,21 @@
     flex-shrink: 0;
   }
 
+  &__title {
+    min-width: 0;
+  }
+
   &__title div {
     display: flex;
     align-items: center;
     gap: 6px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    min-width: 0;
+  }
+
+  &__actions {
+    flex-shrink: 0;
+    gap: 4px;
   }
 }
 
@@ -226,6 +237,7 @@
 
 @media (max-width: 768px) {
   .ft-wrap {
+    left: 12px;
     right: 12px;
     bottom: 76px;
   }
