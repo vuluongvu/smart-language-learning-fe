@@ -43,14 +43,33 @@
       </div>
 
       <div class="dash-actions">
-        <a routerLink="/flashcards" class="oq-btn oq-btn--primary">
-          <oq-icon name="layers" [size]="16" />
-          <span>{{ 'dashboard.reviewNow' | t }}</span>
-        </a>
-        <a routerLink="/starter" class="oq-btn oq-btn--secondary">
-          <oq-icon name="target" [size]="16" />
-          <span>{{ 'dashboard.startFromZero' | t }}</span>
-        </a>
+        @if (isBrandNewLearner()) {
+          <a routerLink="/starter" class="oq-btn oq-btn--primary">
+            <oq-icon name="target" [size]="16" />
+            <span>{{ 'dashboard.startFromZero' | t }}</span>
+          </a>
+          <a
+            routerLink="/learning-path"
+            [queryParams]="a0PathQuery()"
+            class="oq-btn oq-btn--secondary"
+          >
+            <oq-icon name="map" [size]="16" />
+            <span>{{ 'dashboard.openA0Path' | t }}</span>
+          </a>
+          <a routerLink="/flashcards" class="oq-btn oq-btn--secondary">
+            <oq-icon name="layers" [size]="16" />
+            <span>{{ 'dashboard.reviewNow' | t }}</span>
+          </a>
+        } @else {
+          <a routerLink="/flashcards" class="oq-btn oq-btn--primary">
+            <oq-icon name="layers" [size]="16" />
+            <span>{{ 'dashboard.reviewNow' | t }}</span>
+          </a>
+          <a routerLink="/starter" class="oq-btn oq-btn--secondary">
+            <oq-icon name="target" [size]="16" />
+            <span>{{ 'dashboard.startFromZero' | t }}</span>
+          </a>
+        }
         <a routerLink="/quizzes/new" class="oq-btn oq-btn--secondary">
           <oq-icon name="plus" [size]="16" />
           <span>{{ 'dashboard.createQuiz' | t }}</span>
@@ -235,17 +254,40 @@
         </div>
 
         @if (reviewQueuePreview().length === 0) {
-          <oq-empty-state
-            [compact]="true"
-            variant="celebration"
-            [title]="'dashboard.doneTodayTitle' | t"
-            [description]="'dashboard.doneTodayDesc' | t"
-          >
-            <a actions routerLink="/vocabulary" class="oq-btn oq-btn--primary oq-btn--sm">
-              <oq-icon name="plus" [size]="15" />
-              <span>{{ 'dashboard.addNewVocabCta' | t }}</span>
-            </a>
-          </oq-empty-state>
+          @if (isBrandNewLearner()) {
+            <oq-empty-state
+              [compact]="true"
+              variant="celebration"
+              [title]="'dashboard.newLearnerTitle' | t"
+              [description]="'dashboard.newLearnerDesc' | t"
+            >
+              <a actions routerLink="/starter" class="oq-btn oq-btn--primary oq-btn--sm">
+                <oq-icon name="target" [size]="15" />
+                <span>{{ 'dashboard.startFromZero' | t }}</span>
+              </a>
+              <a
+                actions
+                routerLink="/learning-path"
+                [queryParams]="a0PathQuery()"
+                class="oq-btn oq-btn--secondary oq-btn--sm"
+              >
+                <oq-icon name="map" [size]="15" />
+                <span>{{ 'dashboard.openA0Path' | t }}</span>
+              </a>
+            </oq-empty-state>
+          } @else {
+            <oq-empty-state
+              [compact]="true"
+              variant="celebration"
+              [title]="'dashboard.doneTodayTitle' | t"
+              [description]="'dashboard.doneTodayDesc' | t"
+            >
+              <a actions routerLink="/vocabulary" class="oq-btn oq-btn--primary oq-btn--sm">
+                <oq-icon name="plus" [size]="15" />
+                <span>{{ 'dashboard.addNewVocabCta' | t }}</span>
+              </a>
+            </oq-empty-state>
+          }
 
           @if (upcomingCards().length > 0) {
             <div class="upcoming-preview">

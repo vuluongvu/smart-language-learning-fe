@@ -19,14 +19,18 @@ import {
   KOREAN_BATCHIM_OPTIONS,
   KOREAN_CONSONANTS,
   KOREAN_VOWELS,
+  buildSentenceExplanation,
   buildStarterQuizPool,
   composeHangulSyllable,
+  isObjectValidForVerb,
   resolveVerbForm,
 } from './starter-curriculum.data';
 import { StarterGrammarComponent } from './starter-grammar.component';
 import { StarterTranslatePipe } from './starter-studio.i18n';
 
 export type StarterTab = 'alphabet' | 'builder' | 'grammar' | 'drill';
+export type EnglishLetterFilter =
+  'all' | 'vowels' | 'consonants' | 'lesson1' | 'lesson2' | 'lesson3' | 'lesson4';
 
 @Component({
   selector: 'app-starter-studio',
@@ -54,11 +58,15 @@ export class StarterStudioComponent {
 
   // English Alphabet, Phonics & 3-block Sentence Builder
   protected readonly englishLetters = ENGLISH_ALPHABET;
-  protected readonly enLetterFilter = signal<'all' | 'vowels' | 'consonants'>('all');
+  protected readonly enLetterFilter = signal<EnglishLetterFilter>('all');
   protected readonly filteredEnglishLetters = computed(() => {
     const mode = this.enLetterFilter();
     if (mode === 'vowels') return this.englishLetters.filter((l) => l.isVowel);
     if (mode === 'consonants') return this.englishLetters.filter((l) => !l.isVowel);
+    if (mode === 'lesson1') return this.englishLetters.slice(0, 7);
+    if (mode === 'lesson2') return this.englishLetters.slice(7, 14);
+    if (mode === 'lesson3') return this.englishLetters.slice(14, 21);
+    if (mode === 'lesson4') return this.englishLetters.slice(21, 26);
     return this.englishLetters;
   });
   protected readonly englishPhonics = ENGLISH_PHONICS_TIPS;
@@ -70,18 +78,37 @@ export class StarterStudioComponent {
   protected readonly selectedVerbIdx = signal(0);
   protected readonly selectedObjIdx = signal(0);
 
+  protected readonly validSentenceObjects = computed(() => {
+    const verb = this.sentenceVerbs[this.selectedVerbIdx()] ?? this.sentenceVerbs[0];
+    return this.sentenceObjects
+      .map((obj, idx) => ({ obj, idx }))
+      .filter((entry) => isObjectValidForVerb(entry.obj, verb.text));
+  });
+
   protected readonly builtSentence = computed(() => {
     const subj = this.sentenceSubjects[this.selectedSubjIdx()] ?? this.sentenceSubjects[0];
     const verb = this.sentenceVerbs[this.selectedVerbIdx()] ?? this.sentenceVerbs[0];
-    const obj = this.sentenceObjects[this.selectedObjIdx()] ?? this.sentenceObjects[0];
+    const candidateObj = this.sentenceObjects[this.selectedObjIdx()];
+    const obj =
+      candidateObj && isObjectValidForVerb(candidateObj, verb.text)
+        ? candidateObj
+        : (this.sentenceObjects.find((item) => isObjectValidForVerb(item, verb.text)) ??
+          this.sentenceObjects[0]);
     const conjugated = resolveVerbForm(subj.text, verb);
+    const meaningVi =
+      obj.omitCopulaInVi && verb.text === 'am'
+        ? `${subj.meaningVi} ${obj.meaningVi}.`
+        : `${subj.meaningVi} ${verb.meaningVi} ${obj.meaningVi}.`;
+    const notes = buildSentenceExplanation(subj.text, verb, conjugated);
     return {
       subject: subj.text,
       verb: conjugated,
       ending: obj.text,
       english: `${subj.text} ${conjugated} ${obj.text}.`,
-      meaningVi: `${subj.meaningVi} ${verb.meaningVi} ${obj.meaningVi}.`,
+      meaningVi,
       meaningEn: `${subj.meaningEn} ${verb.meaningEn} ${obj.meaningEn}.`,
+      noteVi: notes.noteVi,
+      noteEn: notes.noteEn,
     };
   });
 
@@ -110,6 +137,8 @@ export class StarterStudioComponent {
   protected readonly drillIndex = signal(0);
   protected readonly drillSelected = signal<string | null>(null);
   protected readonly drillCorrectCount = signal(0);
+  protected readonly drillHintVisible = signal(false);
+  protected readonly drillHadWrongAttempt = signal(false);
   protected readonly currentDrill = computed(() => {
     const pool = this.drillPool();
     return pool[this.drillIndex() % pool.length];
@@ -132,6 +161,8 @@ export class StarterStudioComponent {
         this.drillIndex.set(0);
         this.drillSelected.set(null);
         this.drillCorrectCount.set(0);
+        this.drillHintVisible.set(false);
+        this.drillHadWrongAttempt.set(false);
         this.speech.stopSpeaking();
       }
       this.lastLang = lang;
@@ -147,6 +178,24 @@ export class StarterStudioComponent {
     this.destroyRef.onDestroy(() => {
       this.speech.stopSpeaking();
     });
+  }
+
+  selectSentenceVerb(idx: number): void {
+    this.selectedVerbIdx.set(idx);
+    const verb = this.sentenceVerbs[idx] ?? this.sentenceVerbs[0];
+    const currentObj = this.sentenceObjects[this.selectedObjIdx()];
+    if (!currentObj || !isObjectValidForVerb(currentObj, verb.text)) {
+      const firstValidIdx = this.sentenceObjects.findIndex((o) =>
+        isObjectValidForVerb(o, verb.text),
+      );
+      if (firstValidIdx >= 0) {
+        this.selectedObjIdx.set(firstValidIdx);
+      }
+    }
+  }
+
+  toggleDrillHint(): void {
+    this.drillHintVisible.update((v) => !v);
   }
 
   speakText(text: string, id: string, overrideRate?: number): void {
@@ -169,8 +218,12 @@ export class StarterStudioComponent {
 
   pickDrillOption(option: string): void {
     const alreadyCorrect = this.drillIsCorrect();
+    const isCorrect = option === this.currentDrill().correctOption;
+    if (!isCorrect) {
+      this.drillHadWrongAttempt.set(true);
+    }
     this.drillSelected.set(option);
-    if (!alreadyCorrect && option === this.currentDrill().correctOption) {
+    if (!alreadyCorrect && isCorrect && !this.drillHadWrongAttempt()) {
       this.drillCorrectCount.update((n) => n + 1);
     }
   }
@@ -184,5 +237,7 @@ export class StarterStudioComponent {
       this.drillIndex.update((n) => n + 1);
     }
     this.drillSelected.set(null);
+    this.drillHintVisible.set(false);
+    this.drillHadWrongAttempt.set(false);
   }
 }

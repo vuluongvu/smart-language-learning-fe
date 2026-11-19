@@ -88,6 +88,15 @@ export class DashboardComponent implements OnInit {
     return data.quizzes.completedAttempts + data.flashcards.completedSessions;
   });
 
+  protected readonly isBrandNewLearner = computed(() => {
+    const data = this.overview();
+    return data !== null && data.vocabulary.total === 0 && this.completedStudyCount() === 0;
+  });
+
+  protected readonly a0PathQuery = computed(() => ({
+    band: this.learningLang.isKorean() ? 'ko_starter_a0' : 'starter_a0',
+  }));
+
   protected readonly urgentCards = computed(() =>
     this.queueCards().filter((card) => {
       const state = this.reviewStateOf(card);

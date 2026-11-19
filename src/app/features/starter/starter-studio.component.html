@@ -3,7 +3,7 @@
     backLink="/dashboard"
     [backLabel]="'st.backDashboard' | stT"
     [title]="'st.title' | stT"
-    [subtitle]="'st.subtitle' | stT"
+    [subtitle]="(learningLang.isKorean() ? 'st.subtitleKo' : 'st.subtitle') | stT"
   >
     <div actions class="st-chip-wrap">
       <div class="oq-course-tabs" role="group" aria-label="Starter language">
@@ -85,6 +85,15 @@
       </a>
     </div>
   </section>
+
+  <div class="oq-alert oq-alert--info" role="note">
+    <div>
+      <strong>{{ 'st.guideTitle' | stT }}</strong>
+      <span>
+        {{ (learningLang.isKorean() ? 'st.guideKoBody' : 'st.guideEnBody') | stT }}
+      </span>
+    </div>
+  </div>
 
   @switch (activeTab()) {
     @case ('alphabet') {
@@ -274,6 +283,38 @@
                 (click)="enLetterFilter.set('consonants')"
               >
                 {{ 'st.enFilterConsonants' | stT }}
+              </button>
+              <button
+                type="button"
+                class="oq-pill"
+                [class.oq-pill--active]="enLetterFilter() === 'lesson1'"
+                (click)="enLetterFilter.set('lesson1')"
+              >
+                {{ 'st.enFilterLesson1' | stT }}
+              </button>
+              <button
+                type="button"
+                class="oq-pill"
+                [class.oq-pill--active]="enLetterFilter() === 'lesson2'"
+                (click)="enLetterFilter.set('lesson2')"
+              >
+                {{ 'st.enFilterLesson2' | stT }}
+              </button>
+              <button
+                type="button"
+                class="oq-pill"
+                [class.oq-pill--active]="enLetterFilter() === 'lesson3'"
+                (click)="enLetterFilter.set('lesson3')"
+              >
+                {{ 'st.enFilterLesson3' | stT }}
+              </button>
+              <button
+                type="button"
+                class="oq-pill"
+                [class.oq-pill--active]="enLetterFilter() === 'lesson4'"
+                (click)="enLetterFilter.set('lesson4')"
+              >
+                {{ 'st.enFilterLesson4' | stT }}
               </button>
             </div>
           </div>
@@ -506,7 +547,7 @@
                     type="button"
                     class="oq-pill"
                     [class.oq-pill--active]="selectedVerbIdx() === idx"
-                    (click)="selectedVerbIdx.set(idx)"
+                    (click)="selectSentenceVerb(idx)"
                   >
                     {{ v.text }} ({{ i18n.lang() === 'vi' ? v.meaningVi : v.meaningEn }})
                   </button>
@@ -517,14 +558,16 @@
             <div class="st-mixer-group">
               <span class="st-group-label">{{ 'st.enPickEnding' | stT }}</span>
               <div class="st-chip-wrap">
-                @for (o of sentenceObjects; track o.text; let idx = $index) {
+                @for (entry of validSentenceObjects(); track entry.obj.text) {
                   <button
                     type="button"
                     class="oq-pill"
-                    [class.oq-pill--active]="selectedObjIdx() === idx"
-                    (click)="selectedObjIdx.set(idx)"
+                    [class.oq-pill--active]="selectedObjIdx() === entry.idx"
+                    (click)="selectedObjIdx.set(entry.idx)"
                   >
-                    {{ o.text }} ({{ i18n.lang() === 'vi' ? o.meaningVi : o.meaningEn }})
+                    {{ entry.obj.text }} ({{
+                      i18n.lang() === 'vi' ? entry.obj.meaningVi : entry.obj.meaningEn
+                    }})
                   </button>
                 }
               </div>
@@ -543,6 +586,9 @@
             <p class="st-sentence-output">{{ builtSentence().english }}</p>
             <p class="oq-muted">
               → {{ i18n.lang() === 'vi' ? builtSentence().meaningVi : builtSentence().meaningEn }}
+            </p>
+            <p class="st-tip oq-muted">
+              {{ i18n.lang() === 'vi' ? builtSentence().noteVi : builtSentence().noteEn }}
             </p>
             @if (speech.isTtsSupported) {
               <div class="st-card-actions st-card-actions--center">
@@ -593,20 +639,34 @@
         </div>
 
         <div class="st-drill-prompt">
-          <p class="st-drill-hint">{{ i18n.lang() === 'vi' ? q.hintVi : q.hintEn }}</p>
-          @if (speech.isTtsSupported) {
+          <p class="oq-muted">{{ 'st.drillListenInstruction' | stT }}</p>
+          @if (drillHintVisible() || drillSelected() !== null) {
+            <p class="st-drill-hint">{{ i18n.lang() === 'vi' ? q.hintVi : q.hintEn }}</p>
+          }
+          <div class="st-card-actions st-card-actions--center">
+            @if (speech.isTtsSupported) {
+              <button
+                type="button"
+                class="oq-btn oq-btn--primary"
+                (click)="speakText(q.promptAudioText, 'drill-' + q.id)"
+              >
+                <oq-icon
+                  [name]="speech.speakingId() === 'drill-' + q.id ? 'square' : 'volume-2'"
+                  [size]="17"
+                />
+                <span>{{ 'st.drillPlayPrompt' | stT }}</span>
+              </button>
+            }
             <button
               type="button"
-              class="oq-btn oq-btn--primary"
-              (click)="speakText(q.promptAudioText, 'drill-' + q.id)"
+              class="oq-btn oq-btn--secondary oq-btn--sm"
+              (click)="toggleDrillHint()"
             >
-              <oq-icon
-                [name]="speech.speakingId() === 'drill-' + q.id ? 'square' : 'volume-2'"
-                [size]="17"
-              />
-              <span>{{ 'st.drillPlayPrompt' | stT }}</span>
+              <span>{{
+                (drillHintVisible() ? 'st.drillHideHint' : 'st.drillShowHint') | stT
+              }}</span>
             </button>
-          }
+          </div>
         </div>
 
         <div class="st-drill-options">
