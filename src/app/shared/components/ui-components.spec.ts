@@ -94,12 +94,7 @@ import {
       tone="success"
     />
 
-    <oq-streak-card
-      [currentStreak]="5"
-      [longestStreak]="9"
-      timezone="Asia/Ho_Chi_Minh"
-      [isActiveToday]="true"
-    />
+    <oq-streak-card [currentStreak]="5" [longestStreak]="9" [isActiveToday]="true" />
 
     <oq-stat-card
       label="Mastered"

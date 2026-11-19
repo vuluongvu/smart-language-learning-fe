@@ -109,23 +109,33 @@
   overflow: hidden;
 
   &--square {
-    width: 260px;
-    height: 260px;
+    width: 340px;
+    height: 340px;
   }
 
   &--wide {
     width: 100%;
-    height: 320px;
+    height: clamp(380px, 56vh, 500px);
   }
 }
 
 .hw-pad--compact .hw-paper--wide {
-  height: 260px;
+  height: clamp(320px, 46vh, 420px);
 }
 
 @media (max-width: 640px) {
+  .hw-paper--square {
+    width: min(300px, 100%);
+    height: auto;
+    aspect-ratio: 1 / 1;
+  }
+
   .hw-paper--wide {
-    height: 250px;
+    height: 360px;
+  }
+
+  .hw-pad--compact .hw-paper--wide {
+    height: 310px;
   }
 }
 

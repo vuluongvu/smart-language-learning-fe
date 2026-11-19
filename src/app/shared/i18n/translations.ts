@@ -68,7 +68,6 @@ export const EN_TRANSLATIONS = {
   'streak.dayUnitSingular': 'day',
   'streak.dayUnitPlural': 'days',
   'streak.longest': 'Longest streak: {{days}} days',
-  'streak.timezone': 'Timezone:',
   'streak.activeToday': 'Qualified activity completed today',
   'streak.riskToday': 'Streak at risk — finish a quiz or 5 flashcards today',
   'streak.startToday': 'Complete a quiz or flashcard session to start your streak',
@@ -100,7 +99,6 @@ export const EN_TRANSLATIONS = {
   'auth.displayNameError': 'Display name is required (max 100 characters).',
   'auth.registerPasswordPlaceholder': 'At least 8 characters',
   'auth.registerPasswordError': 'Password must be between 8 and 72 characters.',
-  'auth.timezone': 'Timezone',
   'auth.creatingAccount': 'Creating account...',
   'auth.createAccountBtn': 'Create account',
   'auth.alreadyHaveAccount': 'Already have an account?',
@@ -609,8 +607,7 @@ export const EN_TRANSLATIONS = {
   // Progress & Leaderboard
   'progress.eyebrow': 'Consistency',
   'progress.title': 'Progress & Streak Calendar',
-  'progress.subtitle':
-    'Consistency calendar in your active timezone, daily activity totals, and weak words.',
+  'progress.subtitle': 'Consistency calendar, daily activity totals, and weak words.',
   'progress.leaderboard': 'Leaderboard',
   'progress.studyNow': 'Study Now',
   'progress.loading': 'Loading streak calendar and history...',
@@ -662,10 +659,10 @@ export const EN_TRANSLATIONS = {
   // Settings & Profile
   'settings.eyebrow': 'Preferences & Security',
   'settings.title': 'Settings & Profile',
-  'settings.subtitle': 'Manage your learner profile, timezone, appearance, and account security.',
+  'settings.subtitle': 'Manage your learner profile, appearance, and account security.',
   'settings.profileTitle': 'Profile & Preferences',
   'settings.profileDesc':
-    'Customize your public display identity, learning timezone, and streak visibility.',
+    'Customize your public display identity, interface language, and streak visibility.',
   'settings.avatarLabel': 'Avatar URL (optional)',
   'settings.leaderboardToggle': 'Show my display name and streak on the public leaderboard',
   'settings.interfaceLang': 'Interface language',
@@ -990,7 +987,6 @@ export const VI_TRANSLATIONS: Record<TxKey, string> = {
   'streak.dayUnitSingular': 'ngày',
   'streak.dayUnitPlural': 'ngày',
   'streak.longest': 'Chuỗi dài nhất: {{days}} ngày',
-  'streak.timezone': 'Múi giờ:',
   'streak.activeToday': 'Đã hoàn thành mục tiêu học hôm nay',
   'streak.riskToday': 'Chuỗi sắp gián đoạn — hãy hoàn thành 1 bài kiểm tra hoặc 5 thẻ hôm nay',
   'streak.startToday': 'Hoàn thành 1 bài kiểm tra hoặc phiên thẻ để bắt đầu chuỗi',
@@ -1023,7 +1019,6 @@ export const VI_TRANSLATIONS: Record<TxKey, string> = {
   'auth.displayNameError': 'Tên hiển thị là bắt buộc (tối đa 100 ký tự).',
   'auth.registerPasswordPlaceholder': 'Ít nhất 8 ký tự',
   'auth.registerPasswordError': 'Mật khẩu phải từ 8 đến 72 ký tự.',
-  'auth.timezone': 'Múi giờ',
   'auth.creatingAccount': 'Đang tạo tài khoản...',
   'auth.createAccountBtn': 'Đăng ký tài khoản',
   'auth.alreadyHaveAccount': 'Đã có tài khoản?',
@@ -1523,8 +1518,7 @@ export const VI_TRANSLATIONS: Record<TxKey, string> = {
   // Progress & Leaderboard
   'progress.eyebrow': 'Sự bền bỉ',
   'progress.title': 'Tiến độ & Lịch chuỗi ngày',
-  'progress.subtitle':
-    'Lịch học theo múi giờ hiện tại, thống kê hoạt động hằng ngày và các từ cần củng cố.',
+  'progress.subtitle': 'Lịch học đều đặn, thống kê hoạt động hằng ngày và các từ cần củng cố.',
   'progress.leaderboard': 'Bảng xếp hạng',
   'progress.studyNow': 'Học ngay',
   'progress.loading': 'Đang tải lịch chuỗi và tiến độ...',
@@ -1575,9 +1569,9 @@ export const VI_TRANSLATIONS: Record<TxKey, string> = {
   // Settings & Profile
   'settings.eyebrow': 'Tùy chọn & Bảo mật',
   'settings.title': 'Cài đặt & Hồ sơ',
-  'settings.subtitle': 'Quản lý hồ sơ học viên, múi giờ, ngôn ngữ, giao diện và bảo mật tài khoản.',
+  'settings.subtitle': 'Quản lý hồ sơ học viên, ngôn ngữ, giao diện và bảo mật tài khoản.',
   'settings.profileTitle': 'Hồ sơ & Tùy chọn',
-  'settings.profileDesc': 'Tùy chỉnh tên hiển thị, múi giờ học, ngôn ngữ và quyền riêng tư.',
+  'settings.profileDesc': 'Tùy chỉnh tên hiển thị, ngôn ngữ và quyền riêng tư.',
   'settings.avatarLabel': 'Đường dẫn ảnh đại diện (tùy chọn)',
   'settings.leaderboardToggle': 'Hiển thị tên và chuỗi ngày của tôi trên bảng xếp hạng công khai',
   'settings.interfaceLang': 'Ngôn ngữ giao diện',

@@ -25,20 +25,9 @@
     }
 
     <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" novalidate>
-      <div class="profile-grid">
-        <div class="oq-field">
-          <label for="settings-name">{{ 'auth.displayName' | t }}</label>
-          <input id="settings-name" type="text" formControlName="displayName" />
-        </div>
-
-        <div class="oq-field">
-          <label for="settings-timezone">{{ 'auth.timezone' | t }}</label>
-          <select id="settings-timezone" formControlName="timezone">
-            @for (tz of timezoneOptions(); track tz) {
-              <option [value]="tz">{{ tz }}</option>
-            }
-          </select>
-        </div>
+      <div class="oq-field">
+        <label for="settings-name">{{ 'auth.displayName' | t }}</label>
+        <input id="settings-name" type="text" formControlName="displayName" />
       </div>
 
       <div class="oq-field">
