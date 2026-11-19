@@ -47,7 +47,7 @@
             [attr.aria-label]="'lp.selectBandLabel' | lpT"
           >
             @for (track of data.tracks; track track.id) {
-              <option [value]="track.code">
+              <option [value]="track.code" [selected]="track.code === data.activeTrack.code">
                 {{ track.isAiGenerated ? ('lp.aiTrackTag' | lpT) + ' ' : '' }}{{ track.title }} ({{
                   track.cefrLevel
                 }})
