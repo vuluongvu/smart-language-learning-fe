@@ -1,3 +1,5 @@
+import type { LearningLanguageCode } from './learning-language.types';
+
 export interface PaginationMeta {
   page: number;
   limit: number;
@@ -15,6 +17,7 @@ export interface TopicSummary {
   name: string;
   description: string | null;
   languageId: number;
+  languageCode?: LearningLanguageCode;
   vocabularyCount: number;
   createdAt: string;
   updatedAt: string;
@@ -62,6 +65,7 @@ export interface VocabularyProgressSummary {
 export interface VocabularyItem {
   id: number;
   languageId: number;
+  languageCode?: LearningLanguageCode;
   term: string;
   pronunciation: string | null;
   partOfSpeech: string | null;
@@ -88,6 +92,7 @@ export interface DuplicateCheckResult {
 export interface CreateTopicPayload {
   name: string;
   description?: string | null;
+  languageCode?: LearningLanguageCode;
 }
 
 export interface UpdateTopicPayload {
@@ -103,6 +108,7 @@ export interface CreateVocabularyPayload {
   example?: string | null;
   notes?: string | null;
   source?: 'manual' | 'quiz' | 'import' | 'ai';
+  languageCode?: LearningLanguageCode;
   topicIds?: number[];
   newTopicName?: string | null;
 }
@@ -136,6 +142,7 @@ export interface AiExtractImageVocabularyResult extends AiGenerateVocabularyResu
 
 export interface BulkCreateVocabularyPayload {
   items: CreateVocabularyPayload[];
+  languageCode?: LearningLanguageCode;
   topicIds?: number[];
   newTopicName?: string | null;
 }
@@ -162,6 +169,7 @@ export type VocabularySortKey = 'newest' | 'oldest' | 'term_asc' | 'term_desc';
 
 export interface VocabularyQueryParams {
   search?: string;
+  languageCode?: LearningLanguageCode;
   topicId?: number | null;
   partOfSpeech?: string;
   reviewStatus?: VocabularyReviewStatusFilter;
@@ -180,6 +188,7 @@ export interface QuizSummary {
   id: number;
   title: string;
   description: string | null;
+  languageCode?: LearningLanguageCode;
   topicId: number | null;
   topicName: string | null;
   difficulty: QuizDifficulty | null;
@@ -228,6 +237,7 @@ export interface QuizDetail {
   id: number;
   title: string;
   description: string | null;
+  languageCode?: LearningLanguageCode;
   topicId: number | null;
   topicName: string | null;
   difficulty: QuizDifficulty | null;
@@ -240,6 +250,7 @@ export interface QuizDetail {
 export interface CreateQuizPayload {
   title: string;
   description?: string | null;
+  languageCode?: LearningLanguageCode;
   topicId?: number | null;
   difficulty?: QuizDifficulty | null;
   status?: QuizStatus;
@@ -257,6 +268,7 @@ export interface UpdateQuizPayload {
 
 export interface QuizQueryParams {
   search?: string;
+  languageCode?: LearningLanguageCode;
   topicId?: number | null;
   status?: QuizStatus | '';
   difficulty?: QuizDifficulty | '';
@@ -267,6 +279,7 @@ export interface QuizQueryParams {
 
 export interface DraftFromVocabularyPayload {
   topicId?: number | null;
+  languageCode?: LearningLanguageCode;
   vocabularyIds?: number[];
   count?: number;
   questionTypes?: QuestionType[];
@@ -343,6 +356,7 @@ export interface SaveVocabularyFromQuizPayload {
   partOfSpeech?: string | null;
   example?: string | null;
   notes?: string | null;
+  languageCode?: 'en' | 'ko';
   topicIds?: number[];
   newTopicName?: string | null;
   newTopicDescription?: string | null;
@@ -385,6 +399,7 @@ export interface FlashcardDueQueueResponse {
 
 export interface FlashcardSessionSummary {
   id: number;
+  languageCode?: 'en' | 'ko';
   topicId: number | null;
   topicName: string | null;
   mode: FlashcardSessionMode;
@@ -411,6 +426,7 @@ export interface FlashcardSessionDetail extends FlashcardSessionSummary {
 }
 
 export interface CreateFlashcardSessionPayload {
+  languageCode?: 'en' | 'ko';
   topicId?: number | null;
   mode?: FlashcardSessionMode;
   vocabularyIds?: number[];

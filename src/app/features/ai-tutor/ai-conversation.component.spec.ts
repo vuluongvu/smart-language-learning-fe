@@ -226,6 +226,7 @@ describe('AiConversationComponent', () => {
       'What do you usually do on weekends?',
       'turn-1',
       0.95,
+      'en',
     );
     expect(el.textContent).toContain('What do you usually do on weekends?');
 
@@ -272,6 +273,7 @@ describe('AiConversationComponent', () => {
       definition: 'talk with friends after not seeing them',
       partOfSpeech: 'phrase',
       example: 'We meet at a cafe to catch up.',
+      languageCode: 'en',
     });
   });
 });

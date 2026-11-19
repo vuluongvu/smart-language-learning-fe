@@ -7,6 +7,7 @@ import {
   OqPageHeaderComponent,
 } from '../../shared/components';
 import { I18nService, TranslatePipe } from '../../shared/i18n';
+import { LearningLanguageService } from '../../shared/services/learning-language.service';
 import {
   BulkCreateVocabularyResult,
   TopicDetail,
@@ -36,6 +37,7 @@ export class TopicDetailComponent implements OnInit {
   private readonly topicsApi = inject(TopicsApiService);
   private readonly vocabularyApi = inject(VocabularyApiService);
   private readonly i18n = inject(I18nService);
+  protected readonly learningLang = inject(LearningLanguageService);
 
   protected readonly topic = signal<TopicDetail | null>(null);
   protected readonly allVocabulary = signal<VocabularyItem[]>([]);
@@ -146,7 +148,8 @@ export class TopicDetailComponent implements OnInit {
   }
 
   private loadAvailableVocabulary(): void {
-    this.vocabularyApi.list({ limit: 100 }).subscribe({
+    const langCode = this.topic()?.languageCode ?? this.learningLang.activeLang();
+    this.vocabularyApi.list({ limit: 100, languageCode: langCode }).subscribe({
       next: (res) => this.allVocabulary.set(res.items),
       error: () => undefined,
     });

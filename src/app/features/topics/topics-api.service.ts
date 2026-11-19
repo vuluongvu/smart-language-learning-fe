@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiEnvelope } from '../../shared/api/api-response.type';
+import { LearningLanguageCode } from '../../shared/types/learning-language.types';
 import {
   CreateTopicPayload,
   PaginatedResponse,
@@ -18,12 +19,16 @@ export class TopicsApiService {
 
   list(params?: {
     search?: string;
+    languageCode?: LearningLanguageCode;
     page?: number;
     limit?: number;
   }): Observable<PaginatedResponse<TopicSummary>> {
     let httpParams = new HttpParams();
     if (params?.search?.trim()) {
       httpParams = httpParams.set('search', params.search.trim());
+    }
+    if (params?.languageCode) {
+      httpParams = httpParams.set('languageCode', params.languageCode);
     }
     if (params?.page) {
       httpParams = httpParams.set('page', params.page);

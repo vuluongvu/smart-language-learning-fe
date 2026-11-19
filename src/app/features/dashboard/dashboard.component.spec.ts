@@ -203,7 +203,7 @@ describe('DashboardComponent', () => {
     btn30?.click();
     fixture.detectChanges();
 
-    expect(progressApiMock.getHistory).toHaveBeenCalledWith(30);
+    expect(progressApiMock.getHistory).toHaveBeenCalledWith(30, 'en');
     expect(el.querySelectorAll('.oq-heatmap__cell').length).toBe(30);
   });
 
@@ -255,5 +255,17 @@ describe('DashboardComponent', () => {
     expect(el.querySelector('.oq-empty-state--celebration')).not.toBeNull();
     expect(el.textContent).toContain('Coming up next');
     expect(el.textContent).toContain('eloquent');
+
+    localStorage.removeItem('argon_learning_course');
+    const koTab = Array.from(el.querySelectorAll<HTMLButtonElement>('.oq-course-tab')).find((btn) =>
+      btn.textContent?.includes('Korean'),
+    );
+    expect(koTab).toBeTruthy();
+    koTab?.click();
+    TestBed.flushEffects();
+    fixture.detectChanges();
+
+    expect(progressApiMock.getOverview).toHaveBeenCalledWith('ko');
+    localStorage.removeItem('argon_learning_course');
   });
 });

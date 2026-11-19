@@ -197,4 +197,38 @@ describe('FlashcardSessionComponent', () => {
     expect(el.textContent).toContain('Session Complete');
     expect(el.textContent).toContain('Practice Forgotten Cards Again');
   });
+
+  it('allows toggling the inline Hangul handwriting drawer for Korean cards', () => {
+    const fixture = TestBed.createComponent(FlashcardSessionComponent);
+    fixture.detectChanges();
+
+    httpTesting
+      .expectOne((r) => r.url.endsWith('/flashcard-sessions/42') && r.method === 'GET')
+      .flush({
+        data: {
+          ...sessionPayload,
+          languageCode: 'ko',
+          cards: [
+            {
+              ...sessionPayload.cards[0],
+              term: '한국어',
+              definition: 'tiếng Hàn',
+            },
+          ],
+        },
+      });
+    fixture.detectChanges();
+
+    const el = fixture.nativeElement as HTMLElement;
+    const toggleBtn = Array.from(el.querySelectorAll<HTMLButtonElement>('button')).find((b) =>
+      b.textContent?.includes('Write on Screen'),
+    );
+    expect(toggleBtn).toBeTruthy();
+
+    toggleBtn!.click();
+    fixture.detectChanges();
+
+    expect(el.querySelector('oq-hangul-pad')).toBeTruthy();
+    expect(el.textContent).toContain('Hide Writing Pad');
+  });
 });

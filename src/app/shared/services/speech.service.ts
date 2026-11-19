@@ -1,4 +1,5 @@
 import { Injectable, signal } from '@angular/core';
+import { LearningLanguageCode, containsHangul } from '../types/learning-language.types';
 
 @Injectable({ providedIn: 'root' })
 export class SpeechService {
@@ -25,7 +26,7 @@ export class SpeechService {
     );
   }
 
-  speak(text: string, id: string, rate = 0.95): void {
+  speak(text: string, id: string, rate = 0.95, langCode?: LearningLanguageCode): void {
     const clean = text.trim();
     if (!clean || !this.isTtsSupported) {
       return;
@@ -38,16 +39,21 @@ export class SpeechService {
     }
 
     try {
+      const targetLang: LearningLanguageCode =
+        langCode === 'ko' || (!langCode && containsHangul(clean)) ? 'ko' : 'en';
       const utterance = new SpeechSynthesisUtterance(clean);
-      utterance.lang = 'en-US';
+      utterance.lang = targetLang === 'ko' ? 'ko-KR' : 'en-US';
       utterance.rate = Math.min(1.2, Math.max(0.75, rate));
 
       const voices = window.speechSynthesis.getVoices?.() ?? [];
-      const englishVoice =
-        voices.find((v) => v.lang.toLowerCase().startsWith('en-us')) ??
-        voices.find((v) => v.lang.toLowerCase().startsWith('en'));
-      if (englishVoice) {
-        utterance.voice = englishVoice;
+      const selectedVoice =
+        targetLang === 'ko'
+          ? (voices.find((v) => v.lang.toLowerCase().startsWith('ko-kr')) ??
+            voices.find((v) => v.lang.toLowerCase().startsWith('ko')))
+          : (voices.find((v) => v.lang.toLowerCase().startsWith('en-us')) ??
+            voices.find((v) => v.lang.toLowerCase().startsWith('en')));
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
       }
 
       utterance.onend = () => {

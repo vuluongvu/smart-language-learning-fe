@@ -3,6 +3,10 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AppLocale, TranslatePipe, TxKey } from '../../i18n';
 import { AppTheme } from '../../services/theme.service';
 import { UserProfile } from '../../types/auth.types';
+import {
+  LEARNING_LANGUAGE_OPTIONS,
+  LearningLanguageCode,
+} from '../../types/learning-language.types';
 import { OqIconComponent, OqIconName } from '../icon/icon.component';
 
 interface NavGroup {
@@ -39,6 +43,28 @@ interface NavGroup {
         >
           <oq-icon name="x" [size]="18" />
         </button>
+      </div>
+
+      <div
+        class="shell__course-switcher"
+        role="group"
+        [attr.aria-label]="'course.switcherLabel' | t"
+      >
+        <span class="shell__nav-heading">{{ 'course.switcherLabel' | t }}</span>
+        <div class="shell__course-pills">
+          @for (opt of courseOptions; track opt.code) {
+            <button
+              type="button"
+              class="shell__course-btn"
+              [class.shell__course-btn--active]="learningLang() === opt.code"
+              [attr.aria-pressed]="learningLang() === opt.code"
+              (click)="selectLearningLang.emit(opt.code)"
+            >
+              <span class="shell__course-badge">{{ opt.badgeCode }}</span>
+              <span>{{ opt.nativeLabel }}</span>
+            </button>
+          }
+        </div>
       </div>
 
       <nav class="shell__nav" aria-label="Main navigation">
@@ -194,6 +220,57 @@ interface NavGroup {
           background: var(--oq-bg-subtle);
           color: var(--oq-text-primary);
         }
+      }
+
+      .shell__course-switcher {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .shell__course-pills {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4px;
+        padding: 3px;
+        border-radius: 10px;
+        background: var(--oq-bg-subtle);
+        border: 1px solid var(--oq-border-subtle);
+      }
+
+      .shell__course-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        min-height: 32px;
+        padding: 4px;
+        border: 0;
+        border-radius: 7px;
+        background: transparent;
+        color: var(--oq-text-secondary);
+        font: inherit;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+
+        &:hover {
+          color: var(--oq-text-primary);
+        }
+
+        &--active {
+          background: var(--oq-bg-surface);
+          color: var(--oq-accent);
+        }
+      }
+
+      .shell__course-badge {
+        padding: 1px 5px;
+        border-radius: 5px;
+        background: var(--oq-accent-soft);
+        color: var(--oq-accent);
+        font-size: 0.6875rem;
+        font-weight: 700;
       }
 
       .shell__nav {
@@ -354,11 +431,15 @@ export class OqSidebarComponent {
   readonly user = input<UserProfile | null>(null);
   readonly theme = input<AppTheme>('light');
   readonly lang = input<AppLocale>('en');
+  readonly learningLang = input<LearningLanguageCode>('en');
 
   readonly closeDrawer = output<void>();
   readonly toggleTheme = output<void>();
   readonly toggleLang = output<void>();
+  readonly selectLearningLang = output<LearningLanguageCode>();
   readonly logout = output<void>();
+
+  protected readonly courseOptions = LEARNING_LANGUAGE_OPTIONS;
 
   protected readonly navGroups: NavGroup[] = [
     {

@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { catchError, of } from 'rxjs';
@@ -20,6 +20,8 @@ import { AiApiService } from '../ai-tutor/ai-api.service';
 import { AuthService } from '../auth/auth.service';
 import { LearningPathApiService } from './learning-path-api.service';
 import { LpTranslatePipe, lpTranslate } from './learning-path.i18n';
+import { LearningLanguageService } from '../../shared/services/learning-language.service';
+import { LearningLanguageCode } from '../../shared/types/learning-language.types';
 
 const RING_CIRCUMFERENCE = 138.23;
 
@@ -43,6 +45,17 @@ export class LearningPathComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly aiApi = inject(AiApiService);
   protected readonly i18n = inject(I18nService);
+  protected readonly learningLang = inject(LearningLanguageService);
+  private lastLoadedLang: LearningLanguageCode | null = null;
+
+  constructor() {
+    effect(() => {
+      const lang = this.learningLang.activeLang();
+      if (this.lastLoadedLang && this.lastLoadedLang !== lang) {
+        this.loadOverview();
+      }
+    });
+  }
 
   protected readonly ringCircumference = RING_CIRCUMFERENCE;
   protected readonly cefrOptions = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
@@ -92,8 +105,10 @@ export class LearningPathComponent implements OnInit {
   loadOverview(band?: string): void {
     this.loading.set(true);
     this.errorMessage.set(null);
+    const activeLang = this.learningLang.activeLang();
+    this.lastLoadedLang = activeLang;
 
-    this.pathApi.getOverview(band).subscribe({
+    this.pathApi.getOverview(band, activeLang).subscribe({
       next: (data) => {
         this.overview.set(data);
         this.selectedBandView.set(data.activeTrack.code);
@@ -143,6 +158,7 @@ export class LearningPathComponent implements OnInit {
     this.pathApi
       .updateGoal({
         learningGoalBand: this.draftBand,
+        languageCode: this.learningLang.activeLang(),
         currentLevel: this.draftLevel,
         dailyGoalMinutes: Number(this.draftDailyMinutes),
       })
@@ -225,6 +241,7 @@ export class LearningPathComponent implements OnInit {
         currentLevel: this.aiCurrentLevel,
         unitCount: Number(this.aiUnitCount),
         explanationLang: this.i18n.lang(),
+        languageCode: this.learningLang.activeLang(),
       })
       .subscribe({
         next: (data) => {

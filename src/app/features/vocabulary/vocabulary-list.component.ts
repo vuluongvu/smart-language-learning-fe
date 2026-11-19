@@ -1,13 +1,16 @@
-import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
   OqEmptyStateComponent,
+  OqHangulModalComponent,
   OqIconComponent,
   OqModalComponent,
   OqStatCardComponent,
 } from '../../shared/components';
 import { I18nService, TranslatePipe } from '../../shared/i18n';
+import { LearningLanguageService } from '../../shared/services/learning-language.service';
+import { LearningLanguageCode } from '../../shared/types/learning-language.types';
 import { SpeechService } from '../../shared/services/speech.service';
 import {
   AiGenerateMode,
@@ -56,6 +59,7 @@ const POS_TONE_MAP: Record<string, VocabPosTone> = {
     RouterLink,
     OqModalComponent,
     OqEmptyStateComponent,
+    OqHangulModalComponent,
     OqIconComponent,
     OqStatCardComponent,
     AiVocabModalComponent,
@@ -72,6 +76,20 @@ export class VocabularyListComponent implements OnInit, OnDestroy {
   private readonly flashcardsApi = inject(FlashcardsApiService);
   protected readonly speech = inject(SpeechService);
   protected readonly i18n = inject(I18nService);
+  protected readonly learningLang = inject(LearningLanguageService);
+  private lastLoadedLang: LearningLanguageCode | null = null;
+
+  constructor() {
+    effect(() => {
+      const lang = this.learningLang.activeLang();
+      if (this.lastLoadedLang && this.lastLoadedLang !== lang) {
+        this.selectedTopicId = null;
+        this.loadTopics();
+        this.loadSummary();
+        this.loadVocabulary(1);
+      }
+    });
+  }
 
   protected readonly items = signal<VocabularyItem[]>([]);
   protected readonly topics = signal<TopicSummary[]>([]);
@@ -121,18 +139,15 @@ export class VocabularyListComponent implements OnInit, OnDestroy {
 
   protected readonly confirmDeleteItem = signal<VocabularyItem | null>(null);
   protected readonly isDeleting = signal(false);
+  readonly handwritingMode = signal<'search' | 'term' | null>(null);
 
   protected readonly formatProgressStatus = formatProgressStatusLabel;
 
-  protected readonly partOfSpeechOptions = [
-    'noun',
-    'verb',
-    'adjective',
-    'adverb',
-    'phrase',
-    'idiom',
-    'preposition',
-  ];
+  protected readonly partOfSpeechOptions = computed(() =>
+    this.learningLang.isKorean()
+      ? ['noun', 'verb', 'adjective', 'adverb', 'particle', 'ending', 'expression', 'phrase']
+      : ['noun', 'verb', 'adjective', 'adverb', 'phrase', 'idiom', 'preposition'],
+  );
 
   protected readonly form = this.fb.nonNullable.group({
     term: ['', [Validators.required, Validators.maxLength(255)]],
@@ -159,17 +174,23 @@ export class VocabularyListComponent implements OnInit, OnDestroy {
   }
 
   loadTopics(): void {
-    this.topicsApi.list({ limit: 100 }).subscribe({
+    this.topicsApi.list({ limit: 100, languageCode: this.learningLang.activeLang() }).subscribe({
       next: (res) => this.topics.set(res.items),
       error: () => undefined,
     });
   }
 
   loadSummary(): void {
-    this.flashcardsApi.getDueQueue({ topicId: this.selectedTopicId, limit: 1 }).subscribe({
-      next: (res) => this.summary.set(res.summary),
-      error: () => undefined,
-    });
+    this.flashcardsApi
+      .getDueQueue({
+        topicId: this.selectedTopicId,
+        languageCode: this.learningLang.activeLang(),
+        limit: 1,
+      })
+      .subscribe({
+        next: (res) => this.summary.set(res.summary),
+        error: () => undefined,
+      });
   }
 
   onTopicChange(): void {
@@ -214,7 +235,12 @@ export class VocabularyListComponent implements OnInit, OnDestroy {
   }
 
   speakTerm(item: VocabularyItem): void {
-    this.speech.speak(item.term, `vocab-${item.id}`);
+    this.speech.speak(
+      item.term,
+      `vocab-${item.id}`,
+      0.95,
+      item.languageCode ?? this.learningLang.activeLang(),
+    );
   }
 
   statusKey(item: VocabularyItem): VocabStatusKey {
@@ -236,10 +262,13 @@ export class VocabularyListComponent implements OnInit, OnDestroy {
   loadVocabulary(page = 1): void {
     this.isLoading.set(true);
     this.errorMessage.set(null);
+    const activeLang = this.learningLang.activeLang();
+    this.lastLoadedLang = activeLang;
 
     this.vocabularyApi
       .list({
         search: this.search,
+        languageCode: activeLang,
         topicId: this.selectedTopicId,
         partOfSpeech: this.partOfSpeechFilter,
         reviewStatus: this.reviewStatusFilter,
@@ -317,6 +346,7 @@ export class VocabularyListComponent implements OnInit, OnDestroy {
   }
 
   cancelForm(): void {
+    if (this.handwritingMode()) return;
     this.showForm.set(false);
     this.editingItem.set(null);
     this.duplicateCheck.set(null);
@@ -335,7 +365,7 @@ export class VocabularyListComponent implements OnInit, OnDestroy {
     this.isEnriching.set(true);
     this.formError.set(null);
 
-    this.vocabularyApi.enrichWithAi(term).subscribe({
+    this.vocabularyApi.enrichWithAi(term, undefined, this.learningLang.activeLang()).subscribe({
       next: (res) => {
         this.isEnriching.set(false);
         this.usedAiEnrich.set(true);
@@ -390,7 +420,7 @@ export class VocabularyListComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.vocabularyApi.checkDuplicate(term).subscribe({
+    this.vocabularyApi.checkDuplicate(term, this.learningLang.activeLang()).subscribe({
       next: (res) => this.duplicateCheck.set(res.exists ? res : null),
       error: () => undefined,
     });
@@ -457,6 +487,7 @@ export class VocabularyListComponent implements OnInit, OnDestroy {
       this.vocabularyApi
         .create({
           ...payload,
+          languageCode: this.learningLang.activeLang(),
           ...(trimmedNewTopic ? { newTopicName: trimmedNewTopic } : {}),
           ...(this.usedAiEnrich() ? { source: 'ai' as const } : {}),
         })
@@ -525,5 +556,31 @@ export class VocabularyListComponent implements OnInit, OnDestroy {
         );
       },
     });
+  }
+
+  openHandwriting(mode: 'search' | 'term'): void {
+    this.handwritingMode.set(mode);
+  }
+
+  closeHandwriting(): void {
+    this.handwritingMode.set(null);
+  }
+
+  applyHandwritingCandidate(text: string): void {
+    const clean = text.trim();
+    if (!clean) return;
+    const mode = this.handwritingMode();
+    if (mode === 'search') {
+      this.search = clean;
+      this.handwritingMode.set(null);
+      this.loadVocabulary(1);
+      return;
+    }
+    if (mode === 'term') {
+      this.form.controls.term.setValue(clean);
+      this.form.controls.term.markAsDirty();
+      this.handwritingMode.set(null);
+      this.onTermBlur();
+    }
   }
 }

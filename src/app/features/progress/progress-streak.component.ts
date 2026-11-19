@@ -1,5 +1,5 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import {
@@ -10,6 +10,8 @@ import {
   OqStatCardComponent,
 } from '../../shared/components';
 import { I18nService, TranslatePipe } from '../../shared/i18n';
+import { LearningLanguageService } from '../../shared/services/learning-language.service';
+import { LearningLanguageCode } from '../../shared/types/learning-language.types';
 import {
   ProgressHistory,
   StreakCalendarDay,
@@ -38,6 +40,17 @@ import { ProgressApiService } from './progress-api.service';
 export class ProgressStreakComponent implements OnInit {
   private readonly progressApi = inject(ProgressApiService);
   protected readonly i18n = inject(I18nService);
+  protected readonly learningLang = inject(LearningLanguageService);
+  private lastLoadedLang: LearningLanguageCode | null = null;
+
+  constructor() {
+    effect(() => {
+      const lang = this.learningLang.activeLang();
+      if (this.lastLoadedLang && this.lastLoadedLang !== lang) {
+        this.loadAll();
+      }
+    });
+  }
 
   protected readonly loading = signal(true);
   protected readonly calendarLoading = signal(false);
@@ -71,11 +84,13 @@ export class ProgressStreakComponent implements OnInit {
   loadAll(): void {
     this.loading.set(true);
     this.errorMessage.set(null);
+    const activeLang = this.learningLang.activeLang();
+    this.lastLoadedLang = activeLang;
 
     forkJoin({
       streak: this.progressApi.getMyStreak(),
       calendar: this.progressApi.getStreakCalendar(this.activeMonth()),
-      history: this.progressApi.getHistory(this.historyDays()),
+      history: this.progressApi.getHistory(this.historyDays(), activeLang),
     }).subscribe({
       next: ({ streak, calendar, history }) => {
         this.streak.set(streak);
@@ -133,7 +148,7 @@ export class ProgressStreakComponent implements OnInit {
       return;
     }
     this.historyDays.set(days);
-    this.progressApi.getHistory(days).subscribe({
+    this.progressApi.getHistory(days, this.learningLang.activeLang()).subscribe({
       next: (res) => this.history.set(res),
       error: (err) =>
         this.errorMessage.set(

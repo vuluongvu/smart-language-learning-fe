@@ -1,7 +1,7 @@
 <oq-page-header
   [eyebrow]="'topics.eyebrow' | t"
   [title]="'topics.title' | t"
-  [subtitle]="'topics.subtitle' | t"
+  [subtitle]="(learningLang.isKorean() ? 'topics.koSubtitle' : 'topics.subtitle') | t"
 >
   <button type="button" actions class="oq-btn oq-btn--primary" (click)="openCreate()">
     <oq-icon name="plus" [size]="16" />
@@ -56,7 +56,9 @@
           id="topic-name"
           type="text"
           formControlName="name"
-          [placeholder]="'topics.namePlaceholder' | t"
+          [placeholder]="
+            (learningLang.isKorean() ? 'topics.koNamePlaceholder' : 'topics.namePlaceholder') | t
+          "
         />
         @if (form.controls.name.touched && form.controls.name.invalid) {
           <span class="oq-field-error">{{ 'topics.nameError' | t }}</span>
@@ -112,7 +114,7 @@
     variant="warm"
     icon="folder"
     [title]="'topics.emptyTitle' | t"
-    [description]="'topics.emptyDesc' | t"
+    [description]="(learningLang.isKorean() ? 'topics.koEmptyDesc' : 'topics.emptyDesc') | t"
   >
     <button actions type="button" class="oq-btn oq-btn--primary" (click)="openCreate()">
       {{ 'topics.emptyBtn' | t }}

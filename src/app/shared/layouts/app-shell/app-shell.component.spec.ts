@@ -6,6 +6,7 @@ import { vi } from 'vitest';
 import { AuthService } from '../../../features/auth/auth.service';
 import { UserProfile } from '../../types/auth.types';
 import { ThemeService } from '../../services/theme.service';
+import { LearningLanguageService } from '../../services/learning-language.service';
 import { AppShellComponent } from './app-shell.component';
 
 describe('AppShellComponent', () => {
@@ -98,5 +99,24 @@ describe('AppShellComponent', () => {
     fixture.componentInstance.logout();
     expect(authServiceMock.logout).toHaveBeenCalledTimes(1);
     expect(navigateSpy).toHaveBeenCalledWith(['/login']);
+  });
+
+  it('switches active course between English and Korean from the sidebar switcher', () => {
+    localStorage.removeItem('argon_learning_course');
+    const fixture = TestBed.createComponent(AppShellComponent);
+    const learningLang = TestBed.inject(LearningLanguageService);
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+
+    const courseButtons = Array.from(el.querySelectorAll<HTMLButtonElement>('.shell__course-btn'));
+    expect(courseButtons.length).toBe(2);
+
+    const koBtn = courseButtons.find((btn) => btn.textContent?.includes('한국어'));
+    koBtn?.click();
+    fixture.detectChanges();
+
+    expect(learningLang.activeLang()).toBe('ko');
+    expect(localStorage.getItem('argon_learning_course')).toBe('ko');
+    localStorage.removeItem('argon_learning_course');
   });
 });

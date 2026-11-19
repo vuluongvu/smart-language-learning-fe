@@ -1,3 +1,4 @@
+import type { LearningLanguageCode } from './learning-language.types';
 import { CefrLevel } from './learning.types';
 
 export type AiChatRole = 'user' | 'assistant';
@@ -16,6 +17,7 @@ export interface AiChatRequest {
   message: string;
   history?: AiHistoryMessage[];
   temperature?: number;
+  languageCode?: LearningLanguageCode;
 }
 
 export interface AiTokenUsage {
@@ -87,6 +89,7 @@ export interface AiConversationSessionSummary {
   topic: string;
   level: ConversationLevel;
   explanationLang: ExplanationLanguage;
+  languageCode?: LearningLanguageCode;
   status: ConversationSessionStatus;
   turnCount: number;
   summary: ConversationSummary | null;
@@ -103,6 +106,7 @@ export interface StartConversationRequest {
   topic: string;
   level?: ConversationLevel;
   explanationLang?: ExplanationLanguage;
+  languageCode?: LearningLanguageCode;
 }
 
 export type ConversationInputMode = 'text' | 'voice';
@@ -115,4 +119,15 @@ export interface ReplyConversationRequest {
 export interface AiTranscribeResponse {
   model: string;
   text: string;
+}
+
+export type HandwritingRecognitionMode = 'recognize' | 'evaluate';
+
+export interface RecognizeHandwritingResult {
+  model: string;
+  recognizedText: string;
+  candidates: string[];
+  isMatch: boolean | null;
+  feedback: string | null;
+  usage?: AiTokenUsage;
 }

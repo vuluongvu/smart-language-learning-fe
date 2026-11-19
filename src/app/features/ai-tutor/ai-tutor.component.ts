@@ -4,6 +4,7 @@ import {
   ElementRef,
   OnInit,
   computed,
+  effect,
   inject,
   signal,
   viewChild,
@@ -11,6 +12,8 @@ import {
 import { ActivatedRoute } from '@angular/router';
 import { OqIconComponent, OqPageHeaderComponent } from '../../shared/components';
 import { I18nService, TranslatePipe, TxKey } from '../../shared/i18n';
+import { LearningLanguageService } from '../../shared/services/learning-language.service';
+import { LearningLanguageCode } from '../../shared/types/learning-language.types';
 import { AiHistoryMessage, AiStatus, AiTokenUsage } from '../../shared/types/ai.types';
 import { extractApiError } from '../../shared/utils/api-error.util';
 import { renderMarkdownToHtml } from '../../shared/utils/markdown.util';
@@ -45,21 +48,32 @@ export const MAX_AI_MESSAGE_LENGTH = 4000;
 })
 export class AiTutorComponent implements OnInit {
   private readonly aiApi = inject(AiApiService);
-  private readonly i18n = inject(I18nService);
+  protected readonly i18n = inject(I18nService);
+  protected readonly learningLang = inject(LearningLanguageService);
   private readonly route = inject(ActivatedRoute, { optional: true });
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly messageFeed = viewChild<ElementRef<HTMLElement>>('messageFeed');
   private copyTimer: ReturnType<typeof setTimeout> | null = null;
   private nextTurnSeq = 1;
+  private lastLoadedLang: LearningLanguageCode | null = null;
 
   protected readonly maxMessageLength = MAX_AI_MESSAGE_LENGTH;
-  protected readonly starterPrompts: StarterPrompt[] = [
-    { id: 'compare', titleKey: 'ai.starter1Title', promptKey: 'ai.starter1Prompt' },
-    { id: 'grammar', titleKey: 'ai.starter2Title', promptKey: 'ai.starter2Prompt' },
-    { id: 'business', titleKey: 'ai.starter3Title', promptKey: 'ai.starter3Prompt' },
-    { id: 'roleplay', titleKey: 'ai.starter4Title', promptKey: 'ai.starter4Prompt' },
-  ];
+  protected readonly starterPrompts = computed<StarterPrompt[]>(() =>
+    this.learningLang.isKorean()
+      ? [
+          { id: 'particles', titleKey: 'ai.koStarter1Title', promptKey: 'ai.koStarter1Prompt' },
+          { id: 'grammar', titleKey: 'ai.koStarter2Title', promptKey: 'ai.koStarter2Prompt' },
+          { id: 'honorifics', titleKey: 'ai.koStarter3Title', promptKey: 'ai.koStarter3Prompt' },
+          { id: 'roleplay', titleKey: 'ai.koStarter4Title', promptKey: 'ai.koStarter4Prompt' },
+        ]
+      : [
+          { id: 'compare', titleKey: 'ai.starter1Title', promptKey: 'ai.starter1Prompt' },
+          { id: 'grammar', titleKey: 'ai.starter2Title', promptKey: 'ai.starter2Prompt' },
+          { id: 'business', titleKey: 'ai.starter3Title', promptKey: 'ai.starter3Prompt' },
+          { id: 'roleplay', titleKey: 'ai.starter4Title', promptKey: 'ai.starter4Prompt' },
+        ],
+  );
 
   protected readonly statusLoading = signal(true);
   protected readonly statusError = signal<string | null>(null);
@@ -83,6 +97,16 @@ export class AiTutorComponent implements OnInit {
   );
 
   constructor() {
+    effect(() => {
+      const lang = this.learningLang.activeLang();
+      if (this.lastLoadedLang && this.lastLoadedLang !== lang) {
+        this.lastLoadedLang = lang;
+        this.clearConversation();
+      } else if (!this.lastLoadedLang) {
+        this.lastLoadedLang = lang;
+      }
+    });
+
     this.destroyRef.onDestroy(() => {
       if (this.copyTimer) {
         clearTimeout(this.copyTimer);
@@ -174,39 +198,41 @@ export class AiTutorComponent implements OnInit {
     this.lastFailedPrompt.set(null);
     this.scrollFeedToBottom();
 
-    this.aiApi.chat({ message: rawPrompt, history }).subscribe({
-      next: (reply) => {
-        const assistantTurn: ChatTurn = {
-          id: `turn-${this.nextTurnSeq++}`,
-          role: 'assistant',
-          content: reply.content,
-          renderedHtml: renderMarkdownToHtml(reply.content),
-          model: reply.model,
-          usage: reply.usage,
-          createdAt: new Date(),
-        };
-        this.messages.update((current) => [...current, assistantTurn]);
-        this.sending.set(false);
-        this.scrollFeedToBottom();
-      },
-      error: (err: unknown) => {
-        // Roll back the failed optimistic user turn so retry never duplicates history.
-        this.messages.update((current) => current.filter((turn) => turn.id !== userTurn.id));
-        if (usingDraft && !this.draftMessage().trim()) {
-          this.draftMessage.set(rawPrompt);
-        }
-        this.sending.set(false);
-        this.lastFailedPrompt.set(rawPrompt);
-        this.chatError.set(
-          extractApiError(
-            err,
-            this.i18n.lang() === 'vi'
-              ? 'Không thể nhận phản hồi từ gia sư AI.'
-              : 'Unable to get a response from the AI tutor.',
-          ),
-        );
-      },
-    });
+    this.aiApi
+      .chat({ message: rawPrompt, history, languageCode: this.learningLang.activeLang() })
+      .subscribe({
+        next: (reply) => {
+          const assistantTurn: ChatTurn = {
+            id: `turn-${this.nextTurnSeq++}`,
+            role: 'assistant',
+            content: reply.content,
+            renderedHtml: renderMarkdownToHtml(reply.content),
+            model: reply.model,
+            usage: reply.usage,
+            createdAt: new Date(),
+          };
+          this.messages.update((current) => [...current, assistantTurn]);
+          this.sending.set(false);
+          this.scrollFeedToBottom();
+        },
+        error: (err: unknown) => {
+          // Roll back the failed optimistic user turn so retry never duplicates history.
+          this.messages.update((current) => current.filter((turn) => turn.id !== userTurn.id));
+          if (usingDraft && !this.draftMessage().trim()) {
+            this.draftMessage.set(rawPrompt);
+          }
+          this.sending.set(false);
+          this.lastFailedPrompt.set(rawPrompt);
+          this.chatError.set(
+            extractApiError(
+              err,
+              this.i18n.lang() === 'vi'
+                ? 'Không thể nhận phản hồi từ gia sư AI.'
+                : 'Unable to get a response from the AI tutor.',
+            ),
+          );
+        },
+      });
   }
 
   retryLastMessage(): void {

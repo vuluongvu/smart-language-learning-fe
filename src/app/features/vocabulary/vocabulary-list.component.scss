@@ -36,7 +36,7 @@
   display: flex;
   align-items: center;
 
-  oq-icon {
+  > oq-icon {
     position: absolute;
     left: 11px;
     color: var(--oq-accent);
@@ -44,7 +44,7 @@
   }
 
   .search-input {
-    padding-left: 33px;
+    padding-inline: 33px 36px;
   }
 }
 

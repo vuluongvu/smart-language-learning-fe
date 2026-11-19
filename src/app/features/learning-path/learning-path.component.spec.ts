@@ -17,6 +17,7 @@ describe('LearningPathComponent', () => {
   };
 
   beforeEach(async () => {
+    localStorage.removeItem('argon_learning_course');
     pathApiMock = {
       getOverview: vi.fn().mockReturnValue(
         of({
@@ -118,6 +119,10 @@ describe('LearningPathComponent', () => {
     }).compileComponents();
   });
 
+  afterEach(() => {
+    localStorage.removeItem('argon_learning_course');
+  });
+
   it('renders Part 1 skill tree, Vocab Notebook node, Band switcher, and opens goal modal', () => {
     const fixture = TestBed.createComponent(LearningPathComponent);
     fixture.detectChanges();
@@ -131,7 +136,7 @@ describe('LearningPathComponent', () => {
     const select = el.querySelector<HTMLSelectElement>('.lp-band-select')!;
     select.value = 'band_55_65';
     select.dispatchEvent(new Event('change'));
-    expect(pathApiMock.getOverview).toHaveBeenCalledWith('band_55_65');
+    expect(pathApiMock.getOverview).toHaveBeenCalledWith('band_55_65', 'en');
   });
 
   it('opens AI generator modal and generates a custom AI path & materials', () => {
@@ -185,5 +190,23 @@ describe('LearningPathComponent', () => {
 
   it('maintains 100% EN/VI key parity for learning-path i18n dictionary', () => {
     expect(Object.keys(LP_VI_TRANSLATIONS).sort()).toEqual(Object.keys(LP_EN_TRANSLATIONS).sort());
+  });
+
+  it('switches between English and Korean learning paths via in-page tabs', () => {
+    const fixture = TestBed.createComponent(LearningPathComponent);
+    fixture.detectChanges();
+
+    const el = fixture.nativeElement as HTMLElement;
+    const koTab = Array.from(el.querySelectorAll<HTMLButtonElement>('.oq-course-tab')).find((btn) =>
+      btn.textContent?.includes('Korean'),
+    );
+    expect(koTab).toBeTruthy();
+
+    koTab?.click();
+    TestBed.flushEffects();
+    fixture.detectChanges();
+
+    expect(pathApiMock.getOverview).toHaveBeenLastCalledWith(undefined, 'ko');
+    expect(koTab?.getAttribute('aria-pressed')).toBe('true');
   });
 });

@@ -55,6 +55,7 @@ describe('AiVocabModalComponent', () => {
       level: 'B1',
       count: 5,
       topicId: 2,
+      languageCode: 'en',
     });
     genReq.flush({
       data: {
@@ -96,6 +97,7 @@ describe('AiVocabModalComponent', () => {
     );
     expect(bulkReq.request.body).toEqual({
       topicIds: [2],
+      languageCode: 'en',
       items: [
         {
           term: 'sustainable',
@@ -185,6 +187,7 @@ describe('AiVocabModalComponent', () => {
     );
     expect(bulkReq.request.body).toEqual({
       topicIds: [],
+      languageCode: 'en',
       newTopicName: 'Công nghệ',
       items: [
         {
@@ -289,6 +292,7 @@ describe('AiVocabModalComponent', () => {
     );
     expect(bulkReq.request.body).toEqual({
       topicIds: [],
+      languageCode: 'en',
       newTopicName: 'IELTS Reading',
       items: [
         {

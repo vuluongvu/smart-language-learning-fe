@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -11,6 +11,9 @@ import {
   AiStatus,
   AiTranscribeResponse,
   ConversationInputMode,
+  ExplanationLanguage,
+  HandwritingRecognitionMode,
+  RecognizeHandwritingResult,
   StartConversationRequest,
 } from '../../shared/types/ai.types';
 
@@ -31,9 +34,13 @@ export class AiApiService {
       .pipe(map((res) => res.data));
   }
 
-  listConversations(): Observable<AiConversationSessionSummary[]> {
+  listConversations(languageCode?: 'en' | 'ko'): Observable<AiConversationSessionSummary[]> {
+    let params = new HttpParams();
+    if (languageCode) {
+      params = params.set('languageCode', languageCode);
+    }
     return this.http
-      .get<ApiEnvelope<AiConversationSessionSummary[]>>(`${this.baseUrl}/conversations`)
+      .get<ApiEnvelope<AiConversationSessionSummary[]>>(`${this.baseUrl}/conversations`, { params })
       .pipe(map((res) => res.data));
   }
 
@@ -85,6 +92,33 @@ export class AiApiService {
   endConversation(id: number): Observable<AiConversationSessionDetail> {
     return this.http
       .post<ApiEnvelope<AiConversationSessionDetail>>(`${this.baseUrl}/conversations/${id}/end`, {})
+      .pipe(map((res) => res.data));
+  }
+
+  recognizeHandwriting(
+    imageBlob: Blob,
+    options?: {
+      expectedText?: string;
+      explanationLang?: ExplanationLanguage;
+      mode?: HandwritingRecognitionMode;
+    },
+  ): Observable<RecognizeHandwritingResult> {
+    const formData = new FormData();
+    formData.append('image', imageBlob, 'handwriting.png');
+    if (options?.expectedText?.trim()) {
+      formData.append('expectedText', options.expectedText.trim());
+    }
+    if (options?.explanationLang) {
+      formData.append('explanationLang', options.explanationLang);
+    }
+    if (options?.mode) {
+      formData.append('mode', options.mode);
+    }
+    return this.http
+      .post<ApiEnvelope<RecognizeHandwritingResult>>(
+        `${this.baseUrl}/handwriting/recognize`,
+        formData,
+      )
       .pipe(map((res) => res.data));
   }
 }

@@ -2,11 +2,14 @@ import { NgTemplateOutlet } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
+  OqHangulPadComponent,
   OqIconComponent,
   OqPageHeaderComponent,
   OqProgressBarComponent,
 } from '../../shared/components';
 import { I18nService, TranslatePipe, TxKey } from '../../shared/i18n';
+import { SpeechService } from '../../shared/services/speech.service';
+import { containsHangul } from '../../shared/types/learning-language.types';
 import {
   FlashcardCardView,
   FlashcardSessionDetail,
@@ -29,6 +32,7 @@ import { FlashcardsApiService } from './flashcards-api.service';
     RouterLink,
     OqPageHeaderComponent,
     OqProgressBarComponent,
+    OqHangulPadComponent,
     OqIconComponent,
     TranslatePipe,
   ],
@@ -43,6 +47,7 @@ export class FlashcardSessionComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   protected readonly i18n = inject(I18nService);
+  protected readonly speech = inject(SpeechService);
 
   readonly session = signal<FlashcardSessionDetail | null>(null);
   readonly currentIndex = signal(0);
@@ -53,6 +58,13 @@ export class FlashcardSessionComponent implements OnInit {
   readonly isCompleting = signal(false);
   readonly errorMessage = signal<string | null>(null);
   readonly feedbackMessage = signal<string | null>(null);
+  readonly showHandwritingPad = signal(false);
+
+  readonly isKoreanSessionOrCard = computed(() => {
+    const s = this.session();
+    const card = this.currentCard();
+    return s?.languageCode === 'ko' || Boolean(card && containsHangul(card.term));
+  });
 
   readonly currentCard = computed<FlashcardCardView | null>(() => {
     const s = this.session();
@@ -195,6 +207,10 @@ export class FlashcardSessionComponent implements OnInit {
     this.hasFlippedOnce.set(false);
   }
 
+  toggleHandwritingPad(): void {
+    this.showHandwritingPad.update((v) => !v);
+  }
+
   rateCurrent(rating: ReviewRating): void {
     const s = this.session();
     const card = this.currentCard();
@@ -283,6 +299,7 @@ export class FlashcardSessionComponent implements OnInit {
 
     this.api
       .createSession({
+        languageCode: s.languageCode,
         topicId: s.topicId,
         vocabularyIds: s.forgottenVocabularyIds,
       })
@@ -309,7 +326,10 @@ export class FlashcardSessionComponent implements OnInit {
     const target = event.target as HTMLElement | null;
     if (
       target &&
-      (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT')
+      (target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.tagName === 'SELECT' ||
+        target.tagName === 'CANVAS')
     ) {
       return;
     }
