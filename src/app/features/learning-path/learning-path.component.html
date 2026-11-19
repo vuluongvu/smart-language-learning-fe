@@ -290,6 +290,11 @@
     @if (!aiEnabled()) {
       <div class="oq-alert oq-alert--info">{{ 'lp.aiDisabledWarn' | lpT }}</div>
     }
+    @if (aiGenError()) {
+      <div class="oq-alert oq-alert--error" role="alert">
+        <span>{{ aiGenError() }}</span>
+      </div>
+    }
 
     <div class="oq-field">
       <label for="lp-ai-topic">{{ 'lp.aiGoalTopicLabel' | lpT }}</label>

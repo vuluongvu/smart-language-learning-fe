@@ -74,6 +74,7 @@ export class LearningPathComponent implements OnInit {
 
   protected readonly showAiGenModal = signal(false);
   protected readonly generatingAiPath = signal(false);
+  protected readonly aiGenError = signal<string | null>(null);
   protected readonly deletingAiTrack = signal(false);
 
   protected draftBand: LearningGoalBand | string = 'band_45_55';
@@ -218,6 +219,7 @@ export class LearningPathComponent implements OnInit {
       this.aiTargetBand = g.learningGoalBand;
       this.aiCurrentLevel = g.currentLevel;
     }
+    this.aiGenError.set(null);
     this.showAiGenModal.set(true);
   }
 
@@ -231,6 +233,7 @@ export class LearningPathComponent implements OnInit {
       return;
     }
     this.generatingAiPath.set(true);
+    this.aiGenError.set(null);
     this.errorMessage.set(null);
 
     this.pathApi
@@ -255,7 +258,7 @@ export class LearningPathComponent implements OnInit {
         },
         error: (err: unknown) => {
           this.generatingAiPath.set(false);
-          this.errorMessage.set(
+          this.aiGenError.set(
             extractApiError(
               err,
               this.i18n.lang() === 'vi'
