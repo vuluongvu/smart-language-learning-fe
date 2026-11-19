@@ -97,15 +97,6 @@
         }
       </div>
 
-      <div class="oq-field">
-        <label for="register-timezone">{{ 'auth.timezone' | t }}</label>
-        <select id="register-timezone" formControlName="timezone">
-          @for (tz of timezoneOptions; track tz) {
-            <option [value]="tz">{{ tz }}</option>
-          }
-        </select>
-      </div>
-
       <button type="submit" class="oq-btn oq-btn--primary oq-btn--full" [disabled]="isSubmitting()">
         {{ isSubmitting() ? ('auth.creatingAccount' | t) : ('auth.createAccountBtn' | t) }}
       </button>
