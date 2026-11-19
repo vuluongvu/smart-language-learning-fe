@@ -1,49 +1,26 @@
 import type { LearningLanguageCode } from '../../shared/types/learning-language.types';
+import type {
+  StarterGrammarCategory,
+  StarterGrammarExample,
+  StarterGrammarLevel,
+  StarterGrammarPoint,
+  StarterGrammarQuestion,
+  StarterGrammarRulePart,
+} from '../../shared/types/ai.types';
 
-export type StarterGrammarCategory = 'order' | 'particles' | 'verbs';
+export type {
+  StarterGrammarCategory,
+  StarterGrammarExample,
+  StarterGrammarLevel,
+  StarterGrammarPoint,
+  StarterGrammarQuestion,
+  StarterGrammarRulePart,
+};
 
-export interface StarterGrammarExample {
-  sentence: string;
-  reading?: string;
-  meaningVi: string;
-  meaningEn: string;
-}
-
-export interface StarterGrammarRulePart {
-  labelVi: string;
-  labelEn: string;
-  sample: string;
-}
-
-export interface StarterGrammarPoint {
-  id: string;
-  category: StarterGrammarCategory;
-  titleVi: string;
-  titleEn: string;
-  formula: string;
-  explanationVi: string;
-  explanationEn: string;
-  rules: StarterGrammarRulePart[];
-  examples: StarterGrammarExample[];
-  mistake: string;
-  correction: string;
-  mistakeNoteVi: string;
-  mistakeNoteEn: string;
-  aiPromptVi: string;
-  aiPromptEn: string;
-}
-
-export interface StarterGrammarQuestion {
-  id: string;
-  grammarId: string;
-  promptVi: string;
-  promptEn: string;
-  stem: string;
-  correctOption: string;
-  options: string[];
-  completedSentence: string;
-  explanationVi: string;
-  explanationEn: string;
+export interface StarterGrammarAiPreset {
+  topicVi: string;
+  topicEn: string;
+  level: StarterGrammarLevel;
 }
 
 export const EN_STARTER_GRAMMAR_POINTS: StarterGrammarPoint[] = [
@@ -263,6 +240,156 @@ export const EN_STARTER_GRAMMAR_POINTS: StarterGrammarPoint[] = [
     mistakeNoteEn: 'Action verbs like "live" need helper "do" before "you".',
     aiPromptVi: 'Hướng dẫn mình 5 câu hỏi giao tiếp đơn giản dùng Do you / Are you / Where is.',
     aiPromptEn: 'Teach me 5 useful beginner questions with Do you, Are you, and Where is.',
+  },
+  {
+    id: 'en-g7',
+    category: 'particles',
+    titleVi: '7. Tính từ sở hữu & Sở hữu cách: my / your / ’s',
+    titleEn: "7. Possessives: my / your / her & Name's",
+    formula: 'my · your · his · her · our · their + Danh từ | Tên + ’s',
+    explanationVi:
+      'Đặt trước danh từ để chỉ "của ai đó". Khi dùng tên riêng (Minh, Anna), thêm ’s sau tên thay vì dùng "book of Minh".',
+    explanationEn:
+      'Place possessive adjectives before nouns (my book), or attach ’s after a name (Minh’s phone).',
+    rules: [
+      { labelVi: 'I / You', labelEn: 'I / You', sample: 'my name · your phone' },
+      { labelVi: 'He / She', labelEn: 'He / She', sample: 'his bag · her tea' },
+      { labelVi: 'Tên riêng', labelEn: "Name's + Noun", sample: "Anna's laptop" },
+    ],
+    examples: [
+      {
+        sentence: 'My sister works in Hanoi.',
+        reading: '/maɪ ˈsɪstər wɜːrks ɪn hæˈnɔɪ/',
+        meaningVi: 'Chị gái của tôi làm việc ở Hà Nội.',
+        meaningEn: 'My sister works in Hanoi.',
+      },
+      {
+        sentence: "This is Minh's notebook.",
+        reading: '/ðɪs ɪz mɪnz ˈnoʊtbʊk/',
+        meaningVi: 'Đây là quyển vở của Minh.',
+        meaningEn: "This is Minh's notebook.",
+      },
+    ],
+    mistake: 'I name is Lan.',
+    correction: 'My name is Lan.',
+    mistakeNoteVi: 'Trước danh từ "name" phải dùng tính từ sở hữu "My" chứ không dùng "I".',
+    mistakeNoteEn: 'Use possessive "My" before nouns instead of subject pronoun "I".',
+    aiPromptVi: 'Cho mình 4 câu luyện tập phân biệt I/me/my và She/her ở trình độ A0.',
+    aiPromptEn: 'Give me 4 quick practice sentences distinguishing I/me/my and she/her.',
+  },
+  {
+    id: 'en-g8',
+    category: 'particles',
+    titleVi: '8. Giới từ thời gian & nơi chốn: in / on / at',
+    titleEn: '8. Time & Place Prepositions: in / on / at',
+    formula: 'at + giờ chính xác | on + thứ/ngày | in + tháng/năm/thành phố',
+    explanationVi:
+      'Ghi nhớ quy tắc hình phễu từ nhỏ đến lớn: at cho giờ & điểm cụ thể, on cho thứ & bề mặt, in cho tháng/mùa/không gian bao quanh.',
+    explanationEn:
+      'Think narrow to wide: "at" for exact clock times/points, "on" for days/surfaces, "in" for months/cities.',
+    rules: [
+      { labelVi: 'AT (Điểm / Giờ)', labelEn: 'AT (Point/Clock)', sample: 'at 8 AM · at home' },
+      {
+        labelVi: 'ON (Ngày / Mặt)',
+        labelEn: 'ON (Day/Surface)',
+        sample: 'on Monday · on the desk',
+      },
+      { labelVi: 'IN (Vùng / Tháng)', labelEn: 'IN (Month/Area)', sample: 'in May · in Seoul' },
+    ],
+    examples: [
+      {
+        sentence: 'The class starts at nine.',
+        reading: '/ðə klæs stɑːrts æt naɪn/',
+        meaningVi: 'Lớp học bắt đầu lúc 9 giờ.',
+        meaningEn: 'The class starts at nine.',
+      },
+      {
+        sentence: 'We travel on Sunday morning.',
+        reading: '/wiː ˈtrævl ɑːn ˈsʌndeɪ ˈmɔːrnɪŋ/',
+        meaningVi: 'Chúng tôi đi chơi vào sáng Chủ nhật.',
+        meaningEn: 'We travel on Sunday morning.',
+      },
+    ],
+    mistake: 'I meet you in Monday.',
+    correction: 'I meet you on Monday.',
+    mistakeNoteVi: 'Với các ngày trong tuần (Monday..Sunday), luôn dùng "on".',
+    mistakeNoteEn: 'Always pair days of the week with "on".',
+    aiPromptVi: 'Tóm tắt mẹo nhớ nhanh in / on / at bằng ví dụ đời thường.',
+    aiPromptEn: 'Summarize easy memory tricks for English in, on, and at.',
+  },
+  {
+    id: 'en-g9',
+    category: 'verbs',
+    titleVi: '9. Động từ khuyết thiếu: can / can’t (Có thể)',
+    titleEn: '9. Modal Verb: can / can’t (Ability & Requests)',
+    formula: 'S + can / can’t + Động từ nguyên mẫu (không chia -s)',
+    explanationVi:
+      '"Can" giữ nguyên hình thức với MỌI chủ ngữ (kể cả He/She) và động từ theo sau luôn để nguyên mẫu không "to".',
+    explanationEn:
+      '"Can" stays identical for all subjects and is always followed directly by the base verb without "to".',
+    rules: [
+      { labelVi: 'Khẳng định', labelEn: 'Positive', sample: 'She can swim well.' },
+      { labelVi: 'Phủ định', labelEn: 'Negative', sample: "I can't drive a car." },
+      { labelVi: 'Xin phép', labelEn: 'Request', sample: 'Can you help me?' },
+    ],
+    examples: [
+      {
+        sentence: 'She can speak Korean clearly.',
+        reading: '/ʃiː kæn spiːk kəˈriːən ˈklɪrli/',
+        meaningVi: 'Cô ấy có thể nói tiếng Hàn rất rõ.',
+        meaningEn: 'She can speak Korean clearly.',
+      },
+      {
+        sentence: 'Can I open the window?',
+        reading: '/kæn aɪ ˈoʊpən ðə ˈwɪndoʊ/',
+        meaningVi: 'Tôi mở cửa sổ được không?',
+        meaningEn: 'Can I open the window?',
+      },
+    ],
+    mistake: 'He cans speak English.',
+    correction: 'He can speak English.',
+    mistakeNoteVi: 'Không bao giờ thêm "-s" vào "can" và không dùng "to speak" sau "can".',
+    mistakeNoteEn: 'Never add -s to "can" or insert "to" before the main verb.',
+    aiPromptVi: 'Cho mình 4 câu giao tiếp lịch sự dùng Can I / Can you khi đi du lịch.',
+    aiPromptEn: 'Give me 4 polite travel phrases using Can I and Can you.',
+  },
+  {
+    id: 'en-g10',
+    category: 'verbs',
+    titleVi: '10. Quá khứ đơn cơ bản: was / were & V-ed',
+    titleEn: '10. Starter Past Simple: was / were & V-ed',
+    formula: 'was (I/He/She/It) · were (You/We/They) · S + V-ed/V2',
+    explanationVi:
+      'Dùng khi kể chuyện đã xong hẳn trong quá khứ (yesterday, last week). Động từ thường thêm -ed (watched) hoặc đổi dạng đặc biệt (went, ate).',
+    explanationEn:
+      'Use Past Simple for finished past events. Use was/were for "be", and V-ed or common irregulars (went, ate) for actions.',
+    rules: [
+      { labelVi: 'Quá khứ to be', labelEn: 'Past "to be"', sample: 'I was · They were' },
+      { labelVi: 'Có quy tắc', labelEn: 'Regular (-ed)', sample: 'worked · studied' },
+      { labelVi: 'Bất quy tắc hay gặp', labelEn: 'Irregular', sample: 'went · ate · drank' },
+    ],
+    examples: [
+      {
+        sentence: 'I was busy yesterday.',
+        reading: '/aɪ wʌz ˈbɪzi ˈjestərdeɪ/',
+        meaningVi: 'Hôm qua tôi rất bận.',
+        meaningEn: 'I was busy yesterday.',
+      },
+      {
+        sentence: 'We watched a great movie last night.',
+        reading: '/wiː wɑːtʃt ə ɡreɪt ˈmuːvi læst naɪt/',
+        meaningVi: 'Tối qua chúng tôi xem một bộ phim hay.',
+        meaningEn: 'We watched a great movie last night.',
+      },
+    ],
+    mistake: 'She did went to school.',
+    correction: 'She went to school.',
+    mistakeNoteVi:
+      'Trong câu khẳng định quá khứ, dùng thẳng V2 "went", không đặt thêm "did" phía trước.',
+    mistakeNoteEn: 'In positive past statements, use "went" directly without "did".',
+    aiPromptVi:
+      'Liệt kê 8 động từ bất quy tắc quan trọng nhất (go, eat, drink, see...) và đặt câu ngắn.',
+    aiPromptEn: 'List 8 essential irregular past verbs (go, eat, see...) with short A1 sentences.',
   },
 ];
 
@@ -492,12 +619,163 @@ export const KO_STARTER_GRAMMAR_POINTS: StarterGrammarPoint[] = [
     aiPromptVi: 'Dạy mình 3 mẫu câu gọi đồ ăn và nói không thích gì bằng tiếng Hàn A0.',
     aiPromptEn: 'Teach me 3 A0 Korean phrases for ordering food and politely saying no.',
   },
+  {
+    id: 'ko-g7',
+    category: 'particles',
+    titleVi: '7. Phủ định "Không phải là ...": -이/가 아니에요',
+    titleEn: '7. Polite Noun Negation: -이/가 아니에요',
+    formula: 'Danh từ + 이/가 아니에요 ("Không phải là ...")',
+    explanationVi:
+      'Ngược với -이에요/-예요 ("là ..."), muốn nói "không phải là X", gắn tiểu từ 이 (có batchim) hoặc 가 (không batchim) rồi đi cùng 아니에요.',
+    explanationEn:
+      'Opposite of -이에요/-예요: attach -이 (batchim) or -가 (vowel ending) to the noun followed by 아니에요.',
+    rules: [
+      { labelVi: 'Có batchim + 이', labelEn: 'Batchim + 이', sample: '학생이 아니에요' },
+      { labelVi: 'Không batchim + 가', labelEn: 'Vowel + 가', sample: '커피가 아니에요' },
+    ],
+    examples: [
+      {
+        sentence: '저는 선생님이 아니에요.',
+        reading: 'jeo-neun seon-saeng-nim-i a-ni-e-yo',
+        meaningVi: 'Tôi không phải là giáo viên.',
+        meaningEn: 'I am not a teacher.',
+      },
+      {
+        sentence: '이것은 사과가 아니에요.',
+        reading: 'i-geo-seun sa-gwa-ga a-ni-e-yo',
+        meaningVi: 'Cái này không phải quả táo.',
+        meaningEn: 'This is not an apple.',
+      },
+    ],
+    mistake: '저는 학생 안 이에요.',
+    correction: '저는 학생이 아니에요.',
+    mistakeNoteVi:
+      'Với danh từ "không phải là...", luôn dùng "이/가 아니에요" thay vì "안 + 이에요".',
+    mistakeNoteEn: 'Negate nouns with "-이/가 아니에요" instead of "안 + 이에요".',
+    aiPromptVi:
+      'Cho mình 3 cặp câu đối chiếu khẳng định (-이에요/예요) và phủ định (-이/가 아니에요).',
+    aiPromptEn:
+      'Contrast positive (-이에요/예요) and negative (-이/가 아니에요) with 3 Korean pairs.',
+  },
+  {
+    id: 'ko-g8',
+    category: 'particles',
+    titleVi: '8. Tiểu từ thời gian: Danh từ thời gian + 에',
+    titleEn: '8. Time Marker Particle: [Time] + 에',
+    formula: 'Thứ / Giờ / Buổi / Ngày + 에 (Vào lúc ...)',
+    explanationVi:
+      'Gắn "-에" ngay sau giờ, thứ, mùa hoặc năm để chỉ mốc thời gian xảy ra hành động. Lưu ý: KHÔNG gắn "-에" sau 오늘 (hôm nay), 내일 (ngày mai), 어제 (hôm qua).',
+    explanationEn:
+      'Attach -에 directly to clock times, days, or months. Never attach -에 after 오늘 (today), 어제 (yesterday), or 내일 (tomorrow).',
+    rules: [
+      { labelVi: 'Có dùng -에', labelEn: 'Needs -에', sample: '아침에 · 월요일에 · 8시에' },
+      { labelVi: 'KHÔNG dùng -에', labelEn: 'Omit -에', sample: '오늘 · 내일 · 어제' },
+    ],
+    examples: [
+      {
+        sentence: '아침 7시에 일어나요.',
+        reading: 'a-chim il-gop-si-e i-reo-na-yo',
+        meaningVi: 'Tôi thức dậy lúc 7 giờ sáng.',
+        meaningEn: 'I wake up at 7 in the morning.',
+      },
+      {
+        sentence: '오늘 친구를 만나요.',
+        reading: 'o-neul chin-gu-reul man-na-yo',
+        meaningVi: 'Hôm nay tôi gặp bạn.',
+        meaningEn: 'I meet my friend today.',
+      },
+    ],
+    mistake: '내일에 학교에 가요.',
+    correction: '내일 학교에 가요.',
+    mistakeNoteVi:
+      'Từ chỉ thời gian tương đối như "내일" (ngày mai) đứng độc lập, không thêm "-에".',
+    mistakeNoteEn: 'Relative time words like "내일" (tomorrow) do not take "-에".',
+    aiPromptVi: 'Tổng hợp giúp mình quy tắc dùng -에 với giờ và thứ trong tuần bằng tiếng Hàn.',
+    aiPromptEn: 'Summarize using Korean -에 with clock times and days of the week.',
+  },
+  {
+    id: 'ko-g9',
+    category: 'verbs',
+    titleVi: '9. Diễn đạt khả năng: -(으)ㄹ 수 있어요 / 없어요',
+    titleEn: '9. Ability: -(으)ㄹ 수 있어요 / 없어요 (Can / Can’t)',
+    formula: 'Không batchim + ㄹ 수 있어요 · Có batchim + 을 수 있어요',
+    explanationVi:
+      'Gắn vào sau gốc động từ để nói "có thể" (수 있어요) hoặc "không thể" (수 없어요). Riêng gốc kết thúc bằng ㄹ thì bỏ step thêm, nối thẳng 수 있어요 (예: 만들다 → 만들 수 있어요).',
+    explanationEn:
+      'Attach -(으)ㄹ 수 있어요 for "can" and -(으)ㄹ 수 없어요 for "cannot". Stems without batchim take ㄹ, with batchim take 을.',
+    rules: [
+      { labelVi: 'Không batchim', labelEn: 'No batchim', sample: '가다 → 갈 수 있어요' },
+      { labelVi: 'Có batchim', labelEn: 'With batchim', sample: '먹다 → 먹을 수 있어요' },
+      { labelVi: 'Không thể', labelEn: 'Cannot', sample: '수 없어요' },
+    ],
+    examples: [
+      {
+        sentence: '한국어를 읽을 수 있어요.',
+        reading: 'han-gu-geo-reul il-geul su i-sseo-yo',
+        meaningVi: 'Tôi có thể đọc chữ tiếng Hàn.',
+        meaningEn: 'I can read Korean.',
+      },
+      {
+        sentence: '오늘은 갈 수 없어요.',
+        reading: 'o-neu-reun gal su eop-sseo-yo',
+        meaningVi: 'Hôm nay tôi không thể đi được.',
+        meaningEn: 'I cannot go today.',
+      },
+    ],
+    mistake: '한국어 읽을어요.',
+    correction: '한국어를 읽을 수 있어요.',
+    mistakeNoteVi: 'Cần giữ đủ cụm danh từ phụ thuộc "수 있어요" phía sau "-(으)ㄹ".',
+    mistakeNoteEn: 'Include the full helper phrase "수 있어요" after "-(으)ㄹ".',
+    aiPromptVi: 'Cho mình 4 câu nói về những việc có thể/không thể làm bằng -(으)ㄹ 수 있어요.',
+    aiPromptEn: 'Give me 4 Korean examples using -(으)ㄹ 수 있어요 and -(으)ㄹ 수 없어요.',
+  },
+  {
+    id: 'ko-g10',
+    category: 'verbs',
+    titleVi: '10. Thì quá khứ lịch sự: -았어요 / -었어요 / -했어요',
+    titleEn: '10. Polite Past Tense: -았어요 / -었어요 / -했어요',
+    formula: 'ㅏ,ㅗ → 았어요 · Nguyên âm khác → 었어요 · 하다 → 했어요',
+    explanationVi:
+      'Quy tắc ghép giống hệt thì hiện tại -아요/-어요, chỉ cần thêm phụ âm đáy ㅆ (했/았/었) trước 어요 để biến thành thì quá khứ "đã ...".',
+    explanationEn:
+      'Follows the exact bright/dark vowel rule as -아요/-어요, adding past suffix -았/었/했 + 어요 for finished actions.',
+    rules: [
+      { labelVi: 'Gốc ㅏ / ㅗ', labelEn: 'Bright vowel', sample: '가다 → 갔어요 · 보다 → 봤어요' },
+      {
+        labelVi: 'Nguyên âm khác',
+        labelEn: 'Other vowels',
+        sample: '먹다 → 먹었어요 · 마시다 → 마셨어요',
+      },
+      { labelVi: 'Đuôi 하다', labelEn: '-하다 verbs', sample: '공부하다 → 공부했어요' },
+    ],
+    examples: [
+      {
+        sentence: '어제 한국 친구를 만났어요.',
+        reading: 'eo-je han-guk chin-gu-reul man-na-sseo-yo',
+        meaningVi: 'Hôm qua tôi đã gặp người bạn Hàn Quốc.',
+        meaningEn: 'I met my Korean friend yesterday.',
+      },
+      {
+        sentence: '아침에 빵을 먹었어요.',
+        reading: 'a-chi-me ppang-eul meo-geo-sseo-yo',
+        meaningVi: 'Buổi sáng tôi đã ăn bánh mì.',
+        meaningEn: 'I ate bread this morning.',
+      },
+    ],
+    mistake: '어제 공부해요.',
+    correction: '어제 공부했어요.',
+    mistakeNoteVi: 'Có trạng từ quá khứ "어제" (hôm qua) nên chia động từ sang "했어요".',
+    mistakeNoteEn: 'With yesterday ("어제"), conjugate "공부하다" into past "공부했어요".',
+    aiPromptVi: 'Luyện giúp mình đổi 5 câu hiện tại (-아요/어요/해요) sang thì quá khứ tiếng Hàn.',
+    aiPromptEn: 'Help me convert 5 present Korean verbs into polite past tense.',
+  },
 ];
 
 export const EN_STARTER_GRAMMAR_QUIZ: StarterGrammarQuestion[] = [
   {
     id: 'en-gq1',
     grammarId: 'en-g2',
+    kind: 'choice',
     promptVi: 'Chọn dạng đúng của động từ "to be" cho chủ ngữ "She":',
     promptEn: 'Pick the correct "to be" form for "She":',
     stem: 'She ___ my English teacher.',
@@ -510,6 +788,7 @@ export const EN_STARTER_GRAMMAR_QUIZ: StarterGrammarQuestion[] = [
   {
     id: 'en-gq2',
     grammarId: 'en-g3',
+    kind: 'choice',
     promptVi: 'Chia động từ Hiện tại đơn phù hợp với "Minh" (1 người):',
     promptEn: 'Choose the Present Simple verb for "Minh":',
     stem: 'Minh ___ coffee every morning.',
@@ -522,6 +801,7 @@ export const EN_STARTER_GRAMMAR_QUIZ: StarterGrammarQuestion[] = [
   {
     id: 'en-gq3',
     grammarId: 'en-g4',
+    kind: 'choice',
     promptVi: 'Điền mạo từ đúng trước danh từ "apple":',
     promptEn: 'Pick the right article before "apple":',
     stem: 'I eat ___ apple after lunch.',
@@ -534,6 +814,7 @@ export const EN_STARTER_GRAMMAR_QUIZ: StarterGrammarQuestion[] = [
   {
     id: 'en-gq4',
     grammarId: 'en-g1',
+    kind: 'choice',
     promptVi: 'Chọn câu có trật tự chuẩn tiếng Anh (S + V + O):',
     promptEn: 'Pick the sentence with standard English S + V + O order:',
     stem: 'Which sentence is natural?',
@@ -551,6 +832,7 @@ export const EN_STARTER_GRAMMAR_QUIZ: StarterGrammarQuestion[] = [
   {
     id: 'en-gq5',
     grammarId: 'en-g5',
+    kind: 'choice',
     promptVi: 'Chọn cấu trúc đúng khi nói "Có một cây bút trên bàn":',
     promptEn: 'Complete the sentence saying one pen exists on the table:',
     stem: '___ a pen on the desk.',
@@ -563,6 +845,7 @@ export const EN_STARTER_GRAMMAR_QUIZ: StarterGrammarQuestion[] = [
   {
     id: 'en-gq6',
     grammarId: 'en-g6',
+    kind: 'choice',
     promptVi: 'Chọn trợ động từ đúng để tạo câu hỏi Hiện tại đơn:',
     promptEn: 'Pick the helper verb to form a Present Simple question:',
     stem: '___ you like Korean food?',
@@ -572,12 +855,121 @@ export const EN_STARTER_GRAMMAR_QUIZ: StarterGrammarQuestion[] = [
     explanationVi: '"like" là động từ thường và chủ ngữ là "you" nên mượn "Do" đứng đầu câu.',
     explanationEn: 'Action verb "like" with subject "you" takes helper "Do".',
   },
+  {
+    id: 'en-gq7',
+    grammarId: 'en-g7',
+    kind: 'choice',
+    promptVi: 'Chọn từ sở hữu phù hợp cho ngôi "Tôi":',
+    promptEn: 'Pick the possessive word before "name":',
+    stem: 'Hello! ___ name is Lan.',
+    correctOption: 'My',
+    options: ['I', 'Me', 'My', 'Mine'],
+    completedSentence: 'Hello! My name is Lan.',
+    explanationVi: 'Đứng trước danh từ "name" luôn dùng tính từ sở hữu "My".',
+    explanationEn: 'Use possessive adjective "My" right before a noun.',
+  },
+  {
+    id: 'en-gq8',
+    grammarId: 'en-g8',
+    kind: 'choice',
+    promptVi: 'Chọn giới từ đi với thứ trong tuần ("Monday"): ',
+    promptEn: 'Choose the preposition before a day of the week ("Monday"):',
+    stem: 'Our English club meets ___ Monday.',
+    correctOption: 'on',
+    options: ['at', 'on', 'in', 'to'],
+    completedSentence: 'Our English club meets on Monday.',
+    explanationVi: 'Mọi thứ trong tuần và ngày cụ thể luôn dùng giới từ "on".',
+    explanationEn: 'Always use "on" with days of the week.',
+  },
+  {
+    id: 'en-gq9',
+    grammarId: 'en-g9',
+    kind: 'choice',
+    promptVi: 'Chọn câu dùng động từ khuyết thiếu "can" đúng chuẩn:',
+    promptEn: 'Pick the grammatically correct sentence with "can":',
+    stem: 'How do you say "Anh ấy biết nấu ăn"?',
+    correctOption: 'He can cook.',
+    options: ['He cans cook.', 'He can to cook.', 'He can cook.', 'He is can cook.'],
+    completedSentence: 'He can cook.',
+    explanationVi: 'Sau "can" dùng thẳng động từ nguyên mẫu "cook", không thêm -s hay "to".',
+    explanationEn: '"can" never takes -s and takes the base verb directly.',
+  },
+  {
+    id: 'en-gq10',
+    grammarId: 'en-g10',
+    kind: 'choice',
+    promptVi: 'Chọn dạng Quá khứ đơn phù hợp với "yesterday":',
+    promptEn: 'Pick the Past Simple form for "yesterday":',
+    stem: 'I ___ very tired yesterday.',
+    correctOption: 'was',
+    options: ['am', 'was', 'were', 'did'],
+    completedSentence: 'I was very tired yesterday.',
+    explanationVi: 'Quá khứ của "I am" là "I was".',
+    explanationEn: 'Past tense of "I am" is "I was".',
+  },
+  {
+    id: 'en-sq1',
+    grammarId: 'en-g1',
+    kind: 'scramble',
+    promptVi: 'Sắp xếp các thẻ từ sau thành câu hoàn chỉnh:',
+    promptEn: 'Tap the words in order to build the sentence:',
+    stem: 'Mỗi sáng tôi đều uống trà.',
+    correctOption: 'I drink tea every morning.',
+    options: [],
+    scrambleWords: ['every', 'tea', 'I', 'morning.', 'drink'],
+    completedSentence: 'I drink tea every morning.',
+    explanationVi: 'Giữ trật tự S (I) + V (drink) + O (tea) + thời gian (every morning).',
+    explanationEn: 'Keep Subject (I) + Verb (drink) + Object (tea) + Time (every morning).',
+  },
+  {
+    id: 'en-sq2',
+    grammarId: 'en-g6',
+    kind: 'scramble',
+    promptVi: 'Ghép thành câu hỏi "Bạn có nói tiếng Hàn không?":',
+    promptEn: 'Build the question "Do you speak Korean?":',
+    stem: 'Bạn có nói tiếng Hàn không?',
+    correctOption: 'Do you speak Korean?',
+    options: [],
+    scrambleWords: ['speak', 'Do', 'Korean?', 'you'],
+    completedSentence: 'Do you speak Korean?',
+    explanationVi: 'Đưa trợ động từ "Do" lên trước chủ ngữ "you", sau đó tới "speak Korean?".',
+    explanationEn: 'Start Yes/No action questions with "Do + subject + base verb".',
+  },
+  {
+    id: 'en-sq3',
+    grammarId: 'en-g9',
+    kind: 'scramble',
+    promptVi: 'Sắp xếp thành câu xin phép lịch sự:',
+    promptEn: 'Arrange the polite request sentence:',
+    stem: 'Bạn có thể giúp tôi không?',
+    correctOption: 'Can you help me?',
+    options: [],
+    scrambleWords: ['help', 'Can', 'me?', 'you'],
+    completedSentence: 'Can you help me?',
+    explanationVi: 'Đảo "Can" lên trước chủ ngữ "you", động từ nguyên mẫu "help" giữ nguyên.',
+    explanationEn: 'Place "Can" before "you", followed by base verb "help".',
+  },
+  {
+    id: 'en-sq4',
+    grammarId: 'en-g10',
+    kind: 'scramble',
+    promptVi: 'Sắp xếp câu kể quá khứ "Hôm qua chúng tôi đã đi công viên":',
+    promptEn: 'Order the past sentence:',
+    stem: 'Hôm qua chúng tôi đã đi công viên.',
+    correctOption: 'We went to the park yesterday.',
+    options: [],
+    scrambleWords: ['park', 'We', 'yesterday.', 'went', 'to', 'the'],
+    completedSentence: 'We went to the park yesterday.',
+    explanationVi: 'Chủ ngữ "We" + động từ quá khứ "went" + nơi chốn "to the park" + "yesterday.".',
+    explanationEn: 'Subject (We) + past verb (went) + place (to the park) + yesterday.',
+  },
 ];
 
 export const KO_STARTER_GRAMMAR_QUIZ: StarterGrammarQuestion[] = [
   {
     id: 'ko-gq1',
     grammarId: 'ko-g2',
+    kind: 'choice',
     promptVi: 'Chọn đuôi phù hợp cho danh từ có batchim "학생" (học sinh):',
     promptEn: 'Pick the right ending for "학생" (ends with batchim ㅇ):',
     stem: '저는 학생___.',
@@ -590,6 +982,7 @@ export const KO_STARTER_GRAMMAR_QUIZ: StarterGrammarQuestion[] = [
   {
     id: 'ko-gq2',
     grammarId: 'ko-g2',
+    kind: 'choice',
     promptVi: 'Chọn đuôi cho danh từ không có batchim "우유" (sữa):',
     promptEn: 'Pick the ending for "우유" (ends in vowel ㅠ):',
     stem: '이것은 우유___.',
@@ -602,6 +995,7 @@ export const KO_STARTER_GRAMMAR_QUIZ: StarterGrammarQuestion[] = [
   {
     id: 'ko-gq3',
     grammarId: 'ko-g4',
+    kind: 'choice',
     promptVi: 'Điền tiểu từ tân ngữ đúng cho "물" (có batchim ㄹ):',
     promptEn: 'Choose the object particle for "물" (batchim ㄹ):',
     stem: '저는 물___ 마셔요.',
@@ -614,6 +1008,7 @@ export const KO_STARTER_GRAMMAR_QUIZ: StarterGrammarQuestion[] = [
   {
     id: 'ko-gq4',
     grammarId: 'ko-g4',
+    kind: 'choice',
     promptVi: 'Chọn tiểu từ đúng khi thực hiện hành động "học bài" tại thư viện:',
     promptEn: 'Choose the particle where an action ("study") takes place:',
     stem: '도서관___ 한국어를 공부해요.',
@@ -626,6 +1021,7 @@ export const KO_STARTER_GRAMMAR_QUIZ: StarterGrammarQuestion[] = [
   {
     id: 'ko-gq5',
     grammarId: 'ko-g5',
+    kind: 'choice',
     promptVi: 'Chia động từ "먹다" (ăn, chứa nguyên âm ㅓ) sang đuôi lịch sự:',
     promptEn: 'Conjugate "먹다" (vowel ㅓ) into the polite present ending:',
     stem: '지금 사과를 ___.',
@@ -638,6 +1034,7 @@ export const KO_STARTER_GRAMMAR_QUIZ: StarterGrammarQuestion[] = [
   {
     id: 'ko-gq6',
     grammarId: 'ko-g6',
+    kind: 'choice',
     promptVi: 'Chọn cách nói đúng cho "Hôm nay không tập thể dục (운동하다)":',
     promptEn: 'Pick the natural negation for "운동하다" (to exercise):',
     stem: '오늘 ___.',
@@ -647,7 +1044,164 @@ export const KO_STARTER_GRAMMAR_QUIZ: StarterGrammarQuestion[] = [
     explanationVi: 'Động từ dạng [Danh từ + 하다] luôn chèn "안" vào giữa trước "해요".',
     explanationEn: 'Split [Noun + 하다] verbs by putting "안" right before "해요".',
   },
+  {
+    id: 'ko-gq7',
+    grammarId: 'ko-g7',
+    kind: 'choice',
+    promptVi: 'Hoàn thiện câu "Cái này không phải táo (사과, không batchim)":',
+    promptEn: 'Complete "This is not an apple (사과)":',
+    stem: '이것은 사과___ 아니에요.',
+    correctOption: '가',
+    options: ['이', '가', '를', '는'],
+    completedSentence: '이것은 사과가 아니에요.',
+    explanationVi: 'Danh từ không batchim "사과" gắn "-가" trước "아니에요".',
+    explanationEn: 'Vowel-ending noun "사과" takes "-가" before "아니에요".',
+  },
+  {
+    id: 'ko-gq8',
+    grammarId: 'ko-g8',
+    kind: 'choice',
+    promptVi: 'Chọn câu dùng đúng tiểu từ thời gian cho "내일" (ngày mai):',
+    promptEn: 'Pick the natural sentence using "내일" (tomorrow):',
+    stem: 'How do you say "Ngày mai tôi đi Seoul"?',
+    correctOption: '내일 서울에 가요.',
+    options: [
+      '내일에 서울에 가요.',
+      '내일 서울에 가요.',
+      '내일 서울에서 가요.',
+      '내일을 서울 가요.',
+    ],
+    completedSentence: '내일 서울에 가요.',
+    explanationVi: '"내일" (ngày mai) không gắn "-에"; địa điểm đích "서울" đi với "-에 가요".',
+    explanationEn: '"내일" takes no -에, while destination "서울" uses "-에 가요".',
+  },
+  {
+    id: 'ko-gq9',
+    grammarId: 'ko-g9',
+    kind: 'choice',
+    promptVi: 'Nói "Tôi có thể đọc tiếng Hàn (읽다 có batchim)":',
+    promptEn: 'Say "I can read Korean (읽다 has batchim)":',
+    stem: '한국어를 ___ 있어요.',
+    correctOption: '읽을 수',
+    options: ['읽 수', '읽을 수', '읽는 수', '읽었어요 수'],
+    completedSentence: '한국어를 읽을 수 있어요.',
+    explanationVi: 'Gốc "읽-" có phụ âm đáy nên gắn "-을 수 있어요".',
+    explanationEn: 'Stem "읽-" ends with a batchim, so attach "-을 수 있어요".',
+  },
+  {
+    id: 'ko-gq10',
+    grammarId: 'ko-g10',
+    kind: 'choice',
+    promptVi: 'Chia quá khứ cho "가다" (đi, gốc ㅏ) với "어제" (hôm qua):',
+    promptEn: 'Conjugate "가다" (bright vowel ㅏ) into past tense:',
+    stem: '어제 집에 ___.',
+    correctOption: '갔어요',
+    options: ['가요', '갔어요', '겼어요', '가했어요'],
+    completedSentence: '어제 집에 갔어요.',
+    explanationVi: '"가 + 았어요" rút gọn ngay thành "갔어요".',
+    explanationEn: '"가 + 았어요" contracts cleanly into "갔어요".',
+  },
+  {
+    id: 'ko-sq1',
+    grammarId: 'ko-g1',
+    kind: 'scramble',
+    promptVi: 'Sắp xếp thành câu "Tôi uống cà phê":',
+    promptEn: 'Arrange into Korean S + O + V order ("I drink coffee"):',
+    stem: 'Tôi uống cà phê.',
+    correctOption: '저는 커피를 마셔요.',
+    options: [],
+    scrambleWords: ['마셔요.', '커피를', '저는'],
+    completedSentence: '저는 커피를 마셔요.',
+    explanationVi: 'Tiếng Hàn đặt Chủ ngữ (저는) → Tân ngữ (커피를) → Động từ cuối (마셔요.).',
+    explanationEn: 'Korean places Subject (저는) → Object (커피를) → Verb last (마셔요.).',
+  },
+  {
+    id: 'ko-sq2',
+    grammarId: 'ko-g4',
+    kind: 'scramble',
+    promptVi: 'Ghép thành câu "Tôi học tiếng Hàn ở quán cà phê":',
+    promptEn: 'Arrange "I study Korean at a cafe":',
+    stem: 'Tôi học tiếng Hàn ở quán cà phê.',
+    correctOption: '카페에서 한국어를 공부해요.',
+    options: [],
+    scrambleWords: ['공부해요.', '한국어를', '카페에서'],
+    completedSentence: '카페에서 한국어를 공부해요.',
+    explanationVi:
+      'Đặt Nơi chốn hành động (카페에서) → Tân ngữ (한국어를) → Động từ cuối (공부해요.).',
+    explanationEn: 'Action location (카페에서) → Object (한국어를) → Verb (공부해요.).',
+  },
+  {
+    id: 'ko-sq3',
+    grammarId: 'ko-g6',
+    kind: 'scramble',
+    promptVi: 'Ghép câu gọi món lịch sự "Làm ơn cho một ly cà phê":',
+    promptEn: 'Arrange "One coffee, please":',
+    stem: 'Làm ơn cho một ly cà phê.',
+    correctOption: '커피 한 잔 주세요.',
+    options: [],
+    scrambleWords: ['주세요.', '한 잔', '커피'],
+    completedSentence: '커피 한 잔 주세요.',
+    explanationVi: 'Đặt Tên món (커피) + Số lượng (한 잔) + 주세요 ở cuối câu.',
+    explanationEn: 'Item (커피) + counter (한 잔) + 주세요 at the end.',
+  },
+  {
+    id: 'ko-sq4',
+    grammarId: 'ko-g10',
+    kind: 'scramble',
+    promptVi: 'Sắp xếp câu quá khứ "Hôm qua tôi đã ăn táo":',
+    promptEn: 'Arrange past sentence "I ate an apple yesterday":',
+    stem: 'Hôm qua tôi đã ăn táo.',
+    correctOption: '어제 사과를 먹었어요.',
+    options: [],
+    scrambleWords: ['사과를', '어제', '먹었어요.'],
+    completedSentence: '어제 사과를 먹었어요.',
+    explanationVi: 'Thời gian (어제) → Tân ngữ (사과를) → Động từ chia quá khứ (먹었어요.).',
+    explanationEn: 'Time (어제) → Object (사과를) → Past verb (먹었어요.).',
+  },
 ];
+
+export const STARTER_GRAMMAR_AI_PRESETS: Record<LearningLanguageCode, StarterGrammarAiPreset[]> = {
+  en: [
+    {
+      topicVi: 'Hiện tại tiếp diễn (am/is/are + V-ing)',
+      topicEn: 'Present Continuous (be + V-ing)',
+      level: 'A0',
+    },
+    {
+      topicVi: 'So sánh hơn & nhất (-er / more)',
+      topicEn: 'Comparatives & Superlatives',
+      level: 'A1',
+    },
+    {
+      topicVi: 'Tương lai gần (will vs be going to)',
+      topicEn: 'Future: will vs be going to',
+      level: 'A1',
+    },
+    {
+      topicVi: 'Câu điều kiện loại 1 (If...)',
+      topicEn: 'First Conditional (If + Present)',
+      level: 'A2',
+    },
+  ],
+  ko: [
+    { topicVi: 'Muốn làm gì (-고 싶다)', topicEn: 'Expressing Desire (-고 싶다)', level: 'A0' },
+    {
+      topicVi: 'Liên kết câu (-고 vs -아서/어서)',
+      topicEn: 'Connecting Verbs (-고 vs -아서/어서)',
+      level: 'A1',
+    },
+    {
+      topicVi: 'Kính ngữ lịch sự (-(으)세요)',
+      topicEn: 'Polite Imperative / Honorific -(으)세요',
+      level: 'A1',
+    },
+    {
+      topicVi: 'Thì tương lai (-(으)ㄹ 거예요)',
+      topicEn: 'Future Plans (-(으)ㄹ 거예요)',
+      level: 'A2',
+    },
+  ],
+};
 
 export function buildStarterGrammarPoints(lang: LearningLanguageCode): StarterGrammarPoint[] {
   return lang === 'ko' ? KO_STARTER_GRAMMAR_POINTS : EN_STARTER_GRAMMAR_POINTS;
