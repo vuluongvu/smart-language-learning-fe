@@ -13,10 +13,15 @@ export const STARTER_EN_TRANSLATIONS = {
   'st.goA0PathBtn': 'Open A0 Learning Path',
   'st.askAiBtn': 'Ask A0 Tutor',
 
-  'st.tabAlphabet': '1. Alphabet & Sounds',
-  'st.tabBuilder': '2. Combine & Build',
-  'st.tabGrammar': '3. Core Grammar',
-  'st.tabDrill': '4. Listen & Match',
+  'st.tabAlphabet': '1. Alphabet',
+  'st.tabBuilder': '2. Build',
+  'st.tabGrammar': '3. Grammar',
+  'st.tabDrill': '4. Listen',
+  'st.filterAll': 'All',
+  'st.enFilterVowels': 'Vowels (5)',
+  'st.enFilterConsonants': 'Consonants (21)',
+  'st.koFilterConsonants': 'Consonants (14)',
+  'st.koFilterVowels': 'Vowels (10)',
 
   'st.enLettersTitle': '26 English Letters & First Words',
   'st.enLettersDesc':
@@ -108,6 +113,9 @@ export const STARTER_EN_TRANSLATIONS = {
   'st.grammarGenJumpQuiz': 'Practice new exercises',
   'st.grammarAiBadge': 'AI Created',
   'st.grammarRemoveCustom': 'Remove custom lesson',
+  'st.grammarJumpPractice': 'Practice ({{count}})',
+  'st.grammarPrevRule': 'Previous',
+  'st.grammarNextRule': 'Next lesson',
 } as const;
 
 export type StarterTxKey = keyof typeof STARTER_EN_TRANSLATIONS;
@@ -124,10 +132,15 @@ export const STARTER_VI_TRANSLATIONS: Record<StarterTxKey, string> = {
   'st.goA0PathBtn': 'Vào Lộ trình A0',
   'st.askAiBtn': 'Hỏi Gia sư A0',
 
-  'st.tabAlphabet': '1. Bảng chữ cái & Âm',
-  'st.tabBuilder': '2. Ghép chữ & Lắp câu',
-  'st.tabGrammar': '3. Ngữ pháp cơ bản',
-  'st.tabDrill': '4. Nghe & Chọn đúng',
+  'st.tabAlphabet': '1. Chữ & Âm',
+  'st.tabBuilder': '2. Ghép & Câu',
+  'st.tabGrammar': '3. Ngữ pháp',
+  'st.tabDrill': '4. Nghe & Chọn',
+  'st.filterAll': 'Tất cả',
+  'st.enFilterVowels': 'Nguyên âm (5)',
+  'st.enFilterConsonants': 'Phụ âm (21)',
+  'st.koFilterConsonants': 'Phụ âm (14)',
+  'st.koFilterVowels': 'Nguyên âm (10)',
 
   'st.enLettersTitle': '26 Chữ cái tiếng Anh & Từ mẫu đầu tiên',
   'st.enLettersDesc':
@@ -218,6 +231,9 @@ export const STARTER_VI_TRANSLATIONS: Record<StarterTxKey, string> = {
   'st.grammarGenJumpQuiz': 'Làm ngay bài vừa tạo',
   'st.grammarAiBadge': 'Tạo bởi AI',
   'st.grammarRemoveCustom': 'Xóa bài tự tạo',
+  'st.grammarJumpPractice': 'Làm bài ({{count}})',
+  'st.grammarPrevRule': 'Bài trước',
+  'st.grammarNextRule': 'Bài tiếp theo',
 };
 
 export function starterTranslate(

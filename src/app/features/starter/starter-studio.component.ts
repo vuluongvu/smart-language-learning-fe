@@ -54,6 +54,13 @@ export class StarterStudioComponent {
 
   // English Alphabet, Phonics & 3-block Sentence Builder
   protected readonly englishLetters = ENGLISH_ALPHABET;
+  protected readonly enLetterFilter = signal<'all' | 'vowels' | 'consonants'>('all');
+  protected readonly filteredEnglishLetters = computed(() => {
+    const mode = this.enLetterFilter();
+    if (mode === 'vowels') return this.englishLetters.filter((l) => l.isVowel);
+    if (mode === 'consonants') return this.englishLetters.filter((l) => !l.isVowel);
+    return this.englishLetters;
+  });
   protected readonly englishPhonics = ENGLISH_PHONICS_TIPS;
   protected readonly sentenceSubjects = EN_SENTENCE_SUBJECTS;
   protected readonly sentenceVerbs = EN_SENTENCE_VERBS;
@@ -69,6 +76,9 @@ export class StarterStudioComponent {
     const obj = this.sentenceObjects[this.selectedObjIdx()] ?? this.sentenceObjects[0];
     const conjugated = resolveVerbForm(subj.text, verb);
     return {
+      subject: subj.text,
+      verb: conjugated,
+      ending: obj.text,
       english: `${subj.text} ${conjugated} ${obj.text}.`,
       meaningVi: `${subj.meaningVi} ${verb.meaningVi} ${obj.meaningVi}.`,
       meaningEn: `${subj.meaningEn} ${verb.meaningEn} ${obj.meaningEn}.`,
@@ -78,6 +88,7 @@ export class StarterStudioComponent {
   // Korean Hangul Jamo & Interactive Combiner
   protected readonly koreanConsonants = KOREAN_CONSONANTS;
   protected readonly koreanVowels = KOREAN_VOWELS;
+  protected readonly koJamoFilter = signal<'all' | 'consonants' | 'vowels'>('all');
   protected readonly batchimOptions = KOREAN_BATCHIM_OPTIONS;
 
   protected readonly selectedConsonantIdx = signal(0); // ㄱ

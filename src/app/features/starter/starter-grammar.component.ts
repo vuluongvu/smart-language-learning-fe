@@ -102,6 +102,7 @@ export class StarterGrammarComponent {
 
   // Grammar catalog & mastery tracking
   protected readonly grammarCategory = signal<'all' | StarterGrammarCategory>('all');
+  protected readonly selectedGrammarId = signal<string | null>(null);
   protected readonly customStore = signal<CustomGrammarStore>(loadCustomGrammarStore());
   protected readonly masteredGrammarIds = signal<string[]>(loadMasteredGrammarIds());
 
@@ -119,6 +120,17 @@ export class StarterGrammarComponent {
     const cat = this.grammarCategory();
     const list = this.allGrammarPoints();
     return cat === 'all' ? list : list.filter((g) => g.category === cat);
+  });
+  protected readonly activeGrammarIndex = computed(() => {
+    const list = this.filteredGrammarPoints();
+    if (list.length === 0) return 0;
+    const id = this.selectedGrammarId();
+    const idx = id ? list.findIndex((g) => g.id === id) : 0;
+    return idx >= 0 ? idx : 0;
+  });
+  protected readonly activeGrammarPoint = computed(() => {
+    const list = this.filteredGrammarPoints();
+    return list[this.activeGrammarIndex()] ?? null;
   });
   protected readonly grammarDoneCount = computed(
     () => this.allGrammarPoints().filter((g) => this.masteredGrammarIds().includes(g.id)).length,
@@ -178,6 +190,7 @@ export class StarterGrammarComponent {
     effect(() => {
       const lang = this.learningLang.activeLang();
       if (this.lastLang !== null && this.lastLang !== lang) {
+        this.selectedGrammarId.set(null);
         this.resetQuizProgress();
         this.quizFilter.set('all');
         this.generateError.set(null);
@@ -185,6 +198,22 @@ export class StarterGrammarComponent {
       }
       this.lastLang = lang;
     });
+  }
+
+  selectGrammarCategory(category: 'all' | StarterGrammarCategory): void {
+    this.grammarCategory.set(category);
+    this.selectedGrammarId.set(null);
+  }
+
+  selectGrammarPoint(id: string): void {
+    this.selectedGrammarId.set(id);
+  }
+
+  stepGrammarPoint(delta: -1 | 1): void {
+    const list = this.filteredGrammarPoints();
+    if (list.length === 0) return;
+    const nextIdx = (this.activeGrammarIndex() + delta + list.length) % list.length;
+    this.selectedGrammarId.set(list[nextIdx].id);
   }
 
   speakText(text: string, id: string): void {
@@ -250,6 +279,7 @@ export class StarterGrammarComponent {
           saveCustomGrammarStore(nextStore);
 
           this.grammarCategory.set('all');
+          this.selectedGrammarId.set(res.grammarPoint.id);
           this.generatorTopic.set('');
           this.generating.set(false);
           this.lastGeneratedSummary.set({
@@ -279,14 +309,17 @@ export class StarterGrammarComponent {
     this.customStore.set(nextStore);
     saveCustomGrammarStore(nextStore);
 
+    if (this.selectedGrammarId() === grammarId) {
+      this.selectedGrammarId.set(null);
+    }
     if (this.quizFilter() === 'ai' && nextStore[lang].exercises.length === 0) {
       this.quizFilter.set('all');
     }
     this.resetQuizProgress();
   }
 
-  jumpToAiExercises(): void {
-    this.setQuizFilter('ai');
+  jumpToQuiz(mode: QuizFilterMode = 'all'): void {
+    this.setQuizFilter(mode);
     const el = document.getElementById('starter-grammar-quiz');
     if (el && typeof el.scrollIntoView === 'function') {
       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
