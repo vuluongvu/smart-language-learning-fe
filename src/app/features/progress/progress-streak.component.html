@@ -151,7 +151,7 @@
                 [class.tab-btn--on]="historyDays() === 14"
                 (click)="setHistoryWindow(14)"
               >
-                14d
+                {{ 'dashboard.activity14Label' | t }}
               </button>
               <button
                 type="button"
@@ -159,7 +159,7 @@
                 [class.tab-btn--on]="historyDays() === 30"
                 (click)="setHistoryWindow(30)"
               >
-                30d
+                {{ 'dashboard.activity30Label' | t }}
               </button>
             </div>
           </div>

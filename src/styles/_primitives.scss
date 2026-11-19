@@ -297,6 +297,7 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
+  max-width: 100%;
   padding: 3px 10px;
   border-radius: var(--oq-radius-full);
   font-size: 0.75rem;
@@ -388,8 +389,16 @@
 
 .oq-kpi-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr));
+  grid-template-columns: 1fr;
   gap: var(--oq-space-4);
+
+  @media (min-width: 560px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (min-width: 1240px) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
 .oq-hero {
@@ -570,12 +579,14 @@
 
 .oq-course-tabs {
   display: inline-flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 4px;
   padding: 4px;
-  border-radius: var(--oq-radius-full);
+  border-radius: var(--oq-radius-lg);
   background: var(--oq-bg-subtle);
   border: 1px solid var(--oq-border-subtle);
+  max-width: 100%;
 }
 
 .oq-course-tab {
@@ -590,6 +601,7 @@
   font: inherit;
   font-size: 0.8125rem;
   font-weight: 600;
+  white-space: nowrap;
   cursor: pointer;
   transition:
     background-color var(--oq-transition),
@@ -649,5 +661,32 @@
   &__hint {
     margin: 0 0 8px;
     text-align: center;
+  }
+}
+
+.oq-filter-grid {
+  display: grid;
+  grid-template-columns: minmax(220px, 2fr) repeat(2, minmax(150px, 1fr)) auto;
+  gap: 8px;
+  align-items: center;
+
+  > :last-child {
+    flex-wrap: nowrap;
+  }
+
+  @media (max-width: 1180px) {
+    grid-template-columns: minmax(140px, 1fr) minmax(140px, 1fr) auto;
+
+    > :first-child {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+
+    > :last-child {
+      flex-wrap: wrap;
+    }
   }
 }

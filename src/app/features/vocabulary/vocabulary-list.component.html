@@ -97,7 +97,7 @@
 
   <section class="oq-card filter-panel">
     <form (ngSubmit)="loadVocabulary(1)" class="filter-stack">
-      <div class="filter-grid">
+      <div class="oq-filter-grid">
         <div class="search-wrap">
           <oq-icon name="search" [size]="15" />
           <input
@@ -152,7 +152,7 @@
           <button type="submit" class="oq-btn oq-btn--secondary">{{ 'common.search' | t }}</button>
           <button
             type="button"
-            class="oq-btn oq-btn--ghost"
+            class="oq-btn oq-btn--secondary"
             [attr.aria-expanded]="showMoreFilters()"
             (click)="showMoreFilters.set(!showMoreFilters())"
           >

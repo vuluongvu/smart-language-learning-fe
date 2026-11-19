@@ -95,13 +95,13 @@
       />
 
       <oq-stat-card
-        [label]="'dashboard.streakCardLabel' | t"
-        [value]="'dashboard.streakDaysValue' | t: { count: data.streak.currentStreak }"
-        [detail]="'streak.longest' | t: { days: data.streak.longestStreak }"
-        icon="flame"
+        [label]="'dashboard.dueFlashcards' | t"
+        [value]="data.vocabulary.dueFlashcardsCount"
+        [detail]="'dashboard.hardFlashcards' | t: { count: data.vocabulary.hardFlashcardsCount }"
+        icon="clock"
         tone="accent"
-        actionLink="/progress"
-        [actionLabel]="'streak.calendarLink' | t"
+        actionLink="/flashcards"
+        [actionLabel]="'dashboard.startReviewQueue' | t"
       />
 
       <oq-stat-card

@@ -79,7 +79,7 @@
       <div class="oq-card oq-card--pastel-cream lp-overview-banner">
         <div>
           <div class="lp-overview-banner__badges">
-            <span class="oq-badge oq-badge--accent">{{ data.activeTrack.title }}</span>
+            <h1 class="lp-track-title">{{ data.activeTrack.title }}</h1>
             <span class="oq-badge oq-badge--lavender">CEFR {{ data.activeTrack.cefrLevel }}</span>
             @if (data.activeTrack.isAiGenerated) {
               <span class="oq-badge oq-badge--success">{{ 'lp.aiTrackBadge' | lpT }}</span>

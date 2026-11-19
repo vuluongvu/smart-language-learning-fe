@@ -209,6 +209,8 @@ import { OqIconComponent } from '../icon/icon.component';
         flex-direction: column;
         align-items: flex-end;
         gap: var(--oq-space-3);
+        max-width: 100%;
+        min-width: 0;
       }
 
       .oq-streak-card__links {

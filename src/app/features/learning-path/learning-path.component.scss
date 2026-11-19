@@ -87,6 +87,11 @@
   }
 }
 
+.lp-track-title {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
 .lp-summary {
   margin: 6px 0 0;
   font-size: 0.875rem;
@@ -252,8 +257,7 @@
   flex: 1;
 }
 .lp-unit-title {
-  font-size: 0.9375rem;
-  font-weight: 700;
+  font: 700 0.9375rem/1.3 inherit;
 }
 .lp-status-done {
   color: var(--oq-pastel-green-ink);
@@ -265,7 +269,6 @@
   background: var(--oq-success);
   color: #fff;
 }
-
 .lp-goal-form__actions {
   display: flex;
   justify-content: flex-end;
