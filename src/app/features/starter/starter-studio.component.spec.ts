@@ -1,7 +1,9 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { of } from 'rxjs';
 import { vi } from 'vitest';
+import { AiApiService } from '../ai-tutor/ai-api.service';
 import { SpeechService } from '../../shared/services/speech.service';
 import { LearningLanguageService } from '../../shared/services/learning-language.service';
 import { StarterStudioComponent } from './starter-studio.component';
@@ -18,6 +20,7 @@ describe('StarterStudioComponent', () => {
 
   beforeEach(async () => {
     localStorage.removeItem('argon_learning_course');
+    localStorage.removeItem('argon_starter_grammar_done');
     speechMock = {
       isTtsSupported: true,
       speakingId: signal<string | null>(null),
@@ -25,14 +28,30 @@ describe('StarterStudioComponent', () => {
       stopSpeaking: vi.fn(),
     };
 
+    const aiApiMock = {
+      getStatus: vi.fn(() => of({ enabled: true, model: 'groq-test' })),
+      chat: vi.fn(() =>
+        of({
+          content: 'Sample grammar tip reply',
+          model: 'groq-test',
+          usage: { totalTokens: 40 },
+        }),
+      ),
+    };
+
     await TestBed.configureTestingModule({
       imports: [StarterStudioComponent],
-      providers: [provideRouter([]), { provide: SpeechService, useValue: speechMock }],
+      providers: [
+        provideRouter([]),
+        { provide: SpeechService, useValue: speechMock },
+        { provide: AiApiService, useValue: aiApiMock },
+      ],
     }).compileComponents();
   });
 
   afterEach(() => {
     localStorage.removeItem('argon_learning_course');
+    localStorage.removeItem('argon_starter_grammar_done');
   });
 
   it('maintains 100% EN/VI key parity for starter-studio i18n dictionary', () => {
@@ -56,7 +75,7 @@ describe('StarterStudioComponent', () => {
     expect(el.textContent).toContain('Zero');
 
     const comp = fixture.componentInstance as unknown as {
-      activeTab: ReturnType<typeof signal<'alphabet' | 'builder' | 'drill'>>;
+      activeTab: ReturnType<typeof signal<'alphabet' | 'builder' | 'grammar' | 'drill'>>;
       selectedSubjIdx: ReturnType<typeof signal<number>>;
       selectedVerbIdx: ReturnType<typeof signal<number>>;
       selectedObjIdx: ReturnType<typeof signal<number>>;
@@ -90,5 +109,66 @@ describe('StarterStudioComponent', () => {
     comp.activeTab.set('builder');
     fixture.detectChanges();
     expect(el.textContent).toContain('가');
+  });
+
+  it('renders bilingual A0 grammar cards, category filter, mastery toggle, interactive grammar check, and floating AI tutor hook', () => {
+    const fixture = TestBed.createComponent(StarterStudioComponent);
+    fixture.detectChanges();
+
+    const comp = fixture.componentInstance as unknown as {
+      activeTab: ReturnType<typeof signal<'alphabet' | 'builder' | 'grammar' | 'drill'>>;
+    };
+
+    comp.activeTab.set('grammar');
+    fixture.detectChanges();
+
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.textContent).toContain('Subject + Verb + Object');
+    expect(el.textContent).toContain('She ___ my English teacher.');
+
+    // Filters grammar cards cleanly via DOM pill click
+    const particlesBtn = Array.from(el.querySelectorAll<HTMLButtonElement>('button')).find((b) =>
+      b.textContent?.includes('Particles / Articles'),
+    );
+    particlesBtn?.click();
+    fixture.detectChanges();
+    expect(el.textContent).toContain('Articles a / an / the');
+    expect(el.textContent).not.toContain('Subject + Verb + Object');
+
+    // Persists mastered count via DOM click
+    const doneBtn = el.querySelector<HTMLButtonElement>('.st-grammar-done-btn');
+    doneBtn?.click();
+    fixture.detectChanges();
+    expect(el.textContent).toContain('Mastered: 1 / 6 points');
+
+    // Interactive grammar quiz scoring + feedback
+    const isOpt = Array.from(el.querySelectorAll<HTMLButtonElement>('.st-grammar-option')).find(
+      (b) => b.textContent?.trim() === 'is',
+    );
+    isOpt?.click();
+    fixture.detectChanges();
+    expect(el.textContent).toContain('Score: 1 / 6');
+    expect(el.textContent).toContain('She is my English teacher.');
+
+    // Switch to Korean -> Korean A0 grammar & particles appear
+    const langSvc = TestBed.inject(LearningLanguageService);
+    langSvc.setLanguage('ko');
+    fixture.detectChanges();
+    const allFilterBtn = Array.from(el.querySelectorAll<HTMLButtonElement>('button')).find((b) =>
+      b.textContent?.includes('All rules'),
+    );
+    allFilterBtn?.click();
+    fixture.detectChanges();
+    expect(el.textContent).toContain('-이에요 / -예요');
+    expect(el.textContent).toContain('저는 학생___.');
+
+    // Ask AI Tutor button opens floating tutor and sends context question
+    const askAiBtn = el.querySelector<HTMLButtonElement>('.st-grammar-ai-btn');
+    expect(askAiBtn).not.toBeNull();
+    askAiBtn?.click();
+    const aiApiMock = TestBed.inject(AiApiService) as unknown as {
+      chat: ReturnType<typeof vi.fn>;
+    };
+    expect(aiApiMock.chat).toHaveBeenCalledTimes(1);
   });
 });

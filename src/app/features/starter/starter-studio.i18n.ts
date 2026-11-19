@@ -6,7 +6,7 @@ export const STARTER_EN_TRANSLATIONS = {
   'st.eyebrow': 'Absolute Beginner Studio · A0 → A1',
   'st.title': 'Start From Zero',
   'st.subtitle':
-    'Learn letters, sounds, Hangul syllable building, and your first 3-word sentences step by step — zero AI tokens required.',
+    'Learn letters, sounds, Hangul syllable building, core beginner grammar, and listening — zero AI tokens required.',
   'st.speedLabel': 'Audio speed',
   'st.speedSlow': '0.78x Extra slow',
   'st.speedNormal': '0.95x Natural',
@@ -15,7 +15,8 @@ export const STARTER_EN_TRANSLATIONS = {
 
   'st.tabAlphabet': '1. Alphabet & Sounds',
   'st.tabBuilder': '2. Combine & Build',
-  'st.tabDrill': '3. Listen & Match',
+  'st.tabGrammar': '3. Core Grammar',
+  'st.tabDrill': '4. Listen & Match',
 
   'st.enLettersTitle': '26 English Letters & First Words',
   'st.enLettersDesc':
@@ -65,6 +66,29 @@ export const STARTER_EN_TRANSLATIONS = {
   'st.drillWrongFeedback': 'Close! Listen at slow speed again and pick the matching sound.',
   'st.drillNextBtn': 'Next item',
   'st.drillRestartBtn': 'Play again',
+
+  'st.grammarTitle': 'Essential A0–A1 Starter Grammar',
+  'st.grammarDesc':
+    'Master sentence order, particles/articles, and basic verb forms step by step, then test yourself right below.',
+  'st.grammarProgress': 'Mastered: {{done}} / {{total}} points',
+  'st.grammarFilterAll': 'All rules',
+  'st.grammarFilterOrder': 'Word order',
+  'st.grammarFilterParticles': 'Particles / Articles',
+  'st.grammarFilterVerbs': 'Verbs & Questions',
+  'st.grammarFormulaLabel': 'Formula',
+  'st.grammarExamplesLabel': 'Examples',
+  'st.grammarAvoidMistake': 'Avoid this mistake',
+  'st.grammarMarkDone': 'Mark mastered',
+  'st.grammarDone': 'Mastered',
+  'st.grammarAskAi': 'Ask AI Tutor',
+  'st.grammarListenBtn': 'Listen',
+  'st.grammarQuizTitle': 'Quick Grammar Check (No Pressure)',
+  'st.grammarQuizDesc': 'Pick the missing piece or natural structure and read why it works.',
+  'st.grammarQuizScore': 'Score: {{score}} / {{total}}',
+  'st.grammarQuizCorrect': 'Spot on!',
+  'st.grammarQuizWrong': 'Not quite — check the grammar tip below:',
+  'st.grammarQuizNext': 'Next question',
+  'st.grammarQuizRestart': 'Retry grammar check',
 } as const;
 
 export type StarterTxKey = keyof typeof STARTER_EN_TRANSLATIONS;
@@ -74,7 +98,7 @@ export const STARTER_VI_TRANSLATIONS: Record<StarterTxKey, string> = {
   'st.eyebrow': 'Phòng học vỡ lòng · Từ con số 0 (A0 → A1)',
   'st.title': 'Bắt đầu từ con số 0',
   'st.subtitle':
-    'Làm quen mặt chữ, phát âm chậm rãi, ghép âm tiết Hangul và nói những câu 3 từ đầu tiên hoàn toàn miễn phí AI token.',
+    'Làm quen mặt chữ, phát âm chậm rãi, ghép âm tiết Hangul, nắm ngữ pháp nền tảng và luyện nghe miễn phí AI token.',
   'st.speedLabel': 'Tốc độ đọc',
   'st.speedSlow': '0.78x Siêu chậm',
   'st.speedNormal': '0.95x Tự nhiên',
@@ -83,7 +107,8 @@ export const STARTER_VI_TRANSLATIONS: Record<StarterTxKey, string> = {
 
   'st.tabAlphabet': '1. Bảng chữ cái & Âm',
   'st.tabBuilder': '2. Ghép chữ & Lắp câu',
-  'st.tabDrill': '3. Nghe & Chọn đúng',
+  'st.tabGrammar': '3. Ngữ pháp cơ bản',
+  'st.tabDrill': '4. Nghe & Chọn đúng',
 
   'st.enLettersTitle': '26 Chữ cái tiếng Anh & Từ mẫu đầu tiên',
   'st.enLettersDesc':
@@ -132,6 +157,29 @@ export const STARTER_VI_TRANSLATIONS: Record<StarterTxKey, string> = {
   'st.drillWrongFeedback': 'Gần đúng rồi! Bấm Nghe lại chậm 0.78x rồi chọn lại nhé.',
   'st.drillNextBtn': 'Câu tiếp theo',
   'st.drillRestartBtn': 'Luyện lại từ đầu',
+
+  'st.grammarTitle': 'Ngữ pháp nền tảng cho người mới (A0 → A1)',
+  'st.grammarDesc':
+    'Nắm chắc trật tự câu, tiểu từ/mạo từ và cách chia động từ cốt lõi trước khi luyện tập nhanh bên dưới.',
+  'st.grammarProgress': 'Đã nắm: {{done}} / {{total}} điểm',
+  'st.grammarFilterAll': 'Tất cả quy tắc',
+  'st.grammarFilterOrder': 'Trật tự câu',
+  'st.grammarFilterParticles': 'Tiểu từ / Mạo từ',
+  'st.grammarFilterVerbs': 'Động từ & Hỏi/Phủ định',
+  'st.grammarFormulaLabel': 'Công thức',
+  'st.grammarExamplesLabel': 'Ví dụ mẫu',
+  'st.grammarAvoidMistake': 'Tránh lỗi hay gặp',
+  'st.grammarMarkDone': 'Đánh dấu đã hiểu',
+  'st.grammarDone': 'Đã nắm',
+  'st.grammarAskAi': 'Hỏi Gia sư AI',
+  'st.grammarListenBtn': 'Nghe',
+  'st.grammarQuizTitle': 'Luyện nhanh Ngữ pháp (Không trừ điểm)',
+  'st.grammarQuizDesc': 'Chọn mảnh ghép còn thiếu hoặc câu đúng tự nhiên rồi xem giải thích ngay.',
+  'st.grammarQuizScore': 'Đúng: {{score}} / {{total}}',
+  'st.grammarQuizCorrect': 'Chính xác!',
+  'st.grammarQuizWrong': 'Chưa chuẩn lắm — xem giải thích bên dưới nhé:',
+  'st.grammarQuizNext': 'Câu tiếp theo',
+  'st.grammarQuizRestart': 'Làm lại bộ ngữ pháp',
 };
 
 export function starterTranslate(

@@ -58,6 +58,15 @@
       <button
         type="button"
         class="st-tab"
+        [class.st-tab--active]="activeTab() === 'grammar'"
+        (click)="activeTab.set('grammar')"
+      >
+        <oq-icon name="edit" [size]="16" />
+        <span>{{ 'st.tabGrammar' | stT }}</span>
+      </button>
+      <button
+        type="button"
+        class="st-tab"
         [class.st-tab--active]="activeTab() === 'drill'"
         (click)="activeTab.set('drill')"
       >
@@ -507,6 +516,10 @@
       }
     }
 
+    @case ('grammar') {
+      <app-starter-grammar [audioRate]="audioRate()" />
+    }
+
     @case ('drill') {
       @let q = currentDrill();
       <section class="oq-card st-panel st-drill-panel">
@@ -538,7 +551,7 @@
         </div>
 
         <div class="st-drill-options">
-          @for (opt of q.options; track opt) {
+          @for (opt of q.options; track $index) {
             <button
               type="button"
               class="st-drill-option"
