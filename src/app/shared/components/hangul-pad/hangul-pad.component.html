@@ -1,0 +1,215 @@
+<div class="hw-pad" [class.hw-pad--compact]="compact()">
+  @if (expectedText().trim()) {
+    <div class="hw-target-bar">
+      <span class="oq-muted">{{ 'hw.targetLabel' | t }}</span>
+      <strong class="hw-target-term">{{ expectedText() }}</strong>
+      @if (speech.isTtsSupported) {
+        <button
+          type="button"
+          class="oq-copy-btn"
+          [attr.aria-label]="'hw.listenBtn' | t"
+          (click)="speakText(expectedText())"
+        >
+          <oq-icon name="volume-2" [size]="14" />
+          {{ 'hw.listenBtn' | t }}
+        </button>
+      }
+    </div>
+  }
+
+  @if (hasGuideSupport()) {
+    <div class="hw-tabs" role="tablist">
+      <button
+        type="button"
+        role="tab"
+        class="hw-tab"
+        [class.hw-tab--active]="activeTab() === 'guide'"
+        [attr.aria-selected]="activeTab() === 'guide'"
+        (click)="switchTab('guide')"
+      >
+        <oq-icon name="pen-line" [size]="15" />
+        {{ 'hw.tabStrokeGuide' | t }}
+      </button>
+      <button
+        type="button"
+        role="tab"
+        class="hw-tab"
+        [class.hw-tab--active]="activeTab() === 'freehand'"
+        [attr.aria-selected]="activeTab() === 'freehand'"
+        (click)="switchTab('freehand')"
+      >
+        <oq-icon name="sparkles" [size]="15" />
+        {{ 'hw.tabFreehand' | t }}
+      </button>
+    </div>
+  }
+
+  @if (activeTab() === 'guide' && hasGuideSupport()) {
+    <div class="hw-guide-pane">
+      @if (targetSyllables().length > 1) {
+        <div class="hw-syllable-strip" role="group" [attr.aria-label]="'hw.syllableLabel' | t">
+          @for (ch of targetSyllables(); track $index; let i = $index) {
+            <button
+              type="button"
+              class="hw-syllable-btn"
+              [class.hw-syllable-btn--active]="selectedSyllableIndex() === i"
+              (click)="selectSyllable(i)"
+            >
+              {{ ch }}
+            </button>
+          }
+        </div>
+      }
+
+      <div class="hw-guide-stage">
+        <div class="hw-paper hw-paper--square">
+          <div class="hw-paper__grid" aria-hidden="true"></div>
+          <div #writerHost class="hw-writer-host"></div>
+        </div>
+      </div>
+
+      <div class="hw-actions">
+        <button
+          type="button"
+          class="oq-btn oq-btn--secondary oq-btn--sm"
+          (click)="animateStrokes()"
+        >
+          {{ 'hw.animateBtn' | t }}
+        </button>
+        <button type="button" class="oq-btn oq-btn--primary oq-btn--sm" (click)="startTraceQuiz()">
+          {{ quizActive() ? ('hw.quizRestartBtn' | t) : ('hw.quizStartBtn' | t) }}
+        </button>
+      </div>
+
+      @if (quizActive()) {
+        <p class="hw-status-note">
+          {{ 'hw.quizActiveHint' | t }}
+          @if (quizMistakes() > 0) {
+            <span class="hw-mistakes-pill">{{
+              'hw.quizMistakes' | t: { count: quizMistakes() }
+            }}</span>
+          }
+        </p>
+      }
+      @if (quizHint()) {
+        <p class="hw-hint-warn">{{ quizHint() }}</p>
+      }
+      @if (quizCompleted()) {
+        <p class="hw-status-done">
+          <oq-icon name="check" [size]="14" />
+          {{ 'hw.quizDone' | t: { count: quizMistakes() } }}
+        </p>
+      }
+    </div>
+  } @else {
+    <div class="hw-freehand-pane">
+      <div class="hw-paper hw-paper--wide">
+        <div class="hw-paper__grid" aria-hidden="true"></div>
+        <canvas
+          #drawCanvas
+          class="hw-canvas"
+          (pointerdown)="onPointerDown($event)"
+          (pointermove)="onPointerMove($event)"
+          (pointerup)="onPointerUp($event)"
+          (pointercancel)="onPointerUp($event)"
+        ></canvas>
+        @if (strokeCount() === 0) {
+          <span class="hw-canvas-placeholder" aria-hidden="true">{{ 'hw.freehandHint' | t }}</span>
+        }
+      </div>
+
+      <div class="hw-actions hw-actions--split">
+        <div class="hw-actions__left">
+          <button
+            type="button"
+            class="oq-btn oq-btn--secondary oq-btn--sm"
+            [disabled]="strokeCount() === 0 || recognizing()"
+            (click)="undoStroke()"
+          >
+            {{ 'hw.undoBtn' | t }}
+          </button>
+          <button
+            type="button"
+            class="oq-btn oq-btn--secondary oq-btn--sm"
+            [disabled]="strokeCount() === 0 || recognizing()"
+            (click)="clearCanvas()"
+          >
+            {{ 'hw.clearBtn' | t }}
+          </button>
+        </div>
+
+        <button
+          type="button"
+          class="oq-btn oq-btn--primary oq-btn--sm"
+          [disabled]="recognizing()"
+          (click)="recognizeDrawing()"
+        >
+          <oq-icon name="sparkles" [size]="14" />
+          {{
+            recognizing()
+              ? ('hw.checkingBtn' | t)
+              : expectedText().trim()
+                ? ('hw.checkBtn' | t)
+                : ('hw.recognizeBtn' | t)
+          }}
+        </button>
+      </div>
+
+      @if (aiError()) {
+        <div class="oq-alert oq-alert--error" role="alert">{{ aiError() }}</div>
+      }
+
+      @if (result(); as r) {
+        <div class="hw-result">
+          <div class="hw-result__head">
+            <div>
+              <span class="hw-result__label">{{ 'hw.recognizedLabel' | t }}</span>
+              <strong class="hw-result__text">{{ r.recognizedText || '—' }}</strong>
+            </div>
+            <div class="hw-result__badges">
+              @if (r.isMatch === true) {
+                <span class="oq-badge oq-badge--success">{{ 'hw.matchBadge' | t }}</span>
+              } @else if (r.isMatch === false) {
+                <span class="oq-badge oq-badge--warning">{{ 'hw.mismatchBadge' | t }}</span>
+              }
+              @if (speech.isTtsSupported && r.recognizedText) {
+                <button
+                  type="button"
+                  class="oq-copy-btn"
+                  [attr.aria-label]="'hw.listenBtn' | t"
+                  (click)="speakText(r.recognizedText)"
+                >
+                  <oq-icon name="volume-2" [size]="14" />
+                </button>
+              }
+            </div>
+          </div>
+
+          @if (r.feedback) {
+            <p class="hw-result__feedback">{{ r.feedback }}</p>
+          }
+
+          @if (r.candidates.length > 0) {
+            <div class="hw-candidates">
+              <span class="oq-muted">{{ 'hw.candidatesHint' | t }}</span>
+              <div class="hw-candidate-list">
+                @for (item of r.candidates; track item) {
+                  <button
+                    type="button"
+                    class="hw-chip"
+                    [class.hw-chip--active]="selectedCandidate() === item"
+                    (click)="selectCandidate(item)"
+                  >
+                    {{ item }}
+                  </button>
+                }
+              </div>
+            </div>
+          } @else {
+            <p class="oq-muted">{{ 'hw.noResultHint' | t }}</p>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

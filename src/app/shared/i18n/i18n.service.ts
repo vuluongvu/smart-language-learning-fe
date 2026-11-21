@@ -4,7 +4,7 @@ import { EN_TRANSLATIONS, TxKey, VI_TRANSLATIONS } from './translations';
 
 export type AppLocale = 'en' | 'vi';
 
-const LANG_STORAGE_KEY = 'openquiz_lang';
+const LANG_STORAGE_KEY = 'argon_learning_lang';
 
 @Injectable({ providedIn: 'root' })
 export class I18nService {

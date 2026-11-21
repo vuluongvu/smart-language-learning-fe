@@ -1,0 +1,252 @@
+<div class="ai-page">
+  <oq-page-header
+    [eyebrow]="'ai.eyebrow' | t"
+    [title]="(learningLang.isKorean() ? 'ai.koTitle' : 'ai.title') | t"
+    [subtitle]="'ai.subtitle' | t"
+  >
+    <div actions class="ai-head-actions">
+      @if (aiStatus(); as status) {
+        <span
+          class="oq-badge"
+          [class.oq-badge--success]="status.enabled"
+          [class.oq-badge--warning]="!status.enabled"
+        >
+          <oq-icon name="sparkles" [size]="13" />
+          <span>{{
+            (status.enabled ? 'ai.statusActive' : 'ai.statusDisabled') | t: { model: status.model }
+          }}</span>
+        </span>
+      }
+
+      @if (activeMode() === 'chat' && messages().length > 0) {
+        <button
+          type="button"
+          class="oq-btn oq-btn--secondary oq-btn--sm"
+          [disabled]="sending()"
+          (click)="clearConversation()"
+        >
+          <oq-icon name="trash" [size]="14" />
+          <span>{{ 'ai.clearChat' | t }}</span>
+        </button>
+      }
+    </div>
+  </oq-page-header>
+
+  <div
+    class="ai-mode-tabs"
+    role="tablist"
+    [attr.aria-label]="(learningLang.isKorean() ? 'ai.koTitle' : 'ai.title') | t"
+  >
+    <button
+      type="button"
+      role="tab"
+      class="ai-mode-tab"
+      [class.ai-mode-tab--active]="activeMode() === 'chat'"
+      [attr.aria-selected]="activeMode() === 'chat'"
+      (click)="activeMode.set('chat')"
+    >
+      <oq-icon name="sparkles" [size]="15" />
+      <span>{{ 'ai.tabFreeChat' | t }}</span>
+    </button>
+    <button
+      type="button"
+      role="tab"
+      class="ai-mode-tab"
+      [class.ai-mode-tab--active]="activeMode() === 'conversation'"
+      [attr.aria-selected]="activeMode() === 'conversation'"
+      (click)="activeMode.set('conversation')"
+    >
+      <oq-icon name="book-open" [size]="15" />
+      <span>{{ 'ai.tabGuided' | t }}</span>
+    </button>
+  </div>
+
+  @if (statusLoading()) {
+    <section class="oq-card ai-state" aria-busy="true">
+      <p class="oq-muted">{{ 'ai.checkingStatus' | t }}</p>
+    </section>
+  } @else if (statusError()) {
+    <div class="oq-alert oq-alert--error" role="alert">
+      <span>{{ statusError() }}</span>
+      <button type="button" class="oq-inline-retry" (click)="loadStatus()">
+        {{ 'common.retry' | t }}
+      </button>
+    </div>
+  } @else if (aiStatus(); as status) {
+    @if (!status.enabled) {
+      <section class="oq-card oq-card--subtle ai-banner" role="status">
+        <div class="ai-banner__icon" aria-hidden="true">
+          <oq-icon name="alert-circle" [size]="20" />
+        </div>
+        <div class="ai-banner__body">
+          <h2>{{ 'ai.disabledTitle' | t }}</h2>
+          <p class="oq-muted">{{ 'ai.disabledDesc' | t }}</p>
+        </div>
+        <button type="button" class="oq-btn oq-btn--secondary oq-btn--sm" (click)="loadStatus()">
+          {{ 'ai.recheckStatus' | t }}
+        </button>
+      </section>
+    }
+  }
+
+  @if (activeMode() === 'conversation') {
+    <app-ai-conversation [aiEnabled]="isAiEnabled()" />
+  } @else {
+    <section class="oq-card ai-workspace">
+      <div #messageFeed class="ai-feed" role="log" aria-live="polite">
+        @if (messages().length === 0 && !sending()) {
+          <div class="ai-welcome">
+            <div class="ai-welcome__badge" aria-hidden="true">
+              <oq-icon name="sparkles" [size]="24" />
+            </div>
+            <h2>{{ (learningLang.isKorean() ? 'ai.koEmptyTitle' : 'ai.emptyTitle') | t }}</h2>
+            <p class="oq-muted">
+              {{ (learningLang.isKorean() ? 'ai.koEmptyDesc' : 'ai.emptyDesc') | t }}
+            </p>
+
+            <div class="ai-guided-callout">
+              <span>{{ 'ai.tryGuidedBanner' | t }}</span>
+              <button
+                type="button"
+                class="oq-btn oq-btn--secondary oq-btn--sm"
+                (click)="activeMode.set('conversation')"
+              >
+                {{ 'ai.tryGuidedBtn' | t }}
+              </button>
+            </div>
+
+            <div class="ai-starters">
+              @for (starter of starterPrompts(); track starter.id) {
+                <button
+                  type="button"
+                  class="ai-starter"
+                  [disabled]="sending()"
+                  (click)="useStarterPrompt(starter.promptKey)"
+                >
+                  <span class="ai-starter__title">{{ starter.titleKey | t }}</span>
+                  <span class="ai-starter__prompt">{{ starter.promptKey | t }}</span>
+                </button>
+              }
+            </div>
+          </div>
+        } @else {
+          <div class="ai-thread">
+            @for (turn of messages(); track turn.id) {
+              <article
+                class="ai-msg"
+                [class.ai-msg--user]="turn.role === 'user'"
+                [class.ai-msg--assistant]="turn.role === 'assistant'"
+              >
+                <header class="ai-msg__meta">
+                  <span class="ai-msg__author">
+                    @if (turn.role === 'assistant') {
+                      <oq-icon name="sparkles" [size]="13" />
+                      <span>{{ 'ai.tutorLabel' | t }}</span>
+                    } @else {
+                      <oq-icon name="user" [size]="13" />
+                      <span>{{ 'ai.youLabel' | t }}</span>
+                    }
+                  </span>
+
+                  @if (turn.role === 'assistant') {
+                    <div class="ai-msg__tools">
+                      @if (turn.usage) {
+                        <span class="ai-msg__tokens">
+                          {{ 'ai.tokensUsed' | t: { count: turn.usage.totalTokens } }}
+                        </span>
+                      }
+                      <button
+                        type="button"
+                        class="oq-copy-btn ai-copy-btn"
+                        (click)="copyReply(turn)"
+                      >
+                        <oq-icon
+                          [name]="copiedMessageId() === turn.id ? 'check' : 'copy'"
+                          [size]="13"
+                        />
+                        <span>{{
+                          (copiedMessageId() === turn.id ? 'ai.copied' : 'ai.copy') | t
+                        }}</span>
+                      </button>
+                    </div>
+                  }
+                </header>
+
+                @if (turn.role === 'assistant') {
+                  <div
+                    class="ai-msg__bubble oq-markdown"
+                    [innerHTML]="turn.renderedHtml ?? ''"
+                  ></div>
+                } @else {
+                  <div class="ai-msg__bubble">{{ turn.content }}</div>
+                }
+              </article>
+            }
+
+            @if (sending()) {
+              <article class="ai-msg ai-msg--assistant" aria-busy="true">
+                <header class="ai-msg__meta">
+                  <span class="ai-msg__author">
+                    <oq-icon name="sparkles" [size]="13" />
+                    <span>{{ 'ai.tutorLabel' | t }}</span>
+                  </span>
+                </header>
+                <div class="ai-msg__bubble ai-msg__thinking">
+                  <span>{{ 'ai.thinking' | t }}</span>
+                </div>
+              </article>
+            }
+          </div>
+        }
+      </div>
+
+      @if (chatError()) {
+        <div class="oq-alert oq-alert--error ai-error" role="alert">
+          <span>{{ chatError() }}</span>
+          @if (lastFailedPrompt()) {
+            <button type="button" class="oq-inline-retry" (click)="retryLastMessage()">
+              {{ 'ai.retryLast' | t }}
+            </button>
+          }
+        </div>
+      }
+
+      <form class="ai-compose" (submit)="$event.preventDefault(); sendMessage()">
+        <div class="oq-field ai-compose__field">
+          <label class="ai-sr" for="ai-composer-input">{{ 'ai.inputLabel' | t }}</label>
+          <textarea
+            id="ai-composer-input"
+            rows="2"
+            [attr.maxlength]="maxMessageLength"
+            [value]="draftMessage()"
+            [disabled]="!isAiEnabled() || sending()"
+            [placeholder]="
+              (isAiEnabled() ? 'ai.inputPlaceholder' : 'ai.inputPlaceholderDisabled') | t
+            "
+            (input)="onDraftInput($event)"
+            (keydown)="onComposerKeydown($event)"
+          ></textarea>
+        </div>
+
+        <div class="ai-compose__foot">
+          <span class="oq-field-hint">
+            {{ 'ai.inputHint' | t }} · {{ 'ai.rateLimitHint' | t }}
+          </span>
+
+          <div class="ai-compose__actions">
+            <span
+              class="ai-compose__count"
+              [class.ai-compose__count--limit]="draftMessage().length >= maxMessageLength"
+            >
+              {{ draftMessage().length }} / {{ maxMessageLength }}
+            </span>
+            <button type="submit" class="oq-btn oq-btn--primary" [disabled]="!canSend()">
+              <oq-icon name="send" [size]="15" />
+              <span>{{ (sending() ? 'ai.sending' : 'ai.send') | t }}</span>
+            </button>
+          </div>
+        </div>
+      </form>
+    </section>
+  }
+</div>

@@ -7,6 +7,7 @@ import {
   OqPageHeaderComponent,
 } from '../../shared/components';
 import { I18nService, TranslatePipe } from '../../shared/i18n';
+import { LearningLanguageService } from '../../shared/services/learning-language.service';
 import {
   QuestionType,
   QuizDifficulty,
@@ -57,6 +58,7 @@ export class QuizBuilderComponent implements OnInit {
   private readonly topicsApi = inject(TopicsApiService);
   private readonly vocabularyApi = inject(VocabularyApiService);
   private readonly i18n = inject(I18nService);
+  protected readonly learningLang = inject(LearningLanguageService);
 
   private nextKey = 1;
 
@@ -86,11 +88,12 @@ export class QuizBuilderComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.topicsApi.list({ limit: 100 }).subscribe({
+    const activeLang = this.learningLang.activeLang();
+    this.topicsApi.list({ limit: 100, languageCode: activeLang }).subscribe({
       next: (res) => this.topics.set(res.items),
       error: () => undefined,
     });
-    this.vocabularyApi.list({ limit: 100 }).subscribe({
+    this.vocabularyApi.list({ limit: 100, languageCode: activeLang }).subscribe({
       next: (res) => this.vocabularyItems.set(res.items),
       error: () => undefined,
     });
@@ -330,6 +333,7 @@ export class QuizBuilderComponent implements OnInit {
     this.quizzesApi
       .draftFromVocabulary({
         topicId: this.genTopicId,
+        languageCode: this.learningLang.activeLang(),
         count: Math.min(20, Math.max(1, Number(this.genCount) || 5)),
         questionTypes,
       })
@@ -442,7 +446,9 @@ export class QuizBuilderComponent implements OnInit {
     this.successMessage.set(null);
 
     const editId = this.editingQuizId();
-    const req$ = editId ? this.quizzesApi.update(editId, payload) : this.quizzesApi.create(payload);
+    const req$ = editId
+      ? this.quizzesApi.update(editId, payload)
+      : this.quizzesApi.create({ ...payload, languageCode: this.learningLang.activeLang() });
 
     req$.subscribe({
       next: () => {

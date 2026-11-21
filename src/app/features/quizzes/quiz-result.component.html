@@ -39,7 +39,11 @@
       </a>
     </oq-empty-state>
   } @else {
-    <section class="oq-card summary-card">
+    <section
+      class="oq-card summary-card oq-success-enter"
+      [class.oq-card--pastel-green]="att.score >= 70"
+      [class.oq-card--pastel-cream]="att.score < 70"
+    >
       <div class="summary-top">
         <div class="summary-score">
           <div class="summary-score__pct">{{ att.score }}%</div>
@@ -124,7 +128,8 @@
 
           @if (ans.explanation) {
             <p class="answer-explanation">
-              <strong>{{ 'qr.explanationPrefix' | t }}</strong> {{ ans.explanation }}
+              <strong>{{ 'qr.explanationPrefix' | t }}</strong>
+              <span class="oq-markdown" [innerHTML]="ans.explanation | md: 'inline'"></span>
             </p>
           }
 
@@ -203,12 +208,7 @@
 
                 <div class="oq-field">
                   <label [for]="'saveNewTopic-' + ans.id">{{ 'qr.newTopicLabel' | t }}</label>
-                  <input
-                    [id]="'saveNewTopic-' + ans.id"
-                    type="text"
-                    [(ngModel)]="newTopicName"
-                    placeholder="e.g., Quiz Review"
-                  />
+                  <input [id]="'saveNewTopic-' + ans.id" type="text" [(ngModel)]="newTopicName" />
                 </div>
               </div>
 

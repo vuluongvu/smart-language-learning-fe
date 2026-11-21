@@ -1,0 +1,195 @@
+<oq-modal
+  [open]="true"
+  role="alertdialog"
+  size="md"
+  [closeOnBackdrop]="false"
+  [title]="'settings.deleteModalTitle' | t"
+  [description]="'settings.deleteModalDesc' | t"
+  (closed)="requestClose()"
+>
+  <div class="delete-steps" [attr.aria-label]="'settings.deleteStepsAria' | t">
+    <span
+      class="delete-step-pill"
+      [class.delete-step-pill--active]="step() === 1"
+      [class.delete-step-pill--done]="step() === 2"
+    >
+      {{ 'settings.deleteStep1Label' | t }}
+    </span>
+    <span class="delete-step-pill" [class.delete-step-pill--active]="step() === 2">
+      {{ 'settings.deleteStep2Label' | t }}
+    </span>
+  </div>
+
+  @if (step() === 1) {
+    <div
+      class="delete-warning-box"
+      role="region"
+      [attr.aria-label]="'settings.deleteImpactAria' | t"
+    >
+      <div class="delete-warning-box__lead">
+        <oq-icon name="alert-circle" [size]="18" />
+        <strong>{{ 'settings.deleteWarningLead' | t }}</strong>
+      </div>
+      <ul class="delete-impact-list">
+        <li>{{ 'settings.deleteImpact1' | t }}</li>
+        <li>{{ 'settings.deleteImpact2' | t }}</li>
+        <li>{{ 'settings.deleteImpact3' | t }}</li>
+      </ul>
+    </div>
+
+    <label class="oq-check delete-ack-box" [class.delete-ack-box--checked]="acknowledged()">
+      <input
+        type="checkbox"
+        data-testid="delete-ack-checkbox"
+        [checked]="acknowledged()"
+        (change)="onAckChange($event)"
+      />
+      <span>{{ 'settings.deleteAcknowledgeLabel' | t }}</span>
+    </label>
+
+    <div class="oq-modal-actions">
+      <button
+        type="button"
+        class="oq-btn oq-btn--secondary"
+        data-testid="delete-keep-btn"
+        (click)="requestClose()"
+      >
+        {{ 'settings.deleteKeepAccount' | t }}
+      </button>
+      <button
+        type="button"
+        class="oq-btn oq-btn--danger"
+        data-testid="delete-continue-btn"
+        [disabled]="!acknowledged()"
+        (click)="proceedToStep2()"
+      >
+        {{ 'settings.deleteContinueBtn' | t }}
+      </button>
+    </div>
+  } @else {
+    @if (email()) {
+      <div class="delete-target-pill">
+        <span class="delete-target-pill__label">{{ 'settings.deleteTargetAccount' | t }}</span>
+        <strong class="delete-target-pill__email">{{ email() }}</strong>
+      </div>
+    }
+
+    @if (error()) {
+      <div class="oq-alert oq-alert--error" role="alert">
+        {{ error() }}
+      </div>
+    }
+
+    <form class="delete-verify-form" (submit)="onFormSubmit($event)" novalidate>
+      <div class="oq-field">
+        <label for="delete-confirm-email">
+          {{ 'settings.deleteEmailPrompt' | t }}
+          @if (email()) {
+            <code class="delete-code">{{ email() }}</code>
+          }
+        </label>
+        <input
+          id="delete-confirm-email"
+          type="email"
+          data-testid="delete-confirm-email-input"
+          autocomplete="off"
+          spellcheck="false"
+          [placeholder]="email()"
+          [value]="confirmEmail()"
+          (input)="onEmailInput($event)"
+        />
+        @if (confirmEmail().trim().length > 0) {
+          @if (isEmailMatch()) {
+            <span class="delete-match-ok">{{ 'settings.deleteEmailMatched' | t }}</span>
+          } @else {
+            <span class="oq-field-error">{{ 'settings.deleteEmailMismatch' | t }}</span>
+          }
+        }
+      </div>
+
+      @if (hasPassword()) {
+        <div class="oq-field">
+          <label for="delete-password">{{ 'settings.deletePasswordPrompt' | t }}</label>
+          <input
+            id="delete-password"
+            type="password"
+            data-testid="delete-password-input"
+            autocomplete="off"
+            [placeholder]="'settings.deletePasswordPlaceholder' | t"
+            [value]="currentPassword()"
+            (input)="onPasswordInput($event)"
+          />
+        </div>
+      } @else {
+        <div class="oq-field">
+          <label for="delete-confirm-phrase">
+            {{ 'settings.deletePhrasePrompt' | t }}
+            <code class="delete-code">{{ expectedPhrase() }}</code>
+          </label>
+          <input
+            id="delete-confirm-phrase"
+            type="text"
+            data-testid="delete-confirm-phrase-input"
+            autocomplete="off"
+            spellcheck="false"
+            [placeholder]="expectedPhrase()"
+            [value]="confirmPhrase()"
+            (input)="onPhraseInput($event)"
+          />
+          @if (confirmPhrase().trim().length > 0) {
+            @if (isPhraseMatch()) {
+              <span class="delete-match-ok">{{ 'settings.deletePhraseMatched' | t }}</span>
+            } @else {
+              <span class="oq-field-error">{{ 'settings.deletePhraseMismatch' | t }}</span>
+            }
+          }
+        </div>
+      }
+
+      @if (countdown() > 0) {
+        <div class="delete-cooldown-banner" role="status" data-testid="delete-cooldown-banner">
+          <oq-icon name="clock" [size]="16" />
+          <span>
+            {{ 'settings.deleteCooldownHint' | t: { seconds: countdown() } }}
+          </span>
+        </div>
+      }
+
+      <div class="oq-modal-actions">
+        <button
+          type="button"
+          class="oq-btn oq-btn--secondary"
+          data-testid="delete-back-btn"
+          [disabled]="busy()"
+          (click)="backToStep1()"
+        >
+          <oq-icon name="arrow-left" [size]="15" />
+          <span>{{ 'settings.deleteBackBtn' | t }}</span>
+        </button>
+        <button
+          type="button"
+          class="oq-btn oq-btn--secondary"
+          data-testid="delete-cancel-btn"
+          [disabled]="busy()"
+          (click)="requestClose()"
+        >
+          {{ 'common.cancel' | t }}
+        </button>
+        <button
+          type="submit"
+          class="oq-btn oq-btn--danger"
+          data-testid="delete-final-submit-btn"
+          [disabled]="!canSubmit()"
+        >
+          @if (busy()) {
+            {{ 'common.deleting' | t }}
+          } @else if (countdown() > 0) {
+            {{ 'settings.deleteCountdownBtn' | t: { seconds: countdown() } }}
+          } @else {
+            {{ 'settings.confirmPermanentDelete' | t }}
+          }
+        </button>
+      </div>
+    </form>
+  }
+</oq-modal>

@@ -11,7 +11,7 @@
       aria-controls="app-sidebar-nav"
     >
       <oq-icon name="menu" [size]="18" />
-      <span>{{ 'common.menu' | t }}</span>
+      <span class="shell__menu-label">{{ 'common.menu' | t }}</span>
     </button>
 
     <a class="shell__brand" routerLink="/dashboard">
@@ -20,10 +20,20 @@
         <circle cx="13.5" cy="13.5" r="5.25" stroke="#fff" stroke-width="2.2" />
         <path d="M17.5 17.5 21 21" stroke="#fff" stroke-width="2.2" stroke-linecap="round" />
       </svg>
-      <span>OpenQuiz</span>
+      <span>Argon Learning</span>
     </a>
 
     <div class="shell__topbar-actions">
+      <button
+        type="button"
+        class="oq-btn oq-btn--secondary oq-btn--sm shell__course-top-btn"
+        (click)="learningLang.toggleLanguage()"
+        [attr.aria-label]="'course.switchAria' | t"
+        [title]="'course.switchAria' | t"
+      >
+        <span class="shell__course-top-badge">{{ learningLang.activeOption().badgeCode }}</span>
+        <span class="shell__course-top-label">{{ learningLang.activeOption().nativeLabel }}</span>
+      </button>
       <button
         type="button"
         class="oq-btn oq-btn--secondary oq-btn--sm shell__lang-btn"
@@ -50,7 +60,7 @@
         "
       >
         <oq-icon [name]="themeService.theme() === 'light' ? 'moon' : 'sun'" [size]="15" />
-        <span>{{
+        <span class="shell__theme-label">{{
           (themeService.theme() === 'light' ? 'common.darkShort' : 'common.lightShort') | t
         }}</span>
       </button>
@@ -66,9 +76,11 @@
     [user]="authService.user()"
     [theme]="themeService.theme()"
     [lang]="i18n.lang()"
+    [learningLang]="learningLang.activeLang()"
     (closeDrawer)="closeDrawer()"
     (toggleTheme)="themeService.toggleTheme()"
     (toggleLang)="i18n.toggleLang()"
+    (selectLearningLang)="learningLang.setLanguage($event)"
     (logout)="logout()"
   />
 
@@ -77,6 +89,10 @@
       <router-outlet />
     </div>
   </main>
+
+  @defer (on idle) {
+    <app-floating-ai-tutor />
+  }
 
   <nav class="shell__bottom-nav" aria-label="Mobile navigation">
     <a
@@ -87,6 +103,24 @@
     >
       <oq-icon name="layout-dashboard" [size]="18" />
       <span>{{ 'nav.mobileHome' | t }}</span>
+    </a>
+    <a
+      routerLink="/starter"
+      routerLinkActive="shell__bottom-link--active"
+      ariaCurrentWhenActive="page"
+      class="shell__bottom-link"
+    >
+      <oq-icon name="target" [size]="18" />
+      <span>{{ 'nav.mobileStarter' | t }}</span>
+    </a>
+    <a
+      routerLink="/learning-path"
+      routerLinkActive="shell__bottom-link--active"
+      ariaCurrentWhenActive="page"
+      class="shell__bottom-link"
+    >
+      <oq-icon name="map" [size]="18" />
+      <span>{{ 'nav.mobilePath' | t }}</span>
     </a>
     <a
       routerLink="/vocabulary"
@@ -105,24 +139,6 @@
     >
       <oq-icon name="layers" [size]="18" />
       <span>{{ 'nav.mobileCards' | t }}</span>
-    </a>
-    <a
-      routerLink="/quizzes"
-      routerLinkActive="shell__bottom-link--active"
-      ariaCurrentWhenActive="page"
-      class="shell__bottom-link"
-    >
-      <oq-icon name="help-circle" [size]="18" />
-      <span>{{ 'nav.mobileQuizzes' | t }}</span>
-    </a>
-    <a
-      routerLink="/progress"
-      routerLinkActive="shell__bottom-link--active"
-      ariaCurrentWhenActive="page"
-      class="shell__bottom-link"
-    >
-      <oq-icon name="bar-chart" [size]="18" />
-      <span>{{ 'nav.mobileStreak' | t }}</span>
     </a>
   </nav>
 </div>

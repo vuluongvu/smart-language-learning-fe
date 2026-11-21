@@ -7,8 +7,14 @@ import {
   OqPageHeaderComponent,
 } from '../../shared/components';
 import { I18nService, TranslatePipe } from '../../shared/i18n';
-import { TopicDetail, VocabularyItem } from '../../shared/types/learning.types';
+import { LearningLanguageService } from '../../shared/services/learning-language.service';
+import {
+  BulkCreateVocabularyResult,
+  TopicDetail,
+  VocabularyItem,
+} from '../../shared/types/learning.types';
 import { extractApiError } from '../../shared/utils/api-error.util';
+import { AiVocabModalComponent } from '../vocabulary/ai-vocab-modal/ai-vocab-modal.component';
 import { VocabularyApiService } from '../vocabulary/vocabulary-api.service';
 import { TopicsApiService } from './topics-api.service';
 
@@ -20,6 +26,7 @@ import { TopicsApiService } from './topics-api.service';
     OqPageHeaderComponent,
     OqEmptyStateComponent,
     OqIconComponent,
+    AiVocabModalComponent,
     TranslatePipe,
   ],
   templateUrl: './topic-detail.component.html',
@@ -30,6 +37,7 @@ export class TopicDetailComponent implements OnInit {
   private readonly topicsApi = inject(TopicsApiService);
   private readonly vocabularyApi = inject(VocabularyApiService);
   private readonly i18n = inject(I18nService);
+  protected readonly learningLang = inject(LearningLanguageService);
 
   protected readonly topic = signal<TopicDetail | null>(null);
   protected readonly allVocabulary = signal<VocabularyItem[]>([]);
@@ -39,6 +47,7 @@ export class TopicDetailComponent implements OnInit {
 
   protected selectedVocabularyId: number | null = null;
   protected readonly isAttaching = signal(false);
+  protected readonly showAiModal = signal(false);
 
   protected readonly attachableVocabulary = computed(() => {
     const currentTopic = this.topic();
@@ -132,8 +141,15 @@ export class TopicDetailComponent implements OnInit {
     });
   }
 
+  onAiSaved(result: BulkCreateVocabularyResult): void {
+    this.showAiModal.set(false);
+    this.statusMessage.set(this.i18n.t('vocabAi.savedMsg', { count: result.createdCount }));
+    this.loadDetail();
+  }
+
   private loadAvailableVocabulary(): void {
-    this.vocabularyApi.list({ limit: 100 }).subscribe({
+    const langCode = this.topic()?.languageCode ?? this.learningLang.activeLang();
+    this.vocabularyApi.list({ limit: 100, languageCode: langCode }).subscribe({
       next: (res) => this.allVocabulary.set(res.items),
       error: () => undefined,
     });

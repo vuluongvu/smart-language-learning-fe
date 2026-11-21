@@ -3,7 +3,7 @@ import { Injectable, inject, signal } from '@angular/core';
 
 export type AppTheme = 'light' | 'dark';
 
-const THEME_STORAGE_KEY = 'openquiz_theme';
+const THEME_STORAGE_KEY = 'argon_learning_theme';
 
 @Injectable({ providedIn: 'root' })
 export class ThemeService {

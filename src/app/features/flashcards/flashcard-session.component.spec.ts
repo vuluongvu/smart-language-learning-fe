@@ -108,11 +108,26 @@ describe('FlashcardSessionComponent', () => {
 
     const cardButton = el.querySelector('.flashcard-stage') as HTMLButtonElement | null;
     expect(cardButton).not.toBeNull();
+    expect(el.querySelector('.flashcard-flipper--flipped')).toBeNull();
+    expect(cardButton?.getAttribute('aria-pressed')).toBe('false');
     cardButton?.click();
     fixture.detectChanges();
 
+    expect(el.querySelector('.flashcard-flipper--flipped')).not.toBeNull();
+    expect(cardButton?.getAttribute('aria-pressed')).toBe('true');
     expect(el.textContent).toContain('a planned route or journey');
     expect(el.textContent).toContain('Good');
+
+    // Flipping back to front removes flipped state smoothly
+    cardButton?.click();
+    fixture.detectChanges();
+    expect(el.querySelector('.flashcard-flipper--flipped')).toBeNull();
+    expect(cardButton?.getAttribute('aria-pressed')).toBe('false');
+
+    // Flip back to reveal ratings and record rating
+    cardButton?.click();
+    fixture.detectChanges();
+    expect(el.querySelector('.flashcard-flipper--flipped')).not.toBeNull();
 
     const rateButtons = Array.from(el.querySelectorAll('.rate-btn')) as HTMLButtonElement[];
     const againBtn = rateButtons.find((b) => b.textContent?.includes('Again'));
@@ -181,5 +196,39 @@ describe('FlashcardSessionComponent', () => {
     fixture.detectChanges();
     expect(el.textContent).toContain('Session Complete');
     expect(el.textContent).toContain('Practice Forgotten Cards Again');
+  });
+
+  it('allows toggling the inline Hangul handwriting drawer for Korean cards', () => {
+    const fixture = TestBed.createComponent(FlashcardSessionComponent);
+    fixture.detectChanges();
+
+    httpTesting
+      .expectOne((r) => r.url.endsWith('/flashcard-sessions/42') && r.method === 'GET')
+      .flush({
+        data: {
+          ...sessionPayload,
+          languageCode: 'ko',
+          cards: [
+            {
+              ...sessionPayload.cards[0],
+              term: '한국어',
+              definition: 'tiếng Hàn',
+            },
+          ],
+        },
+      });
+    fixture.detectChanges();
+
+    const el = fixture.nativeElement as HTMLElement;
+    const toggleBtn = Array.from(el.querySelectorAll<HTMLButtonElement>('button')).find((b) =>
+      b.textContent?.includes('Write on Screen'),
+    );
+    expect(toggleBtn).toBeTruthy();
+
+    toggleBtn!.click();
+    fixture.detectChanges();
+
+    expect(el.querySelector('oq-hangul-pad')).toBeTruthy();
+    expect(el.textContent).toContain('Hide Writing Pad');
   });
 });

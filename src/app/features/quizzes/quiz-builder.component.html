@@ -54,12 +54,7 @@
 
       <div class="oq-field meta-grid__full">
         <label for="quizDescription">{{ 'qb.descLabel' | t }}</label>
-        <textarea
-          id="quizDescription"
-          rows="2"
-          formControlName="description"
-          [placeholder]="'qb.descPlaceholder' | t"
-        ></textarea>
+        <textarea id="quizDescription" rows="2" formControlName="description"></textarea>
       </div>
     </form>
   </section>
@@ -240,12 +235,7 @@
 
           <div class="oq-field">
             <label [for]="'qTerm-' + q.localKey">{{ 'qb.relatedTerm' | t }}</label>
-            <input
-              [id]="'qTerm-' + q.localKey"
-              type="text"
-              [(ngModel)]="q.vocabularyTerm"
-              placeholder="e.g., mitigate"
-            />
+            <input [id]="'qTerm-' + q.localKey" type="text" [(ngModel)]="q.vocabularyTerm" />
           </div>
         </div>
 
@@ -255,11 +245,8 @@
             [id]="'qText-' + q.localKey"
             rows="2"
             [(ngModel)]="q.questionText"
-            [placeholder]="
-              (q.questionType === 'fill_blank'
-                ? 'qb.promptBlankPlaceholder'
-                : 'qb.promptDefaultPlaceholder'
-              ) | t
+            [attr.placeholder]="
+              q.questionType === 'fill_blank' ? ('qb.promptBlankPlaceholder' | t) : null
             "
           ></textarea>
         </div>
@@ -302,9 +289,7 @@
                 class="option-row__input"
                 [(ngModel)]="opt.optionText"
                 [placeholder]="
-                  q.questionType === 'fill_blank'
-                    ? 'Accepted answer (e.g., mitigate)'
-                    : 'Option ' + (oi + 1)
+                  q.questionType === 'fill_blank' ? 'Accepted answer' : 'Option ' + (oi + 1)
                 "
                 [aria-label]="'Option ' + (oi + 1) + ' text'"
               />
@@ -324,12 +309,7 @@
 
         <div class="oq-field explanation-field">
           <label [for]="'qExp-' + q.localKey">{{ 'qb.explanationLabel' | t }}</label>
-          <input
-            [id]="'qExp-' + q.localKey"
-            type="text"
-            [(ngModel)]="q.explanation"
-            [placeholder]="'qb.explanationPlaceholder' | t"
-          />
+          <input [id]="'qExp-' + q.localKey" type="text" [(ngModel)]="q.explanation" />
         </div>
       </article>
     }

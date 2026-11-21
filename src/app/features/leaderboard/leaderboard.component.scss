@@ -16,9 +16,11 @@
 }
 
 .my-card {
-  border-color: rgba(233, 75, 112, 0.28);
+  background: var(--oq-pastel-cream);
+  border-color: var(--oq-pastel-cream-border);
 
   &--hidden {
+    background: var(--oq-bg-surface);
     border-color: var(--oq-border-subtle);
   }
 
@@ -98,8 +100,8 @@
   background: var(--oq-bg-subtle);
 
   &--self {
-    background: var(--oq-accent-soft);
-    border: 1px solid rgba(233, 75, 112, 0.25);
+    background: var(--oq-pastel-pink);
+    border: 1px solid var(--oq-pastel-pink-border);
   }
 
   &__left,

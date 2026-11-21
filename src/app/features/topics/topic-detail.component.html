@@ -31,6 +31,10 @@
       <span class="oq-badge">{{
         'topics.itemsCount' | t: { count: current.vocabularyCount }
       }}</span>
+      <button type="button" class="oq-btn oq-btn--secondary" (click)="showAiModal.set(true)">
+        <oq-icon name="sparkles" [size]="15" />
+        <span>{{ 'vocab.aiAddBtn' | t }}</span>
+      </button>
       <a
         routerLink="/vocabulary"
         [queryParams]="{ topicId: current.id }"
@@ -108,4 +112,13 @@
       }
     </div>
   }
+
+  <app-ai-vocab-modal
+    [open]="showAiModal()"
+    [topics]="[current]"
+    [defaultTopicId]="current.id"
+    [languageCode]="current.languageCode ?? learningLang.activeLang()"
+    (closed)="showAiModal.set(false)"
+    (saved)="onAiSaved($event)"
+  />
 }

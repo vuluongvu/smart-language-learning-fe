@@ -2,11 +2,21 @@ import { Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { OqIconComponent, OqIconName } from '../icon/icon.component';
 
+export type OqStatTone = 'default' | 'accent' | 'success' | 'warning' | 'cream' | 'lavender';
+
 @Component({
   selector: 'oq-stat-card',
   imports: [RouterLink, OqIconComponent],
   template: `
-    <article class="oq-card oq-stat-card" [class.oq-card--interactive]="!!actionLink()">
+    <article
+      class="oq-card oq-stat-card"
+      [class.oq-stat-card--accent]="tone() === 'accent'"
+      [class.oq-stat-card--success]="tone() === 'success'"
+      [class.oq-stat-card--warning]="tone() === 'warning'"
+      [class.oq-stat-card--cream]="tone() === 'cream'"
+      [class.oq-stat-card--lavender]="tone() === 'lavender'"
+      [class.oq-card--interactive]="interactive() || !!actionLink()"
+    >
       <div class="oq-stat-card__top">
         <span class="oq-stat-card__label">{{ label() }}</span>
         @if (icon()) {
@@ -15,8 +25,10 @@ import { OqIconComponent, OqIconName } from '../icon/icon.component';
             [class.oq-stat-card__icon--accent]="tone() === 'accent'"
             [class.oq-stat-card__icon--success]="tone() === 'success'"
             [class.oq-stat-card__icon--warning]="tone() === 'warning'"
+            [class.oq-stat-card__icon--cream]="tone() === 'cream'"
+            [class.oq-stat-card__icon--lavender]="tone() === 'lavender'"
           >
-            <oq-icon [name]="icon()!" [size]="17" />
+            <oq-icon [name]="icon()!" [size]="18" />
           </span>
         }
       </div>
@@ -25,6 +37,8 @@ import { OqIconComponent, OqIconName } from '../icon/icon.component';
         class="oq-stat-card__value"
         [class.oq-stat-card__value--accent]="tone() === 'accent'"
         [class.oq-stat-card__value--success]="tone() === 'success'"
+        [class.oq-stat-card__value--cream]="tone() === 'cream'"
+        [class.oq-stat-card__value--lavender]="tone() === 'lavender'"
       >
         {{ value() }}
       </strong>
@@ -45,54 +59,85 @@ import { OqIconComponent, OqIconName } from '../icon/icon.component';
   `,
   styles: [
     `
+      :host {
+        display: block;
+        height: 100%;
+      }
+
       .oq-stat-card {
+        height: 100%;
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: 8px;
         padding: var(--oq-space-5);
+        border-top-width: 3px;
+
+        &--accent {
+          border-top-color: var(--oq-accent);
+        }
+
+        &--success {
+          border-top-color: var(--oq-success);
+        }
+
+        &--warning,
+        &--cream {
+          border-top-color: var(--oq-warning);
+        }
+
+        &--lavender {
+          border-top-color: var(--oq-pastel-lavender-ink);
+        }
       }
 
       .oq-stat-card__top {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 8px;
+        gap: 10px;
       }
 
       .oq-stat-card__label {
         font-size: 0.8125rem;
         font-weight: 500;
-        color: var(--oq-text-muted);
+        color: var(--oq-text-secondary);
       }
 
       .oq-stat-card__icon {
-        width: 32px;
-        height: 32px;
-        border-radius: 10px;
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
         background: var(--oq-bg-subtle);
         color: var(--oq-text-secondary);
         display: grid;
         place-items: center;
+        flex-shrink: 0;
 
         &--accent {
-          background: var(--oq-accent-soft);
+          background: var(--oq-pastel-pink);
           color: var(--oq-accent);
         }
 
         &--success {
-          background: var(--oq-success-soft);
-          color: var(--oq-success);
+          background: var(--oq-pastel-green);
+          color: var(--oq-pastel-green-ink);
         }
 
-        &--warning {
-          background: var(--oq-warning-soft);
-          color: var(--oq-warning);
+        &--warning,
+        &--cream {
+          background: var(--oq-pastel-cream);
+          color: var(--oq-pastel-cream-ink);
+        }
+
+        &--lavender {
+          background: var(--oq-pastel-lavender);
+          color: var(--oq-pastel-lavender-ink);
         }
       }
 
       .oq-stat-card__value {
         font-size: 1.75rem;
-        font-weight: 700;
+        font-weight: 600;
         line-height: 1.15;
         letter-spacing: -0.02em;
         color: var(--oq-text-primary);
@@ -103,7 +148,15 @@ import { OqIconComponent, OqIconName } from '../icon/icon.component';
         }
 
         &--success {
-          color: var(--oq-success);
+          color: var(--oq-pastel-green-ink);
+        }
+
+        &--cream {
+          color: var(--oq-pastel-cream-ink);
+        }
+
+        &--lavender {
+          color: var(--oq-pastel-lavender-ink);
         }
       }
 
@@ -142,7 +195,8 @@ export class OqStatCardComponent {
   readonly detail = input<string | null>(null);
   readonly meta = input<string | null>(null);
   readonly icon = input<OqIconName | null>(null);
-  readonly tone = input<'default' | 'accent' | 'success' | 'warning'>('default');
+  readonly tone = input<OqStatTone>('default');
+  readonly interactive = input<boolean>(true);
   readonly actionLink = input<string | unknown[] | null>(null);
   readonly actionLabel = input<string>('Open');
 }

@@ -1,3 +1,6 @@
+export type { LearningLanguageCode } from './learning-language.types';
+import type { LearningLanguageCode } from './learning-language.types';
+
 export interface UserProfile {
   id: number;
   email: string;
@@ -5,6 +8,12 @@ export interface UserProfile {
   avatarUrl: string | null;
   timezone: string;
   isLeaderboardVisible: boolean;
+  learningLanguage?: LearningLanguageCode;
+  learningGoalBand?: string;
+  currentLevel?: string;
+  koreanGoalBand?: string;
+  koreanCurrentLevel?: string;
+  dailyGoalMinutes?: number;
   role: string;
   hasPassword: boolean;
   linkedProviders: string[];
@@ -42,6 +51,7 @@ export interface UpdateProfileRequest {
   avatarUrl?: string | null;
   timezone?: string;
   isLeaderboardVisible?: boolean;
+  learningLanguage?: LearningLanguageCode;
 }
 
 export interface ChangePasswordRequest {
@@ -52,5 +62,6 @@ export interface ChangePasswordRequest {
 
 export interface DeleteAccountRequest {
   confirm: boolean;
+  confirmEmail: string;
   currentPassword?: string;
 }

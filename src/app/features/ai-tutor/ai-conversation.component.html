@@ -1,0 +1,542 @@
+@if (errorMessage()) {
+  <div class="oq-alert oq-alert--error" role="alert">
+    <span>{{ errorMessage() }}</span>
+  </div>
+}
+
+@if (loadingDetail()) {
+  <section class="oq-card conv-loading" aria-busy="true">
+    <p class="oq-muted">{{ 'common.loading' | t }}</p>
+  </section>
+} @else if (!activeSession()) {
+  <section class="oq-card conv-setup">
+    <div class="conv-setup__head">
+      <h2>{{ 'conv.setupTitle' | t }}</h2>
+      <p class="oq-muted">
+        {{ (activeCourseLang() === 'ko' ? 'conv.koSetupDesc' : 'conv.setupDesc') | t }}
+      </p>
+    </div>
+
+    <div class="oq-field">
+      <label for="conv-topic-input">{{ 'conv.topicLabel' | t }}</label>
+      <input
+        id="conv-topic-input"
+        type="text"
+        maxlength="160"
+        [value]="topicInput()"
+        [placeholder]="
+          (activeCourseLang() === 'ko' ? 'conv.koTopicPlaceholder' : 'conv.topicPlaceholder') | t
+        "
+        (input)="onTopicChange($event)"
+      />
+      <div class="conv-chips">
+        @for (key of presetTopicKeys(); track key) {
+          <button
+            type="button"
+            class="oq-pill conv-chip"
+            [class.oq-pill--active]="topicInput() === (key | t)"
+            (click)="selectPreset(key)"
+          >
+            {{ key | t }}
+          </button>
+        }
+      </div>
+
+      @if (userTopics().length > 0) {
+        <div class="conv-saved-topics">
+          <span class="conv-saved-topics__label">{{ 'conv.savedTopicsLabel' | t }}</span>
+          <div class="conv-chips">
+            @for (topic of userTopics().slice(0, 6); track topic.id) {
+              <button
+                type="button"
+                class="oq-pill oq-pill--lavender conv-chip"
+                [class.oq-pill--active]="topicInput() === topic.name"
+                (click)="selectSavedTopic(topic.name)"
+              >
+                {{ topic.name }}
+              </button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="conv-setup__grid">
+      <div class="oq-field">
+        <span class="oq-label">{{
+          (activeCourseLang() === 'ko' ? 'conv.koLevelLabel' : 'conv.levelLabel') | t
+        }}</span>
+        <div
+          class="conv-pills"
+          role="group"
+          [attr.aria-label]="
+            (activeCourseLang() === 'ko' ? 'conv.koLevelLabel' : 'conv.levelLabel') | t
+          "
+        >
+          @for (lvl of levels; track lvl) {
+            <button
+              type="button"
+              class="oq-pill conv-pill"
+              [class.oq-pill--active]="selectedLevel() === lvl"
+              (click)="selectedLevel.set(lvl)"
+            >
+              {{ lvl }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="oq-field">
+        <span class="oq-label">{{ 'conv.explainLangLabel' | t }}</span>
+        <div class="conv-pills" role="group" [attr.aria-label]="'conv.explainLangLabel' | t">
+          <button
+            type="button"
+            class="oq-pill conv-pill"
+            [class.oq-pill--active]="selectedExplainLang() === 'vi'"
+            (click)="selectedExplainLang.set('vi')"
+          >
+            {{ 'conv.langVi' | t }}
+          </button>
+          <button
+            type="button"
+            class="oq-pill conv-pill"
+            [class.oq-pill--active]="selectedExplainLang() === 'en'"
+            (click)="selectedExplainLang.set('en')"
+          >
+            {{ 'conv.langEn' | t }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="conv-setup__foot">
+      <button
+        type="button"
+        class="oq-btn oq-btn--primary conv-start-btn"
+        [disabled]="!canStart()"
+        (click)="startConversation()"
+      >
+        <oq-icon name="sparkles" [size]="16" />
+        <span>{{ (starting() ? 'conv.startingBtn' : 'conv.startBtn') | t }}</span>
+      </button>
+    </div>
+  </section>
+
+  <section class="oq-card conv-history">
+    <div class="conv-history__head">
+      <h3>{{ 'conv.recentTitle' | t }}</h3>
+    </div>
+    @if (loadingSessions()) {
+      <p class="oq-muted">{{ 'common.loading' | t }}</p>
+    } @else if (sessions().length === 0) {
+      <oq-empty-state
+        [compact]="true"
+        variant="warm"
+        icon="sparkles"
+        [title]="'conv.recentTitle' | t"
+        [description]="'conv.recentEmpty' | t"
+      />
+    } @else {
+      <ul class="conv-session-list">
+        @for (s of sessions(); track s.id) {
+          <li class="conv-session-item">
+            <div class="conv-session-item__main">
+              <div class="conv-session-item__top">
+                <strong>{{ s.topic }}</strong>
+                <span class="oq-badge">{{ s.level }}</span>
+                <span
+                  class="oq-badge"
+                  [class.oq-badge--success]="s.status === 'completed'"
+                  [class.oq-badge--accent]="s.status === 'active'"
+                >
+                  {{
+                    (s.status === 'completed' ? 'conv.statusCompleted' : 'conv.statusActive') | t
+                  }}
+                </span>
+              </div>
+              <span class="conv-session-item__sub">
+                {{ 'conv.turnsCount' | t: { count: s.turnCount } }} ·
+                {{ s.updatedAt | date: 'mediumDate' }}
+              </span>
+            </div>
+            <button
+              type="button"
+              class="oq-btn oq-btn--secondary oq-btn--sm"
+              (click)="openSession(s.id)"
+            >
+              {{ (s.status === 'completed' ? 'conv.viewSummaryBtn' : 'conv.resumeBtn') | t }}
+            </button>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+} @else if (activeSession(); as s) {
+  <section class="oq-card conv-session-bar">
+    <div class="conv-session-bar__info">
+      @if (!embedded()) {
+        <button type="button" class="oq-btn oq-btn--ghost oq-btn--sm" (click)="backToSetup()">
+          <oq-icon name="arrow-left" [size]="15" />
+          <span>{{ 'conv.backSetupBtn' | t }}</span>
+        </button>
+      }
+      <div class="conv-session-bar__meta">
+        <h2>{{ s.topic }}</h2>
+        <div class="conv-session-bar__badges">
+          <span class="oq-badge oq-badge--lavender">{{ s.level }}</span>
+          <span class="oq-badge oq-badge--cream">{{
+            (s.explanationLang === 'vi' ? 'conv.langVi' : 'conv.langEn') | t
+          }}</span>
+          <span class="oq-badge">{{ 'conv.turnsCount' | t: { count: s.turnCount } }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="conv-session-bar__right">
+      @if (s.status === 'active') {
+        <button
+          type="button"
+          class="oq-pill conv-pill"
+          [class.oq-pill--active]="autoSpeakAi()"
+          (click)="autoSpeakAi.set(!autoSpeakAi())"
+        >
+          <oq-icon name="volume-2" [size]="14" />
+          <span>{{ 'conv.voiceAutoSpeak' | t }}</span>
+        </button>
+        <button
+          type="button"
+          class="oq-pill conv-pill"
+          [class.oq-pill--active]="autoSendVoice()"
+          (click)="autoSendVoice.set(!autoSendVoice())"
+        >
+          <oq-icon name="mic" [size]="14" />
+          <span>{{ 'conv.voiceAutoSend' | t }}</span>
+        </button>
+        <button
+          type="button"
+          class="oq-btn oq-btn--secondary conv-end-btn"
+          [disabled]="isBusyTurn() || speech.isRecording()"
+          (click)="endSession()"
+        >
+          <oq-icon name="check" [size]="15" />
+          <span>{{ (ending() ? 'conv.endingSessionBtn' : 'conv.endSessionBtn') | t }}</span>
+        </button>
+      } @else {
+        <button type="button" class="oq-btn oq-btn--primary oq-btn--sm" (click)="backToSetup()">
+          {{ 'conv.newSessionBtn' | t }}
+        </button>
+      }
+    </div>
+  </section>
+
+  @if (s.status === 'completed' && s.summary; as summary) {
+    <section class="oq-card oq-card--pastel-green oq-success-enter conv-summary">
+      <div class="conv-summary__head">
+        <h3>{{ 'conv.summaryTitle' | t }}</h3>
+        <span class="oq-badge oq-badge--success">{{ 'conv.statusCompleted' | t }}</span>
+      </div>
+      <div class="conv-summary__remark oq-markdown" [innerHTML]="summary.overallRemark | md"></div>
+
+      <div class="conv-summary__grid">
+        <div class="conv-summary-box">
+          <h4>{{ 'conv.commonMistakesTitle' | t }}</h4>
+          @if (summary.commonMistakes.length === 0) {
+            <p class="oq-muted">{{ 'conv.commonMistakesEmpty' | t }}</p>
+          } @else {
+            <ul class="conv-summary-list">
+              @for (m of summary.commonMistakes; track m.pattern) {
+                <li>
+                  <strong [innerHTML]="m.pattern | md: 'inline'"></strong>
+                  @if (m.example) {
+                    <div class="conv-summary-list__ex" [innerHTML]="m.example | md: 'inline'"></div>
+                  }
+                  <div
+                    class="conv-summary-list__tip oq-markdown"
+                    [innerHTML]="m.suggestion | md"
+                  ></div>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+
+        <div class="conv-summary-box">
+          <h4>{{ 'conv.tipsTitle' | t }}</h4>
+          <ul class="conv-summary-list">
+            @for (tip of summary.improvementTips; track tip) {
+              <li [innerHTML]="tip | md: 'inline'"></li>
+            }
+          </ul>
+        </div>
+      </div>
+
+      <div class="conv-summary-box">
+        <h4>{{ 'conv.newVocabTitle' | t }}</h4>
+        @if (summary.newVocabulary.length === 0) {
+          <p class="oq-muted">{{ 'conv.newVocabEmpty' | t }}</p>
+        } @else {
+          <div class="conv-vocab-grid">
+            @for (w of summary.newVocabulary; track w.term) {
+              <div class="conv-vocab-card">
+                <div class="conv-vocab-card__top">
+                  <div>
+                    <strong>{{ w.term }}</strong>
+                    @if (w.partOfSpeech) {
+                      <span class="oq-badge">{{ w.partOfSpeech }}</span>
+                    }
+                  </div>
+                  <button
+                    type="button"
+                    class="oq-btn oq-btn--secondary oq-btn--sm"
+                    [disabled]="isWordSaved(w.term) || savingTerm() === w.term.toLowerCase()"
+                    (click)="saveSuggestedWord(w)"
+                  >
+                    <oq-icon [name]="isWordSaved(w.term) ? 'check' : 'plus'" [size]="14" />
+                    <span>{{
+                      (isWordSaved(w.term) ? 'conv.savedWord' : 'conv.saveWord') | t
+                    }}</span>
+                  </button>
+                </div>
+                <div class="conv-vocab-card__def oq-markdown" [innerHTML]="w.definition | md"></div>
+                @if (w.example) {
+                  <p class="conv-vocab-card__ex">
+                    "<span [innerHTML]="w.example | md: 'inline'"></span>"
+                  </p>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </section>
+  }
+
+  <section class="conv-turns">
+    @for (turn of s.turns; track turn.id) {
+      <article class="conv-turn">
+        <div class="conv-bubble conv-bubble--ai">
+          <div class="conv-bubble__meta">
+            <span>{{ 'conv.aiCoachLabel' | t }}</span>
+            <span class="oq-badge">{{ 'conv.turnBadge' | t: { num: turn.turnNumber } }}</span>
+            @if (speech.isTtsSupported) {
+              <button
+                type="button"
+                class="oq-copy-btn conv-listen-btn"
+                (click)="toggleSpeak(turn.aiPrompt, 'turn-' + turn.id)"
+              >
+                <oq-icon
+                  [name]="speech.speakingId() === 'turn-' + turn.id ? 'square' : 'volume-2'"
+                  [size]="13"
+                />
+                <span>{{
+                  (speech.speakingId() === 'turn-' + turn.id
+                    ? 'conv.stopListenBtn'
+                    : 'conv.listenBtn'
+                  ) | t
+                }}</span>
+              </button>
+            }
+          </div>
+          <div class="conv-bubble__text oq-markdown" [innerHTML]="turn.aiPrompt | md"></div>
+        </div>
+
+        @if (turn.userAnswer) {
+          <div class="conv-bubble conv-bubble--user">
+            <div class="conv-bubble__meta">
+              <span>{{
+                (s.languageCode === 'ko' ? 'conv.koYourReplyLabel' : 'conv.yourReplyLabel') | t
+              }}</span>
+            </div>
+            <p class="conv-bubble__text">{{ turn.userAnswer }}</p>
+          </div>
+        }
+
+        @if (turn.feedback; as fb) {
+          <div class="oq-card conv-feedback">
+            <div class="conv-feedback__head">
+              <strong>{{ 'conv.feedbackTitle' | t }}</strong>
+              <span
+                class="oq-badge"
+                [class.oq-badge--success]="fb.appropriateness === 'great'"
+                [class.oq-badge--cream]="fb.appropriateness === 'good'"
+                [class.oq-badge--danger]="fb.appropriateness === 'needs_work'"
+              >
+                {{ fitBadgeKey(fb.appropriateness) | t }}
+              </span>
+            </div>
+            <div
+              class="conv-feedback__assessment oq-markdown"
+              [innerHTML]="fb.assessment | md"
+            ></div>
+
+            <div class="conv-feedback__section">
+              <span class="conv-feedback__label">{{ 'conv.errorsTitle' | t }}</span>
+              @if (fb.notableErrors.length === 0) {
+                <span class="oq-badge oq-badge--success">{{ 'conv.noErrors' | t }}</span>
+              } @else {
+                <ul class="conv-error-list">
+                  @for (err of fb.notableErrors; track err.original) {
+                    <li class="conv-error-item">
+                      <div class="conv-error-item__diff">
+                        <span class="oq-badge">{{ categoryKey(err.category) | t }}</span>
+                        <del class="conv-err-old" [innerHTML]="err.original | md: 'inline'"></del>
+                        <span aria-hidden="true">→</span>
+                        <strong
+                          class="conv-err-new"
+                          [innerHTML]="err.correction | md: 'inline'"
+                        ></strong>
+                      </div>
+                      <div
+                        class="conv-error-item__reason oq-markdown"
+                        [innerHTML]="err.reason | md"
+                      ></div>
+                    </li>
+                  }
+                </ul>
+              }
+            </div>
+
+            <div class="conv-improved-box">
+              <div class="conv-improved-box__top">
+                <span class="conv-feedback__label">{{ 'conv.improvedTitle' | t }}</span>
+                <div class="conv-improved-box__actions">
+                  @if (speech.isTtsSupported) {
+                    <button
+                      type="button"
+                      class="oq-copy-btn"
+                      (click)="toggleSpeak(fb.improvedVersion, 'imp-' + turn.id)"
+                    >
+                      <oq-icon
+                        [name]="speech.speakingId() === 'imp-' + turn.id ? 'square' : 'volume-2'"
+                        [size]="13"
+                      />
+                      <span>{{ 'conv.listenImprovedBtn' | t }}</span>
+                    </button>
+                  }
+                  <button
+                    type="button"
+                    class="oq-copy-btn"
+                    (click)="copyImproved(turn.id, fb.improvedVersion)"
+                  >
+                    <oq-icon
+                      [name]="copiedVersionId() === turn.id ? 'check' : 'copy'"
+                      [size]="13"
+                    />
+                    <span>{{ (copiedVersionId() === turn.id ? 'ai.copied' : 'ai.copy') | t }}</span>
+                  </button>
+                </div>
+              </div>
+              <div
+                class="conv-improved-box__text oq-markdown"
+                [innerHTML]="fb.improvedVersion | md"
+              ></div>
+            </div>
+
+            <div class="conv-feedback__section">
+              <span class="conv-feedback__label">{{ 'conv.explanationTitle' | t }}</span>
+              <div
+                class="conv-feedback__explain oq-markdown"
+                [innerHTML]="fb.explanation | md"
+              ></div>
+            </div>
+
+            @if (fb.suggestedWords.length > 0) {
+              <div class="conv-feedback__section">
+                <span class="conv-feedback__label">{{ 'conv.suggestedWordsTitle' | t }}</span>
+                <div class="conv-word-chips">
+                  @for (w of fb.suggestedWords; track w.term) {
+                    <div class="conv-word-chip">
+                      <span>
+                        <strong>{{ w.term }}</strong> —
+                        <span [innerHTML]="w.definition | md: 'inline'"></span>
+                      </span>
+                      <button
+                        type="button"
+                        class="oq-btn oq-btn--secondary oq-btn--sm"
+                        [disabled]="isWordSaved(w.term) || savingTerm() === w.term.toLowerCase()"
+                        (click)="saveSuggestedWord(w)"
+                      >
+                        <oq-icon [name]="isWordSaved(w.term) ? 'check' : 'plus'" [size]="13" />
+                        <span>{{
+                          (isWordSaved(w.term) ? 'conv.savedWord' : 'conv.saveWord') | t
+                        }}</span>
+                      </button>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </article>
+    }
+    <div #threadEnd></div>
+  </section>
+
+  @if (s.status === 'active') {
+    <form class="oq-card conv-composer" (submit)="$event.preventDefault(); submitReply('text')">
+      @if (speech.isRecording()) {
+        <div class="conv-recording-bar" role="status">
+          <span class="conv-rec-dot" aria-hidden="true"></span>
+          <span>{{ 'conv.micRecording' | t: { sec: speech.recordingSeconds() } }}</span>
+          <button type="button" class="oq-btn oq-btn--ghost oq-btn--sm" (click)="cancelMic()">
+            {{ 'common.cancel' | t }}
+          </button>
+        </div>
+      } @else if (transcribing()) {
+        <div class="conv-recording-bar conv-recording-bar--busy" role="status">
+          <span>{{
+            (s.languageCode === 'ko' ? 'conv.koMicTranscribing' : 'conv.micTranscribing') | t
+          }}</span>
+        </div>
+      }
+
+      <div class="oq-field conv-composer__field">
+        <label for="conv-reply-input">{{
+          (s.languageCode === 'ko' ? 'conv.koReplyLabel' : 'conv.replyLabel') | t
+        }}</label>
+        <textarea
+          id="conv-reply-input"
+          rows="3"
+          [attr.maxlength]="maxReplyLength"
+          [value]="replyDraft()"
+          [disabled]="!aiEnabled() || isBusyTurn() || speech.isRecording()"
+          [placeholder]="'conv.replyPlaceholder' | t"
+          (input)="onReplyInput($event)"
+          (keydown)="onReplyKeydown($event)"
+        ></textarea>
+      </div>
+      <div class="conv-composer__foot">
+        <span class="oq-field-hint">{{
+          (s.languageCode === 'ko' ? 'conv.koReplyHint' : 'conv.replyHint') | t
+        }}</span>
+        <div class="conv-composer__actions">
+          <button
+            type="button"
+            class="oq-btn conv-mic-btn"
+            [class.oq-btn--danger]="speech.isRecording()"
+            [class.oq-btn--secondary]="!speech.isRecording()"
+            [disabled]="!aiEnabled() || isBusyTurn()"
+            (click)="toggleRecording()"
+          >
+            <oq-icon [name]="speech.isRecording() ? 'square' : 'mic'" [size]="15" />
+            <span>{{
+              (speech.isRecording()
+                ? autoSendVoice()
+                  ? 'conv.micStopSendBtn'
+                  : 'conv.micStopBtn'
+                : s.languageCode === 'ko'
+                  ? 'conv.koMicSpeakBtn'
+                  : 'conv.micSpeakBtn'
+              ) | t
+            }}</span>
+          </button>
+          <button type="submit" class="oq-btn oq-btn--primary" [disabled]="!canReply()">
+            <oq-icon name="send" [size]="15" />
+            <span>{{ (replying() ? 'conv.analyzingBtn' : 'conv.sendReplyBtn') | t }}</span>
+          </button>
+        </div>
+      </div>
+    </form>
+  }
+}

@@ -1,18 +1,21 @@
 import { signal } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
+import { DeferBlockState, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { of } from 'rxjs';
 import { vi } from 'vitest';
 import { AuthService } from '../../../features/auth/auth.service';
+import { AiApiService } from '../../../features/ai-tutor/ai-api.service';
+import { AiTutorChatService } from '../../../features/ai-tutor/ai-tutor-chat.service';
 import { UserProfile } from '../../types/auth.types';
 import { ThemeService } from '../../services/theme.service';
+import { LearningLanguageService } from '../../services/learning-language.service';
 import { AppShellComponent } from './app-shell.component';
 
 describe('AppShellComponent', () => {
   const mockUser = signal<UserProfile | null>({
     id: 1,
-    email: 'learner@openquiz.test',
-    displayName: 'OpenQuiz Learner',
+    email: 'learner@argonlearning.test',
+    displayName: 'Argon Learning Learner',
     avatarUrl: null,
     timezone: 'Asia/Ho_Chi_Minh',
     isLeaderboardVisible: true,
@@ -36,6 +39,16 @@ describe('AppShellComponent', () => {
     }),
   };
 
+  const aiApiMock = {
+    getStatus: vi.fn(() => of({ enabled: true, model: 'openai/gpt-oss-120b' })),
+    chat: vi.fn(() =>
+      of({
+        model: 'openai/gpt-oss-120b',
+        content: 'Hello! Let us practice together.',
+      }),
+    ),
+  };
+
   beforeEach(async () => {
     vi.clearAllMocks();
     mockTheme.set('light');
@@ -43,9 +56,10 @@ describe('AppShellComponent', () => {
     await TestBed.configureTestingModule({
       imports: [AppShellComponent],
       providers: [
-        provideRouter([]),
+        provideRouter([{ path: 'ai-tutor', children: [] }]),
         { provide: AuthService, useValue: authServiceMock },
         { provide: ThemeService, useValue: themeServiceMock },
+        { provide: AiApiService, useValue: aiApiMock },
       ],
     }).compileComponents();
   });
@@ -98,5 +112,68 @@ describe('AppShellComponent', () => {
     fixture.componentInstance.logout();
     expect(authServiceMock.logout).toHaveBeenCalledTimes(1);
     expect(navigateSpy).toHaveBeenCalledWith(['/login']);
+  });
+
+  it('switches active course between English and Korean from the sidebar switcher', () => {
+    localStorage.removeItem('argon_learning_course');
+    const fixture = TestBed.createComponent(AppShellComponent);
+    const learningLang = TestBed.inject(LearningLanguageService);
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+
+    const courseButtons = Array.from(el.querySelectorAll<HTMLButtonElement>('.shell__course-btn'));
+    expect(courseButtons.length).toBe(2);
+
+    const koBtn = courseButtons.find((btn) => btn.textContent?.includes('한국어'));
+    koBtn?.click();
+    fixture.detectChanges();
+
+    expect(learningLang.activeLang()).toBe('ko');
+    expect(localStorage.getItem('argon_learning_course')).toBe('ko');
+    localStorage.removeItem('argon_learning_course');
+  });
+
+  it('toggles floating AI Tutor panel from any page, sends messages, closes on Escape, and hides on /ai-tutor', async () => {
+    const fixture = TestBed.createComponent(AppShellComponent);
+    const router = TestBed.inject(Router);
+    fixture.detectChanges();
+
+    const deferBlocks = await fixture.getDeferBlocks();
+    expect(deferBlocks.length).toBe(1);
+    await deferBlocks[0].render(DeferBlockState.Complete);
+    fixture.detectChanges();
+
+    const el = fixture.nativeElement as HTMLElement;
+
+    const fab = el.querySelector<HTMLButtonElement>('.ft-fab');
+    expect(fab).not.toBeNull();
+    expect(fab?.getAttribute('aria-expanded')).toBe('false');
+    expect(aiApiMock.getStatus).not.toHaveBeenCalled();
+
+    fab?.click();
+    fixture.detectChanges();
+    expect(fab?.getAttribute('aria-expanded')).toBe('true');
+    expect(el.querySelector('#floating-ai-panel')).not.toBeNull();
+    expect(aiApiMock.getStatus).toHaveBeenCalledTimes(1);
+
+    const starterBtn = el.querySelector<HTMLButtonElement>('.ft-starter');
+    starterBtn?.click();
+    fixture.detectChanges();
+    expect(aiApiMock.chat).toHaveBeenCalledTimes(1);
+    expect(el.textContent).toContain('Hello! Let us practice together.');
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    fixture.detectChanges();
+    expect(el.querySelector('#floating-ai-panel')).toBeNull();
+
+    // Opens again then auto-hides when navigating directly to /ai-tutor
+    TestBed.inject(AiTutorChatService).openFloating();
+    fixture.detectChanges();
+    expect(el.querySelector('#floating-ai-panel')).not.toBeNull();
+
+    await router.navigateByUrl('/ai-tutor');
+    fixture.detectChanges();
+    expect(el.querySelector('.ft-fab')).toBeNull();
+    expect(el.querySelector('#floating-ai-panel')).toBeNull();
   });
 });

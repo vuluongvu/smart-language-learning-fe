@@ -1,15 +1,22 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
   OqEmptyStateComponent,
+  OqHangulModalComponent,
   OqIconComponent,
   OqModalComponent,
-  OqPageHeaderComponent,
+  OqStatCardComponent,
 } from '../../shared/components';
 import { I18nService, TranslatePipe } from '../../shared/i18n';
+import { LearningLanguageService } from '../../shared/services/learning-language.service';
+import { LearningLanguageCode } from '../../shared/types/learning-language.types';
+import { SpeechService } from '../../shared/services/speech.service';
 import {
+  AiGenerateMode,
+  BulkCreateVocabularyResult,
   DuplicateCheckResult,
+  FlashcardDueSummary,
   PaginationMeta,
   TopicSummary,
   VocabularyItem,
@@ -18,8 +25,31 @@ import {
 } from '../../shared/types/learning.types';
 import { extractApiError } from '../../shared/utils/api-error.util';
 import { formatProgressStatusLabel } from '../flashcards/flashcard-labels';
+import { FlashcardsApiService } from '../flashcards/flashcards-api.service';
 import { TopicsApiService } from '../topics/topics-api.service';
+import { AiVocabModalComponent } from './ai-vocab-modal/ai-vocab-modal.component';
 import { VocabularyApiService } from './vocabulary-api.service';
+
+export type VocabPosTone = 'lavender' | 'accent' | 'cream' | 'green' | 'sky' | 'plum';
+export type VocabStatusKey = 'new' | 'due' | 'learning' | 'mastered';
+
+const POS_TONE_MAP: Record<string, VocabPosTone> = {
+  noun: 'lavender',
+  'danh từ': 'lavender',
+  verb: 'accent',
+  'động từ': 'accent',
+  'phrasal verb': 'accent',
+  adjective: 'cream',
+  'tính từ': 'cream',
+  adverb: 'green',
+  'trạng từ': 'green',
+  phrase: 'sky',
+  idiom: 'sky',
+  'cụm từ': 'sky',
+  'thành ngữ': 'sky',
+  preposition: 'plum',
+  'giới từ': 'plum',
+};
 
 @Component({
   selector: 'app-vocabulary-list',
@@ -27,24 +57,43 @@ import { VocabularyApiService } from './vocabulary-api.service';
     FormsModule,
     ReactiveFormsModule,
     RouterLink,
-    OqPageHeaderComponent,
     OqModalComponent,
     OqEmptyStateComponent,
+    OqHangulModalComponent,
     OqIconComponent,
+    OqStatCardComponent,
+    AiVocabModalComponent,
     TranslatePipe,
   ],
   templateUrl: './vocabulary-list.component.html',
   styleUrl: './vocabulary-list.component.scss',
 })
-export class VocabularyListComponent implements OnInit {
+export class VocabularyListComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
   private readonly vocabularyApi = inject(VocabularyApiService);
   private readonly topicsApi = inject(TopicsApiService);
+  private readonly flashcardsApi = inject(FlashcardsApiService);
+  protected readonly speech = inject(SpeechService);
   protected readonly i18n = inject(I18nService);
+  protected readonly learningLang = inject(LearningLanguageService);
+  private lastLoadedLang: LearningLanguageCode | null = null;
+
+  constructor() {
+    effect(() => {
+      const lang = this.learningLang.activeLang();
+      if (this.lastLoadedLang && this.lastLoadedLang !== lang) {
+        this.selectedTopicId = null;
+        this.loadTopics();
+        this.loadSummary();
+        this.loadVocabulary(1);
+      }
+    });
+  }
 
   protected readonly items = signal<VocabularyItem[]>([]);
   protected readonly topics = signal<TopicSummary[]>([]);
+  protected readonly summary = signal<FlashcardDueSummary | null>(null);
   protected readonly meta = signal<PaginationMeta>({
     page: 1,
     limit: 12,
@@ -55,6 +104,21 @@ export class VocabularyListComponent implements OnInit {
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly successMessage = signal<string | null>(null);
 
+  protected readonly totalWordsCount = computed(
+    () => this.summary()?.totalCount ?? this.meta().total,
+  );
+  protected readonly dueWordsCount = computed(() => this.summary()?.dueCount ?? 0);
+  protected readonly newWordsCount = computed(() => this.summary()?.newCount ?? 0);
+  protected readonly learningWordsCount = computed(() => this.summary()?.learningCount ?? 0);
+  protected readonly masteredWordsCount = computed(() => this.summary()?.masteredCount ?? 0);
+  protected readonly newAndLearningCount = computed(
+    () => this.newWordsCount() + this.learningWordsCount(),
+  );
+  protected readonly masteryPercent = computed(() => {
+    const total = this.totalWordsCount();
+    return total > 0 ? Math.round((this.masteredWordsCount() / total) * 100) : 0;
+  });
+
   protected search = '';
   protected selectedTopicId: number | null = null;
   protected partOfSpeechFilter = '';
@@ -62,26 +126,28 @@ export class VocabularyListComponent implements OnInit {
   protected sortBy: VocabularySortKey = 'newest';
 
   protected readonly showForm = signal(false);
+  protected readonly showAiModal = signal(false);
+  protected readonly aiModalInitialMode = signal<AiGenerateMode>('topic');
+  protected readonly showMoreFilters = signal(false);
   protected readonly editingItem = signal<VocabularyItem | null>(null);
   protected readonly selectedTopicIds = signal<number[]>([]);
   protected readonly duplicateCheck = signal<DuplicateCheckResult | null>(null);
+  protected readonly isEnriching = signal(false);
+  protected readonly usedAiEnrich = signal(false);
   protected readonly isSaving = signal(false);
   protected readonly formError = signal<string | null>(null);
 
   protected readonly confirmDeleteItem = signal<VocabularyItem | null>(null);
   protected readonly isDeleting = signal(false);
+  readonly handwritingMode = signal<'search' | 'term' | null>(null);
 
   protected readonly formatProgressStatus = formatProgressStatusLabel;
 
-  protected readonly partOfSpeechOptions = [
-    'noun',
-    'verb',
-    'adjective',
-    'adverb',
-    'phrase',
-    'idiom',
-    'preposition',
-  ];
+  protected readonly partOfSpeechOptions = computed(() =>
+    this.learningLang.isKorean()
+      ? ['noun', 'verb', 'adjective', 'adverb', 'particle', 'ending', 'expression', 'phrase']
+      : ['noun', 'verb', 'adjective', 'adverb', 'phrase', 'idiom', 'preposition'],
+  );
 
   protected readonly form = this.fb.nonNullable.group({
     term: ['', [Validators.required, Validators.maxLength(255)]],
@@ -90,6 +156,7 @@ export class VocabularyListComponent implements OnInit {
     definition: ['', [Validators.required, Validators.maxLength(5000)]],
     example: ['', [Validators.maxLength(5000)]],
     notes: ['', [Validators.maxLength(5000)]],
+    newTopicName: ['', [Validators.maxLength(120)]],
   });
 
   ngOnInit(): void {
@@ -98,23 +165,110 @@ export class VocabularyListComponent implements OnInit {
       this.selectedTopicId = qpTopicId;
     }
     this.loadTopics();
+    this.loadSummary();
     this.loadVocabulary(1);
   }
 
+  ngOnDestroy(): void {
+    this.speech.stopSpeaking();
+  }
+
   loadTopics(): void {
-    this.topicsApi.list({ limit: 100 }).subscribe({
+    this.topicsApi.list({ limit: 100, languageCode: this.learningLang.activeLang() }).subscribe({
       next: (res) => this.topics.set(res.items),
       error: () => undefined,
     });
   }
 
+  loadSummary(): void {
+    this.flashcardsApi
+      .getDueQueue({
+        topicId: this.selectedTopicId,
+        languageCode: this.learningLang.activeLang(),
+        limit: 1,
+      })
+      .subscribe({
+        next: (res) => this.summary.set(res.summary),
+        error: () => undefined,
+      });
+  }
+
+  onTopicChange(): void {
+    this.loadSummary();
+    this.loadVocabulary(1);
+  }
+
+  setStatusFilter(status: VocabularyReviewStatusFilter): void {
+    if (this.reviewStatusFilter === status) {
+      return;
+    }
+    this.reviewStatusFilter = status;
+    this.loadVocabulary(1);
+  }
+
+  filterByTopic(topicId: number): void {
+    this.selectedTopicId = this.selectedTopicId === topicId ? null : topicId;
+    this.onTopicChange();
+  }
+
+  hasActiveFilters(): boolean {
+    return Boolean(
+      this.search.trim() ||
+      this.selectedTopicId !== null ||
+      this.partOfSpeechFilter ||
+      this.reviewStatusFilter !== 'all' ||
+      this.sortBy !== 'newest',
+    );
+  }
+
+  resetFilters(): void {
+    const topicChanged = this.selectedTopicId !== null;
+    this.search = '';
+    this.selectedTopicId = null;
+    this.partOfSpeechFilter = '';
+    this.reviewStatusFilter = 'all';
+    this.sortBy = 'newest';
+    if (topicChanged) {
+      this.loadSummary();
+    }
+    this.loadVocabulary(1);
+  }
+
+  speakTerm(item: VocabularyItem): void {
+    this.speech.speak(
+      item.term,
+      `vocab-${item.id}`,
+      0.95,
+      item.languageCode ?? this.learningLang.activeLang(),
+    );
+  }
+
+  statusKey(item: VocabularyItem): VocabStatusKey {
+    if (item.progress?.isDue) {
+      return 'due';
+    }
+    return item.progress?.status ?? 'new';
+  }
+
+  posBadgeTone(pos: string | null | undefined): VocabPosTone {
+    const normalized = pos?.trim().toLowerCase() ?? '';
+    return POS_TONE_MAP[normalized] ?? 'plum';
+  }
+
+  topicToneIndex(topicId: number): number {
+    return Math.abs(topicId) % 4;
+  }
+
   loadVocabulary(page = 1): void {
     this.isLoading.set(true);
     this.errorMessage.set(null);
+    const activeLang = this.learningLang.activeLang();
+    this.lastLoadedLang = activeLang;
 
     this.vocabularyApi
       .list({
         search: this.search,
+        languageCode: activeLang,
         topicId: this.selectedTopicId,
         partOfSpeech: this.partOfSpeechFilter,
         reviewStatus: this.reviewStatusFilter,
@@ -145,6 +299,7 @@ export class VocabularyListComponent implements OnInit {
   openCreate(): void {
     this.editingItem.set(null);
     this.duplicateCheck.set(null);
+    this.usedAiEnrich.set(false);
     this.formError.set(null);
     this.form.reset({
       term: '',
@@ -153,14 +308,29 @@ export class VocabularyListComponent implements OnInit {
       definition: '',
       example: '',
       notes: '',
+      newTopicName: '',
     });
     this.selectedTopicIds.set(this.selectedTopicId ? [this.selectedTopicId] : []);
     this.showForm.set(true);
   }
 
+  openAiModal(mode: AiGenerateMode = 'topic'): void {
+    this.aiModalInitialMode.set(mode);
+    this.showAiModal.set(true);
+  }
+
+  onAiSaved(result: BulkCreateVocabularyResult): void {
+    this.showAiModal.set(false);
+    this.successMessage.set(this.i18n.t('vocabAi.savedMsg', { count: result.createdCount }));
+    this.loadTopics();
+    this.loadSummary();
+    this.loadVocabulary(1);
+  }
+
   openEdit(item: VocabularyItem): void {
     this.editingItem.set(item);
     this.duplicateCheck.set(null);
+    this.usedAiEnrich.set(false);
     this.formError.set(null);
     this.form.reset({
       term: item.term,
@@ -169,16 +339,67 @@ export class VocabularyListComponent implements OnInit {
       definition: item.definition,
       example: item.example ?? '',
       notes: item.notes ?? '',
+      newTopicName: '',
     });
     this.selectedTopicIds.set(item.topics.map((t) => t.id));
     this.showForm.set(true);
   }
 
   cancelForm(): void {
+    if (this.handwritingMode()) return;
     this.showForm.set(false);
     this.editingItem.set(null);
     this.duplicateCheck.set(null);
+    this.usedAiEnrich.set(false);
+    this.isEnriching.set(false);
     this.formError.set(null);
+  }
+
+  enrichWithAi(): void {
+    const term = this.form.controls.term.value.trim();
+    if (!term || this.isEnriching()) {
+      this.form.controls.term.markAsTouched();
+      return;
+    }
+
+    this.isEnriching.set(true);
+    this.formError.set(null);
+
+    this.vocabularyApi.enrichWithAi(term, undefined, this.learningLang.activeLang()).subscribe({
+      next: (res) => {
+        this.isEnriching.set(false);
+        this.usedAiEnrich.set(true);
+        this.form.patchValue({
+          term: res.item.term,
+          pronunciation: res.item.pronunciation ?? '',
+          partOfSpeech: res.item.partOfSpeech ?? '',
+          definition: res.item.definition,
+          example: res.item.example ?? '',
+          notes: res.item.notes ?? '',
+        });
+        if (!this.editingItem() && res.item.alreadyExists) {
+          this.duplicateCheck.set({
+            exists: true,
+            matches: Array.from({ length: Math.max(1, res.item.existingMatchCount) }, () => ({
+              id: 0,
+              term: res.item.term,
+              definition: res.item.definition,
+            })),
+          });
+        }
+      },
+      error: (err: unknown) => {
+        this.isEnriching.set(false);
+        this.formError.set(
+          extractApiError(
+            err,
+            this.i18n.lang() === 'vi'
+              ? 'Không thể tự điền từ vựng bằng AI.'
+              : 'Unable to auto-fill vocabulary with AI.',
+          ),
+        );
+      },
+    });
   }
 
   isTopicSelected(topicId: number): boolean {
@@ -199,7 +420,7 @@ export class VocabularyListComponent implements OnInit {
       return;
     }
 
-    this.vocabularyApi.checkDuplicate(term).subscribe({
+    this.vocabularyApi.checkDuplicate(term, this.learningLang.activeLang()).subscribe({
       next: (res) => this.duplicateCheck.set(res.exists ? res : null),
       error: () => undefined,
     });
@@ -262,34 +483,46 @@ export class VocabularyListComponent implements OnInit {
         },
       });
     } else {
-      this.vocabularyApi.create(payload).subscribe({
-        next: (created) => {
-          this.isSaving.set(false);
-          this.showForm.set(false);
-          this.duplicateCheck.set(null);
-          this.successMessage.set(
-            created.duplicateWarning
-              ? this.i18n.lang() === 'vi'
-                ? `Đã thêm "${created.term}" (lưu ý: đã có ${created.existingMatchCount} mục trùng từ này).`
-                : `Added "${created.term}" (note: ${created.existingMatchCount} existing item(s) share this term).`
-              : this.i18n.lang() === 'vi'
-                ? `Đã thêm "${created.term}" vào Kho từ vựng.`
-                : `Added "${created.term}" to your Vocabulary Bank.`,
-          );
-          this.loadVocabulary(1);
-        },
-        error: (err: unknown) => {
-          this.isSaving.set(false);
-          this.formError.set(
-            extractApiError(
-              err,
-              this.i18n.lang() === 'vi'
-                ? 'Không thể tạo từ vựng'
-                : 'Failed to create vocabulary item',
-            ),
-          );
-        },
-      });
+      const trimmedNewTopic = raw.newTopicName.trim();
+      this.vocabularyApi
+        .create({
+          ...payload,
+          languageCode: this.learningLang.activeLang(),
+          ...(trimmedNewTopic ? { newTopicName: trimmedNewTopic } : {}),
+          ...(this.usedAiEnrich() ? { source: 'ai' as const } : {}),
+        })
+        .subscribe({
+          next: (created) => {
+            this.isSaving.set(false);
+            this.showForm.set(false);
+            this.duplicateCheck.set(null);
+            this.successMessage.set(
+              created.duplicateWarning
+                ? this.i18n.lang() === 'vi'
+                  ? `Đã thêm "${created.term}" (lưu ý: đã có ${created.existingMatchCount} mục trùng từ này).`
+                  : `Added "${created.term}" (note: ${created.existingMatchCount} existing item(s) share this term).`
+                : this.i18n.lang() === 'vi'
+                  ? `Đã thêm "${created.term}" vào Kho từ vựng.`
+                  : `Added "${created.term}" to your Vocabulary Bank.`,
+            );
+            if (trimmedNewTopic) {
+              this.loadTopics();
+            }
+            this.loadSummary();
+            this.loadVocabulary(1);
+          },
+          error: (err: unknown) => {
+            this.isSaving.set(false);
+            this.formError.set(
+              extractApiError(
+                err,
+                this.i18n.lang() === 'vi'
+                  ? 'Không thể tạo từ vựng'
+                  : 'Failed to create vocabulary item',
+              ),
+            );
+          },
+        });
     }
   }
 
@@ -308,6 +541,7 @@ export class VocabularyListComponent implements OnInit {
         this.successMessage.set(
           this.i18n.lang() === 'vi' ? `Đã xóa "${target.term}".` : `Deleted "${target.term}".`,
         );
+        this.loadSummary();
         this.loadVocabulary(this.meta().page);
       },
       error: (err: unknown) => {
@@ -322,5 +556,31 @@ export class VocabularyListComponent implements OnInit {
         );
       },
     });
+  }
+
+  openHandwriting(mode: 'search' | 'term'): void {
+    this.handwritingMode.set(mode);
+  }
+
+  closeHandwriting(): void {
+    this.handwritingMode.set(null);
+  }
+
+  applyHandwritingCandidate(text: string): void {
+    const clean = text.trim();
+    if (!clean) return;
+    const mode = this.handwritingMode();
+    if (mode === 'search') {
+      this.search = clean;
+      this.handwritingMode.set(null);
+      this.loadVocabulary(1);
+      return;
+    }
+    if (mode === 'term') {
+      this.form.controls.term.setValue(clean);
+      this.form.controls.term.markAsDirty();
+      this.handwritingMode.set(null);
+      this.onTermBlur();
+    }
   }
 }

@@ -25,20 +25,9 @@
     }
 
     <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" novalidate>
-      <div class="profile-grid">
-        <div class="oq-field">
-          <label for="settings-name">{{ 'auth.displayName' | t }}</label>
-          <input id="settings-name" type="text" formControlName="displayName" />
-        </div>
-
-        <div class="oq-field">
-          <label for="settings-timezone">{{ 'auth.timezone' | t }}</label>
-          <select id="settings-timezone" formControlName="timezone">
-            @for (tz of timezoneOptions(); track tz) {
-              <option [value]="tz">{{ tz }}</option>
-            }
-          </select>
-        </div>
+      <div class="oq-field">
+        <label for="settings-name">{{ 'auth.displayName' | t }}</label>
+        <input id="settings-name" type="text" formControlName="displayName" />
       </div>
 
       <div class="oq-field">
@@ -77,6 +66,23 @@
           >
             {{ 'settings.langVi' | t }}
           </button>
+        </div>
+      </div>
+
+      <div class="lang-picker">
+        <span class="lang-picker__label">{{ 'course.switcherLabel' | t }}</span>
+        <div class="lang-picker__buttons">
+          @for (opt of learningLang.options; track opt.code) {
+            <button
+              type="button"
+              class="oq-btn oq-btn--sm"
+              [class.oq-btn--primary]="learningLang.activeLang() === opt.code"
+              [class.oq-btn--secondary]="learningLang.activeLang() !== opt.code"
+              (click)="learningLang.setLanguage(opt.code)"
+            >
+              {{ opt.badgeCode }} · {{ opt.nativeLabel }}
+            </button>
+          }
         </div>
       </div>
 
@@ -192,47 +198,123 @@
       </form>
     </div>
 
-    <div class="danger-block">
-      <h3>{{ 'settings.deleteTitle' | t }}</h3>
-      <p class="section-desc">{{ 'settings.deleteDesc' | t }}</p>
+    <div class="security-block">
+      <div class="settings-section__head">
+        <div>
+          <h3>{{ 'settings.googleTitle' | t }}</h3>
+          <p class="section-desc">{{ 'settings.googleDesc' | t }}</p>
+        </div>
+        <span
+          class="oq-badge"
+          [class.oq-badge--success]="isGoogleLinked()"
+          [class.oq-badge--lavender]="!isGoogleLinked()"
+        >
+          {{
+            (isGoogleLinked() ? 'settings.googleLinkedBadge' : 'settings.googleNotLinkedBadge') | t
+          }}
+        </span>
+      </div>
 
-      @if (deleteError()) {
+      @if (googleMessage()) {
+        <div class="oq-alert oq-alert--success" role="status">
+          {{ googleMessage() }}
+        </div>
+      }
+      @if (googleError()) {
         <div class="oq-alert oq-alert--error" role="alert">
-          {{ deleteError() }}
+          {{ googleError() }}
         </div>
       }
 
-      @if (!showDeleteConfirm()) {
-        <button type="button" class="oq-btn oq-btn--danger" (click)="showDeleteConfirm.set(true)">
-          {{ 'settings.deleteBtn' | t }}
-        </button>
-      } @else {
-        <form [formGroup]="deleteForm" (ngSubmit)="deleteAccount()">
-          @if (authService.user()?.hasPassword) {
-            <div class="oq-field">
-              <label for="delete-password">{{ 'settings.deletePasswordPrompt' | t }}</label>
-              <input
-                id="delete-password"
-                type="password"
-                formControlName="currentPassword"
-                autocomplete="current-password"
-              />
-            </div>
+      @if (isGoogleLinked()) {
+        <div class="actions-row">
+          <button
+            type="button"
+            class="oq-btn oq-btn--secondary"
+            [disabled]="googleBusy() || !authService.user()?.hasPassword"
+            (click)="unlinkGoogle()"
+          >
+            {{ 'settings.googleUnlinkBtn' | t }}
+          </button>
+          @if (!authService.user()?.hasPassword) {
+            <span class="section-desc">{{ 'settings.googleNeedPasswordHint' | t }}</span>
           }
-          <div class="actions-row">
-            <button type="submit" class="oq-btn oq-btn--danger" [disabled]="deleteBusy()">
-              {{ deleteBusy() ? ('common.deleting' | t) : ('settings.confirmPermanentDelete' | t) }}
-            </button>
-            <button
-              type="button"
-              class="oq-btn oq-btn--secondary"
-              (click)="showDeleteConfirm.set(false)"
-            >
-              {{ 'common.cancel' | t }}
-            </button>
-          </div>
-        </form>
+        </div>
+      } @else if (googleClientId()) {
+        <div #googleLinkContainer class="actions-row"></div>
+      } @else {
+        <div class="oq-alert oq-alert--info">
+          {{ 'auth.googleDisabled' | t }}
+        </div>
       }
     </div>
   </section>
+
+  <section
+    class="oq-card oq-card--danger settings-section danger-zone"
+    aria-labelledby="section-danger-zone"
+  >
+    <div class="danger-zone__head">
+      <div class="danger-zone__title-group">
+        <span class="danger-zone__icon" aria-hidden="true">
+          <oq-icon name="alert-circle" [size]="18" />
+        </span>
+        <div>
+          <h2 id="section-danger-zone">{{ 'settings.dangerZoneTitle' | t }}</h2>
+          <p class="section-desc">{{ 'settings.dangerZoneDesc' | t }}</p>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="oq-btn oq-btn--secondary oq-btn--sm danger-zone__toggle"
+        [attr.aria-expanded]="dangerZoneExpanded()"
+        aria-controls="danger-zone-panel"
+        data-testid="danger-zone-toggle"
+        (click)="toggleDangerZone()"
+      >
+        <span>
+          {{ (dangerZoneExpanded() ? 'settings.dangerZoneHide' : 'settings.dangerZoneShow') | t }}
+        </span>
+        <oq-icon
+          name="chevron-down"
+          [size]="16"
+          class="danger-zone__chevron"
+          [class.danger-zone__chevron--open]="dangerZoneExpanded()"
+        />
+      </button>
+    </div>
+
+    @if (dangerZoneExpanded()) {
+      <div id="danger-zone-panel" class="danger-block">
+        <div class="danger-block__row">
+          <div>
+            <h3>{{ 'settings.deleteTitle' | t }}</h3>
+            <p class="section-desc">{{ 'settings.deleteDesc' | t }}</p>
+          </div>
+          <button
+            type="button"
+            class="oq-btn danger-trigger-btn"
+            data-testid="open-delete-modal-btn"
+            (click)="openDeleteModal()"
+          >
+            <oq-icon name="trash" [size]="16" />
+            <span>{{ 'settings.deleteBtn' | t }}</span>
+          </button>
+        </div>
+      </div>
+    }
+  </section>
 </div>
+
+@if (showDeleteModal()) {
+  <app-delete-account-modal
+    [email]="userEmail()"
+    [hasPassword]="hasPassword()"
+    [busy]="deleteBusy()"
+    [error]="deleteError()"
+    (closed)="closeDeleteModal()"
+    (errorCleared)="deleteError.set(null)"
+    (confirmed)="deleteAccount($event)"
+  />
+}

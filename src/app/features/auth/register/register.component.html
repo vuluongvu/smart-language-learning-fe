@@ -7,7 +7,7 @@
           <circle cx="13.5" cy="13.5" r="5.25" stroke="#fff" stroke-width="2.2" />
           <path d="M17.5 17.5 21 21" stroke="#fff" stroke-width="2.2" stroke-linecap="round" />
         </svg>
-        <span>OpenQuiz</span>
+        <span>Argon Learning</span>
       </div>
       <div class="auth-header__actions">
         <button
@@ -97,19 +97,20 @@
         }
       </div>
 
-      <div class="oq-field">
-        <label for="register-timezone">{{ 'auth.timezone' | t }}</label>
-        <select id="register-timezone" formControlName="timezone">
-          @for (tz of timezoneOptions; track tz) {
-            <option [value]="tz">{{ tz }}</option>
-          }
-        </select>
-      </div>
-
       <button type="submit" class="oq-btn oq-btn--primary oq-btn--full" [disabled]="isSubmitting()">
         {{ isSubmitting() ? ('auth.creatingAccount' | t) : ('auth.createAccountBtn' | t) }}
       </button>
     </form>
+
+    <div class="auth-divider">{{ 'auth.or' | t }}</div>
+
+    @if (googleClientId()) {
+      <div #googleBtnContainer class="auth-google-slot"></div>
+    } @else {
+      <div class="oq-alert oq-alert--info auth-google-note">
+        {{ 'auth.googleDisabled' | t }}
+      </div>
+    }
 
     <p class="auth-footer">
       {{ 'auth.alreadyHaveAccount' | t }}

@@ -1,6 +1,6 @@
-# OpenQuiz Frontend (`smart-language-learning-fe`)
+# Argon Learning Frontend (`smart-language-learning-fe`)
 
-Frontend web application for the **OpenQuiz** personal English self-learning platform, built with **Angular 21**, **Standalone Components**, **Signals**, and **SCSS**.
+Frontend web application for the **Argon Learning** personal English self-learning platform, built with **Angular 21**, **Standalone Components**, **Signals**, and **SCSS**.
 
 ## Implemented Features (MVP Phases 1–6)
 
@@ -14,6 +14,8 @@ Frontend web application for the **OpenQuiz** personal English self-learning pla
   Multiple-choice & fill-in-the-blank manual quizzes, deterministic zero-AI draft generator from owned vocabulary, resumable attempts (`PATCH /attempts/:id/progress`), score grading, and one-click saving of new terms from quiz questions directly into the learner's vocabulary bank.
 - **Spaced Repetition Flashcards (`/flashcards`, `/flashcards/sessions/:id`):**
   SM-2 review scheduling (`Again` / `Hard` / `Good` / `Easy`), topic/all/due-only session filters, flip card keyboard/click interactions, live interval feedback, and session completion tracking.
+- **AI English Tutor (`/ai-tutor`):**
+  Conversational English tutor chat powered by backend Groq (`qwen/qwen3.8-27b` by default) integration (`/api/v1/ai/status`, `/api/v1/ai/chat`), starter prompts, rolling 20-turn context history, error recovery, and live server availability checks.
 - **Progress, Streak & Leaderboard (`/progress`, `/leaderboard`):**
   7-day & 30-day activity history charts, daily streak timeline, accuracy metrics, opt-in privacy-preserving leaderboard rankings, and IANA timezone sync.
 - **Settings & Accessibility (`/settings`, App Shell):**
@@ -60,7 +62,7 @@ The app runs at `http://localhost:4200`.
 src/
   app/
     core/         # App-level configuration / auth token interceptor & guards
-    features/     # auth, dashboard, vocabulary, topics, quizzes, flashcards, progress, leaderboard, settings
+    features/     # auth, dashboard, vocabulary, topics, quizzes, flashcards, ai-tutor, progress, leaderboard, settings
     shared/
       api/        # API envelope types and HTTP helpers
       components/ # Reusable UI primitives
@@ -73,14 +75,25 @@ src/
 
 ## Running Frontend in Docker (Full Stack)
 
-Start `smart-language-learning-be` first (`docker compose up -d --build`) so the `openquiz-network` bridge and `openquiz-app` container are healthy, then build and run the Angular + Nginx container:
+Start `smart-language-learning-be` first (`docker compose up -d --build`) so the `argon-learning-network` bridge and `argon-learning-app` container are healthy, then build and run the Angular + Nginx container:
 
 ```bash
 docker compose up -d --build
 ```
 
 - Web UI: `http://localhost:4200`
-- Reverse proxy: Nginx serves the built Angular SPA and proxies `/api/*` to `http://openquiz-app:3000`.
+- Reverse proxy: Nginx serves the built Angular SPA and proxies `/api/*` to `http://argon-learning-app:3000`.
+
+## Deploying to Vercel (Paired with AWS Backend)
+
+`vercel.json` and `scripts/vercel-build.mjs` configure SPA fallback routing, cache headers, and runtime API URL injection for Vercel:
+
+1. Import `smart-language-learning-fe` into Vercel.
+2. Add Environment Variable in **Project Settings -> Environment Variables**:
+   - `ARGON_API_BASE_URL` = `https://<your-aws-api-domain>/api/v1` (must be HTTPS to avoid browser Mixed Content errors).
+   - Optional: `ARGON_GOOGLE_CLIENT_ID` (if omitted, the app resolves the public Client ID automatically from `GET /api/v1/auth/google/config`).
+3. Deploy — Vercel uses `vercel.json` (`npm run build:vercel` -> `dist/smart-language-learning-fe/browser`).
+4. Add your assigned `https://<your-app>.vercel.app` URL to `CORS_ORIGIN` on the AWS backend (and to **Authorized JavaScript origins** in Google Cloud Console if Google Sign-In is enabled).
 
 ## Git Workflow
 

@@ -20,8 +20,18 @@
 
 <section class="stats-grid" aria-label="Review queue metrics">
   <oq-stat-card [label]="'fc.dueNow' | t" [value]="summary().dueCount" icon="clock" tone="accent" />
-  <oq-stat-card [label]="'fc.new' | t" [value]="summary().newCount" icon="sparkles" />
-  <oq-stat-card [label]="'fc.learning' | t" [value]="summary().learningCount" icon="layers" />
+  <oq-stat-card
+    [label]="'fc.new' | t"
+    [value]="summary().newCount"
+    icon="sparkles"
+    tone="lavender"
+  />
+  <oq-stat-card
+    [label]="'fc.learning' | t"
+    [value]="summary().learningCount"
+    icon="layers"
+    tone="cream"
+  />
   <oq-stat-card
     [label]="'fc.mastered' | t"
     [value]="summary().masteredCount"
@@ -87,7 +97,13 @@
       (click)="startSession()"
     >
       <oq-icon name="layers" [size]="16" />
-      <span>{{ isStarting() ? ('fc.starting' | t) : ('fc.startSession' | t) }}</span>
+      <span>{{
+        isStarting()
+          ? ('fc.starting' | t)
+          : summary().dueCount > 0
+            ? ('fc.startDueBtn' | t: { count: summary().dueCount })
+            : ('fc.startSession' | t)
+      }}</span>
     </button>
 
     @if (summary().hardCount > 0) {
@@ -115,6 +131,7 @@
     } @else if (dueCards().length === 0) {
       <oq-empty-state
         [compact]="true"
+        variant="warm"
         icon="layers"
         [title]="'fc.queueEmptyTitle' | t"
         [description]="'fc.queueEmptyDesc' | t: { mode: formatMode(selectedMode, i18n.lang()) }"

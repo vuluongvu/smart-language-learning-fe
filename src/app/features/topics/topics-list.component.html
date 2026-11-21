@@ -1,7 +1,7 @@
 <oq-page-header
   [eyebrow]="'topics.eyebrow' | t"
   [title]="'topics.title' | t"
-  [subtitle]="'topics.subtitle' | t"
+  [subtitle]="(learningLang.isKorean() ? 'topics.koSubtitle' : 'topics.subtitle') | t"
 >
   <button type="button" actions class="oq-btn oq-btn--primary" (click)="openCreate()">
     <oq-icon name="plus" [size]="16" />
@@ -56,7 +56,9 @@
           id="topic-name"
           type="text"
           formControlName="name"
-          [placeholder]="'topics.namePlaceholder' | t"
+          [placeholder]="
+            (learningLang.isKorean() ? 'topics.koNamePlaceholder' : 'topics.namePlaceholder') | t
+          "
         />
         @if (form.controls.name.touched && form.controls.name.invalid) {
           <span class="oq-field-error">{{ 'topics.nameError' | t }}</span>
@@ -65,12 +67,7 @@
 
       <div class="oq-field">
         <label for="topic-desc">{{ 'topics.descLabel' | t }}</label>
-        <textarea
-          id="topic-desc"
-          rows="3"
-          formControlName="description"
-          [placeholder]="'topics.descPlaceholder' | t"
-        ></textarea>
+        <textarea id="topic-desc" rows="3" formControlName="description"></textarea>
       </div>
 
       <div class="modal-actions">
@@ -114,9 +111,10 @@
   <div class="oq-card state-box">{{ 'topics.loading' | t }}</div>
 } @else if (topics().length === 0) {
   <oq-empty-state
+    variant="warm"
     icon="folder"
     [title]="'topics.emptyTitle' | t"
-    [description]="'topics.emptyDesc' | t"
+    [description]="(learningLang.isKorean() ? 'topics.koEmptyDesc' : 'topics.emptyDesc') | t"
   >
     <button actions type="button" class="oq-btn oq-btn--primary" (click)="openCreate()">
       {{ 'topics.emptyBtn' | t }}
@@ -124,11 +122,16 @@
   </oq-empty-state>
 } @else {
   <div class="topics-grid">
-    @for (topic of topics(); track topic.id) {
+    @for (topic of topics(); track topic.id; let idx = $index) {
       <article class="oq-card oq-card--interactive topic-card">
         <div class="topic-card__top">
           <div class="topic-card__title-group">
-            <span class="topic-card__icon">
+            <span
+              class="topic-card__icon"
+              [class.topic-card__icon--lavender]="idx % 4 === 1"
+              [class.topic-card__icon--cream]="idx % 4 === 2"
+              [class.topic-card__icon--green]="idx % 4 === 3"
+            >
               <oq-icon name="folder" [size]="17" />
             </span>
             <a [routerLink]="['/topics', topic.id]" class="topic-card__title">

@@ -1,8 +1,11 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../../features/auth/auth.service';
-import { OqIconComponent, OqSidebarComponent } from '../../components';
+import { FloatingAiTutorComponent } from '../../../features/ai-tutor/floating-ai-tutor.component';
+import { OqIconComponent } from '../../components/icon/icon.component';
+import { OqSidebarComponent } from '../../components/sidebar/sidebar.component';
 import { I18nService, TranslatePipe } from '../../i18n';
+import { LearningLanguageService } from '../../services/learning-language.service';
 import { ThemeService } from '../../services/theme.service';
 
 @Component({
@@ -12,6 +15,7 @@ import { ThemeService } from '../../services/theme.service';
     RouterLink,
     RouterLinkActive,
     OqSidebarComponent,
+    FloatingAiTutorComponent,
     OqIconComponent,
     TranslatePipe,
   ],
@@ -25,6 +29,7 @@ export class AppShellComponent {
   protected readonly authService = inject(AuthService);
   protected readonly themeService = inject(ThemeService);
   protected readonly i18n = inject(I18nService);
+  protected readonly learningLang = inject(LearningLanguageService);
   private readonly router = inject(Router);
 
   protected readonly drawerOpen = signal(false);

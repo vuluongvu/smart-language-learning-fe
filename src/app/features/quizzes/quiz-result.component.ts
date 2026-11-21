@@ -9,6 +9,9 @@ import {
   OqProgressBarComponent,
 } from '../../shared/components';
 import { I18nService, TranslatePipe } from '../../shared/i18n';
+import { OqMarkdownPipe } from '../../shared/pipes/markdown.pipe';
+import { LearningLanguageService } from '../../shared/services/learning-language.service';
+import { containsHangul } from '../../shared/types/learning-language.types';
 import {
   AttemptCompletedAnswer,
   AttemptDetail,
@@ -31,6 +34,7 @@ import { QuizzesApiService } from './quizzes-api.service';
     OqEmptyStateComponent,
     OqIconComponent,
     TranslatePipe,
+    OqMarkdownPipe,
   ],
   templateUrl: './quiz-result.component.html',
   styleUrl: './quiz-result.component.scss',
@@ -41,6 +45,7 @@ export class QuizResultComponent implements OnInit {
   private readonly topicsApi = inject(TopicsApiService);
   private readonly vocabularyApi = inject(VocabularyApiService);
   private readonly i18n = inject(I18nService);
+  protected readonly learningLang = inject(LearningLanguageService);
 
   protected readonly attempt = signal<AttemptDetail | null>(null);
   protected readonly topics = signal<TopicSummary[]>([]);
@@ -92,7 +97,7 @@ export class QuizResultComponent implements OnInit {
   }
 
   private loadTopics(): void {
-    this.topicsApi.list({ limit: 100 }).subscribe({
+    this.topicsApi.list({ limit: 100, languageCode: this.learningLang.activeLang() }).subscribe({
       next: (res) => this.topics.set(res.items),
       error: () => undefined,
     });
@@ -141,7 +146,8 @@ export class QuizResultComponent implements OnInit {
       return;
     }
 
-    this.vocabularyApi.checkDuplicate(term).subscribe({
+    const langCode = containsHangul(term) ? 'ko' : this.learningLang.activeLang();
+    this.vocabularyApi.checkDuplicate(term, langCode).subscribe({
       next: (res) => this.duplicateCheck.set(res.exists ? res : null),
       error: () => undefined,
     });
@@ -212,10 +218,12 @@ export class QuizResultComponent implements OnInit {
     this.isSavingVocab.set(true);
     this.saveError.set(null);
 
+    const langCode = containsHangul(term) ? 'ko' : this.learningLang.activeLang();
     this.quizzesApi
       .saveVocabularyFromQuiz({
         term,
         definition,
+        languageCode: langCode,
         pronunciation: this.savePronunciation.trim() || null,
         partOfSpeech: this.savePartOfSpeech.trim() || null,
         example: this.saveExample.trim() || null,

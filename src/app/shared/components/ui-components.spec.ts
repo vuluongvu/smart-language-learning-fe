@@ -4,6 +4,7 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { provideRouter } from '@angular/router';
 import { vi } from 'vitest';
 import {
+  OqActivityHeatmapComponent,
   OqButtonComponent,
   OqCardComponent,
   OqCheckboxComponent,
@@ -93,12 +94,7 @@ import {
       tone="success"
     />
 
-    <oq-streak-card
-      [currentStreak]="5"
-      [longestStreak]="9"
-      timezone="Asia/Ho_Chi_Minh"
-      [isActiveToday]="true"
-    />
+    <oq-streak-card [currentStreak]="5" [longestStreak]="9" [isActiveToday]="true" />
 
     <oq-stat-card
       label="Mastered"
@@ -139,7 +135,7 @@ class TestHostComponent {
 
   readonly profile = {
     id: 1,
-    email: 'learner@openquiz.test',
+    email: 'learner@argonlearning.test',
     displayName: 'Linh Learner',
     avatarUrl: null,
     timezone: 'Asia/Ho_Chi_Minh',
@@ -305,5 +301,43 @@ describe('Shared UI Component Library', () => {
 
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('0%');
     expect(vi.isMockFunction(vi.fn())).toBe(true);
+  });
+
+  it('renders OqActivityHeatmapComponent cells with intensity levels and tooltips', () => {
+    const fixture = TestBed.createComponent(OqActivityHeatmapComponent);
+    fixture.componentRef.setInput('points', [
+      { date: '2026-11-16', activityCount: 0, quizCompletions: 0, flashcardCompletions: 0 },
+      { date: '2026-11-17', activityCount: 1, quizCompletions: 1, flashcardCompletions: 0 },
+      { date: '2026-11-18', activityCount: 4, quizCompletions: 2, flashcardCompletions: 2 },
+    ]);
+    fixture.detectChanges();
+
+    const cells = (fixture.nativeElement as HTMLElement).querySelectorAll('.oq-heatmap__cell');
+    expect(cells.length).toBe(3);
+    expect(cells[1].classList.contains('oq-heatmap__cell--l1')).toBe(true);
+    expect(cells[2].classList.contains('oq-heatmap__cell--l3')).toBe(true);
+    expect(cells[2].getAttribute('title')).toContain('2026-11-18: 4 activities');
+  });
+
+  it('renders celebration illustration variant on OqEmptyState and pastel tones on OqStatCard', () => {
+    const emptyFixture = TestBed.createComponent(OqEmptyStateComponent);
+    emptyFixture.componentRef.setInput('title', "You're all caught up!");
+    emptyFixture.componentRef.setInput('variant', 'celebration');
+    emptyFixture.detectChanges();
+
+    const emptyEl = emptyFixture.nativeElement as HTMLElement;
+    expect(emptyEl.querySelector('.oq-empty-state--celebration')).not.toBeNull();
+    expect(emptyEl.querySelector('.oq-empty-state__illo svg')).not.toBeNull();
+
+    const statFixture = TestBed.createComponent(OqStatCardComponent);
+    statFixture.componentRef.setInput('label', 'Saved Words');
+    statFixture.componentRef.setInput('value', 24);
+    statFixture.componentRef.setInput('icon', 'book-open');
+    statFixture.componentRef.setInput('tone', 'lavender');
+    statFixture.detectChanges();
+
+    const statEl = statFixture.nativeElement as HTMLElement;
+    expect(statEl.querySelector('.oq-stat-card--lavender')).not.toBeNull();
+    expect(statEl.querySelector('.oq-stat-card__icon--lavender')).not.toBeNull();
   });
 });

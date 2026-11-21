@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiEnvelope } from '../../shared/api/api-response.type';
+import { LearningLanguageCode } from '../../shared/types/learning-language.types';
 import {
   ProgressHistory,
   ProgressOverview,
@@ -16,14 +17,21 @@ export class ProgressApiService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = environment.apiBaseUrl;
 
-  getOverview(): Observable<ProgressOverview> {
+  getOverview(languageCode?: LearningLanguageCode): Observable<ProgressOverview> {
+    let params = new HttpParams();
+    if (languageCode) {
+      params = params.set('languageCode', languageCode);
+    }
     return this.http
-      .get<ApiEnvelope<ProgressOverview>>(`${this.baseUrl}/progress/overview`)
+      .get<ApiEnvelope<ProgressOverview>>(`${this.baseUrl}/progress/overview`, { params })
       .pipe(map((res) => res.data));
   }
 
-  getHistory(days = 14): Observable<ProgressHistory> {
-    const params = new HttpParams().set('days', days);
+  getHistory(days = 14, languageCode?: LearningLanguageCode): Observable<ProgressHistory> {
+    let params = new HttpParams().set('days', days);
+    if (languageCode) {
+      params = params.set('languageCode', languageCode);
+    }
     return this.http
       .get<ApiEnvelope<ProgressHistory>>(`${this.baseUrl}/progress/history`, {
         params,

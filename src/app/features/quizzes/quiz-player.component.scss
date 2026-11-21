@@ -90,12 +90,17 @@
   text-align: left;
   cursor: pointer;
   transition:
-    border-color var(--oq-transition-fast),
-    background var(--oq-transition-fast);
+    border-color var(--oq-transition),
+    background var(--oq-transition),
+    transform var(--oq-transition);
 
   &:hover {
     border-color: var(--oq-accent);
     background: var(--oq-bg-subtle);
+  }
+
+  &:active {
+    transform: translateY(0.5px);
   }
 
   &--selected {

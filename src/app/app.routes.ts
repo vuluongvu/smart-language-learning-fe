@@ -22,6 +22,27 @@ export const routes: Routes = [
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
       {
+        path: 'starter',
+        loadComponent: () =>
+          import('./features/starter/starter-studio.component').then(
+            (m) => m.StarterStudioComponent,
+          ),
+      },
+      {
+        path: 'learning-path',
+        loadComponent: () =>
+          import('./features/learning-path/learning-path.component').then(
+            (m) => m.LearningPathComponent,
+          ),
+      },
+      {
+        path: 'learning-path/units/:id',
+        loadComponent: () =>
+          import('./features/learning-path/learning-unit.component').then(
+            (m) => m.LearningUnitComponent,
+          ),
+      },
+      {
         path: 'dashboard',
         loadComponent: () =>
           import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
@@ -91,6 +112,11 @@ export const routes: Routes = [
         path: 'attempts/:attemptId',
         loadComponent: () =>
           import('./features/quizzes/quiz-result.component').then((m) => m.QuizResultComponent),
+      },
+      {
+        path: 'ai-tutor',
+        loadComponent: () =>
+          import('./features/ai-tutor/ai-tutor.component').then((m) => m.AiTutorComponent),
       },
       {
         path: 'progress',

@@ -1,0 +1,670 @@
+@if (loading()) {
+  <section class="oq-card lpu-loading" aria-busy="true">
+    <p class="oq-muted">{{ 'common.loading' | t }}</p>
+  </section>
+} @else if (errorMessage() && !detail()) {
+  <div class="oq-alert oq-alert--error" role="alert">
+    <span>{{ errorMessage() }}</span>
+  </div>
+} @else if (detail(); as d) {
+  <oq-page-header
+    backLink="/learning-path"
+    [backLabel]="'lpu.backToPath' | lpT"
+    [eyebrow]="d.track.title + ' · Part ' + d.part.partNumber + ' · Unit ' + d.unitNumber"
+    [title]="d.title"
+    [subtitle]="d.grammarFocus"
+  >
+    <div actions class="lpu-head-badges">
+      <span class="oq-badge oq-badge--lavender">CEFR {{ d.track.cefrLevel }}</span>
+      <span class="oq-badge oq-badge--success">
+        {{ d.progress.skillsDone }}/{{ d.progress.totalSkills }} {{ 'lpu.skillsLabel' | lpT }}
+      </span>
+    </div>
+  </oq-page-header>
+
+  @if (errorMessage()) {
+    <div class="oq-alert oq-alert--error" role="alert">
+      <span>{{ errorMessage() }}</span>
+    </div>
+  }
+
+  @if (actionMessage()) {
+    <div class="oq-alert oq-alert--success" role="status">
+      <span>{{ actionMessage() }}</span>
+    </div>
+  }
+
+  <section class="oq-card lpu-progress-wrap">
+    <oq-progress-bar
+      [value]="d.progress.skillsDone"
+      [max]="d.progress.totalSkills"
+      [label]="'lpu.unitCompletionLabel' | lpT"
+      [showPercent]="true"
+      tone="success"
+    />
+
+    @if (d.progress.skillsDone >= 4) {
+      <div class="lpu-complete-banner">
+        <oq-icon name="trophy" [size]="18" />
+        <span>{{ 'lpu.allSkillsDoneBanner' | lpT }}</span>
+      </div>
+    }
+  </section>
+
+  <section class="oq-card lpu-progress-wrap">
+    <div class="lpu-panel__head">
+      <div>
+        <h2>{{ 'lpu.studyGuideHeading' | lpT }}</h2>
+        <p class="oq-muted">{{ 'lpu.studyGuideSub' | lpT }}</p>
+      </div>
+      <div class="lpu-panel__actions">
+        @if (d.studyGuide) {
+          <button
+            type="button"
+            class="oq-btn oq-btn--ghost oq-btn--sm"
+            (click)="showStudyGuide.set(!showStudyGuide())"
+          >
+            {{ (showStudyGuide() ? 'lpu.hideGuideBtn' : 'lpu.showGuideBtn') | lpT }}
+          </button>
+        }
+        <button
+          type="button"
+          class="oq-btn oq-btn--secondary oq-btn--sm"
+          [disabled]="!aiEnabled() || generatingStudyGuide()"
+          (click)="generateStudyGuide()"
+        >
+          <oq-icon name="sparkles" [size]="14" />
+          <span>{{
+            (generatingStudyGuide() ? 'lpu.generatingGuideBtn' : 'lpu.genGuideBtn') | lpT
+          }}</span>
+        </button>
+        @if (d.isCustomAiTrack) {
+          <button
+            type="button"
+            class="oq-btn oq-btn--ghost oq-btn--sm"
+            [disabled]="!aiEnabled() || regeneratingUnit()"
+            (click)="regenerateAiUnit()"
+          >
+            {{ (regeneratingUnit() ? 'lpu.regeneratingUnitBtn' : 'lpu.regenUnitBtn') | lpT }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="oq-field">
+      <input
+        type="text"
+        maxlength="300"
+        [value]="guideFocusGoal()"
+        [placeholder]="'lpu.guideFocusPlaceholder' | lpT"
+        (input)="onGuideFocusInput($event)"
+      />
+    </div>
+
+    @if (!d.studyGuide) {
+      <p class="oq-muted">{{ 'lpu.studyGuideEmpty' | lpT }}</p>
+    } @else if (showStudyGuide()) {
+      @let sg = d.studyGuide;
+      <div class="lpu-passage-box">
+        <div class="lpu-panel__head">
+          <p>{{ sg.overview }}</p>
+          @if (speech.isTtsSupported) {
+            <button
+              type="button"
+              class="oq-copy-btn"
+              (click)="speakAudio(sg.overview, 'unit-sg', 0.92)"
+            >
+              <oq-icon
+                [name]="speech.speakingId() === 'unit-sg' ? 'square' : 'volume-2'"
+                [size]="13"
+              />
+              <span>{{ 'conv.listenBtn' | t }}</span>
+            </button>
+          }
+        </div>
+      </div>
+
+      @if (sg.grammarPoints.length > 0) {
+        <strong>{{ 'lpu.grammarPointsTitle' | lpT }}</strong>
+        <div class="lpu-vocab-grid">
+          @for (gp of sg.grammarPoints; track gp.title) {
+            <article class="lpu-vocab-card">
+              <div class="lpu-vocab-card__def">{{ gp.title }}</div>
+              <p>{{ gp.explanation }}</p>
+              @if (gp.example) {
+                <p class="lpu-vocab-card__ex">"{{ gp.example }}"</p>
+              }
+            </article>
+          }
+        </div>
+      }
+
+      @if (sg.keyPatterns.length > 0) {
+        <strong>{{ 'lpu.keyPatternsTitle' | lpT }}</strong>
+        <div class="lpu-vocab-grid">
+          @for (kp of sg.keyPatterns; track kp.pattern) {
+            <article class="lpu-vocab-card">
+              <div class="lpu-vocab-card__def">{{ kp.pattern }}</div>
+              <p>{{ kp.meaning }}</p>
+              @if (kp.example) {
+                <p class="lpu-vocab-card__ex">"{{ kp.example }}"</p>
+              }
+            </article>
+          }
+        </div>
+      }
+
+      @if (sg.commonMistakes.length > 0) {
+        <strong>{{ 'lpu.commonMistakesTitle' | lpT }}</strong>
+        <ul class="lpu-err-list">
+          @for (cm of sg.commonMistakes; track cm.mistake) {
+            <li class="lpu-err-item">
+              <div>
+                <del class="lpu-err-old">{{ cm.mistake }}</del> →
+                <strong class="lpu-err-new">{{ cm.correction }}</strong>
+              </div>
+              @if (cm.tip) {
+                <p class="oq-muted">{{ cm.tip }}</p>
+              }
+            </li>
+          }
+        </ul>
+      }
+
+      @if (sg.studyTips.length > 0) {
+        <strong>{{ 'lpu.studyTipsTitle' | lpT }}</strong>
+        <div class="lpu-chips">
+          @for (tip of sg.studyTips; track tip) {
+            <span class="oq-badge oq-badge--lavender">{{ tip }}</span>
+          }
+        </div>
+      }
+    }
+  </section>
+
+  <nav class="lpu-stepper" [attr.aria-label]="'lpu.skillsLabel' | lpT">
+    <button
+      type="button"
+      class="lpu-step-btn"
+      [class.lpu-step-btn--active]="activeTab() === 'vocab'"
+      [class.lpu-step-btn--done]="d.progress.vocabCompleted"
+      (click)="selectTab('vocab')"
+    >
+      <oq-icon [name]="d.progress.vocabCompleted ? 'check' : 'book-open'" [size]="16" />
+      <span>1. {{ 'lpu.stepVocab' | lpT }}</span>
+    </button>
+
+    <button
+      type="button"
+      class="lpu-step-btn"
+      [class.lpu-step-btn--active]="activeTab() === 'quiz'"
+      [class.lpu-step-btn--done]="d.progress.quizCompleted"
+      (click)="selectTab('quiz')"
+    >
+      <oq-icon [name]="d.progress.quizCompleted ? 'check' : 'headphones'" [size]="16" />
+      <span>2. {{ 'lpu.stepQuiz' | lpT }}</span>
+    </button>
+
+    <button
+      type="button"
+      class="lpu-step-btn"
+      [class.lpu-step-btn--active]="activeTab() === 'writing'"
+      [class.lpu-step-btn--done]="d.progress.writingCompleted"
+      (click)="selectTab('writing')"
+    >
+      <oq-icon [name]="d.progress.writingCompleted ? 'check' : 'pen-line'" [size]="16" />
+      <span>3. {{ 'lpu.stepWriting' | lpT }}</span>
+    </button>
+
+    <button
+      type="button"
+      class="lpu-step-btn"
+      [class.lpu-step-btn--active]="activeTab() === 'speaking'"
+      [class.lpu-step-btn--done]="d.progress.speakingCompleted"
+      (click)="selectTab('speaking')"
+    >
+      <oq-icon [name]="d.progress.speakingCompleted ? 'check' : 'mic'" [size]="16" />
+      <span>4. {{ 'lpu.stepSpeaking' | lpT }}</span>
+    </button>
+  </nav>
+
+  @switch (activeTab()) {
+    @case ('vocab') {
+      <section class="oq-card lpu-panel">
+        <div class="lpu-panel__head">
+          <div>
+            <h2>{{ 'lpu.vocabHeading' | lpT }}</h2>
+            <p class="oq-muted">{{ 'lpu.vocabSub' | lpT }}</p>
+          </div>
+          <div class="lpu-panel__actions">
+            <button
+              type="button"
+              class="oq-btn oq-btn--secondary"
+              [disabled]="syncingVocab()"
+              (click)="syncVocabToNotebook()"
+            >
+              <oq-icon name="book-open" [size]="15" />
+              <span>{{ syncingVocab() ? ('common.saving' | t) : ('lpu.syncVocabBtn' | lpT) }}</span>
+            </button>
+            <button
+              type="button"
+              class="oq-btn oq-btn--primary"
+              [disabled]="launchingCards()"
+              (click)="launchUnitFlashcards()"
+            >
+              <oq-icon name="layers" [size]="15" />
+              <span>{{ 'lpu.flashcardBtn' | lpT }}</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="lpu-vocab-grid">
+          @for (word of d.vocabulary; track word.term; let idx = $index) {
+            <article class="lpu-vocab-card">
+              <div class="lpu-vocab-card__top">
+                <div class="lpu-vocab-card__term">
+                  <strong>{{ word.term }}</strong>
+                  <span class="oq-muted">{{ word.pronunciation }}</span>
+                  <span class="oq-badge">{{ word.partOfSpeech }}</span>
+                </div>
+                <div class="lpu-vocab-card__tools">
+                  @if (word.inNotebook) {
+                    <span class="oq-badge oq-badge--success">{{
+                      'lpu.inNotebookBadge' | lpT
+                    }}</span>
+                  }
+                  @if (d.track.languageCode === 'ko') {
+                    <button type="button" class="oq-copy-btn" (click)="openHandwriting(word.term)">
+                      <oq-icon name="pen-line" [size]="13" />
+                      <span>{{ 'lpu.writePracticeBtn' | lpT }}</span>
+                    </button>
+                  }
+                  @if (speech.isTtsSupported) {
+                    <button
+                      type="button"
+                      class="oq-copy-btn"
+                      (click)="speakAudio(word.term, 'voc-' + idx, 0.9)"
+                    >
+                      <oq-icon
+                        [name]="speech.speakingId() === 'voc-' + idx ? 'square' : 'volume-2'"
+                        [size]="13"
+                      />
+                      <span>{{ 'conv.listenBtn' | t }}</span>
+                    </button>
+                  }
+                </div>
+              </div>
+              <p class="lpu-vocab-card__def">{{ word.definition }}</p>
+              <p class="lpu-vocab-card__ex">"{{ word.example }}"</p>
+              <p class="lpu-vocab-card__note">{{ word.notes }}</p>
+            </article>
+          }
+        </div>
+
+        <div class="lpu-panel__foot">
+          <button type="button" class="oq-btn oq-btn--primary" (click)="selectTab('quiz')">
+            <span>{{ 'lpu.nextQuizBtn' | lpT }}</span>
+            <oq-icon name="arrow-right" [size]="15" />
+          </button>
+        </div>
+      </section>
+    }
+
+    @case ('quiz') {
+      <section class="oq-card lpu-panel">
+        <div class="lpu-panel__head">
+          <div>
+            <h2>{{ d.readingListening.title }}</h2>
+            <p class="oq-muted">{{ 'lpu.quizSub' | lpT }}</p>
+          </div>
+          @if (d.progress.quizScore !== null) {
+            <span class="oq-badge oq-badge--success">
+              {{ 'lpu.bestScore' | lpT: { score: d.progress.quizScore } }}
+            </span>
+          }
+        </div>
+
+        <div class="lpu-audio-bar">
+          @if (speech.isTtsSupported) {
+            <button
+              type="button"
+              class="oq-btn oq-btn--primary oq-btn--sm"
+              (click)="speakAudio(d.readingListening.audioScript, 'unit-audio-norm', 0.95)"
+            >
+              <oq-icon
+                [name]="speech.speakingId() === 'unit-audio-norm' ? 'square' : 'volume-2'"
+                [size]="15"
+              />
+              <span>{{ 'lpu.listenNormalBtn' | lpT }}</span>
+            </button>
+            <button
+              type="button"
+              class="oq-btn oq-btn--secondary oq-btn--sm"
+              (click)="speakAudio(d.readingListening.audioScript, 'unit-audio-slow', 0.8)"
+            >
+              <oq-icon
+                [name]="speech.speakingId() === 'unit-audio-slow' ? 'square' : 'headphones'"
+                [size]="15"
+              />
+              <span>{{ 'lpu.listenSlowBtn' | lpT }}</span>
+            </button>
+          }
+          <button
+            type="button"
+            class="oq-btn oq-btn--ghost oq-btn--sm"
+            (click)="showTranscript.set(!showTranscript())"
+          >
+            {{
+              (showTranscript()
+                ? d.track.languageCode === 'ko'
+                  ? 'lpu.koHideScriptBtn'
+                  : 'lpu.hideScriptBtn'
+                : d.track.languageCode === 'ko'
+                  ? 'lpu.koShowScriptBtn'
+                  : 'lpu.showScriptBtn'
+              ) | lpT
+            }}
+          </button>
+          <button
+            type="button"
+            class="oq-btn oq-btn--ghost oq-btn--sm"
+            (click)="showTranslation.set(!showTranslation())"
+          >
+            {{ (showTranslation() ? 'lpu.hideTransBtn' : 'lpu.showTransBtn') | lpT }}
+          </button>
+        </div>
+
+        @if (showTranscript()) {
+          <div class="lpu-passage-box">
+            <p>{{ d.readingListening.audioScript }}</p>
+            @if (showTranslation()) {
+              <p class="oq-muted lpu-passage-box__trans">{{ d.readingListening.translation }}</p>
+            }
+          </div>
+        } @else if (showTranslation()) {
+          <div class="lpu-passage-box">
+            <p class="oq-muted">{{ d.readingListening.translation }}</p>
+          </div>
+        }
+
+        <div class="lpu-questions">
+          @for (q of d.readingListening.questions; track q.id; let qIdx = $index) {
+            <article class="lpu-question-card">
+              <h3>{{ qIdx + 1 }}. {{ q.prompt }}</h3>
+              <div class="lpu-options">
+                @for (opt of q.options; track opt; let oIdx = $index) {
+                  @let qRes = quizResultFor(q.id);
+                  <button
+                    type="button"
+                    class="lpu-option-btn"
+                    [class.lpu-option-btn--selected]="selectedAnswers()[q.id] === oIdx"
+                    [class.lpu-option-btn--correct]="qRes !== null && qRes.correctIndex === oIdx"
+                    [class.lpu-option-btn--wrong]="
+                      qRes !== null && qRes.selectedIndex === oIdx && !qRes.isCorrect
+                    "
+                    (click)="chooseOption(q.id, oIdx)"
+                  >
+                    {{ opt }}
+                  </button>
+                }
+              </div>
+              @if (quizResultFor(q.id); as res) {
+                <p class="lpu-question-explain" [class.lpu-question-explain--ok]="res.isCorrect">
+                  {{ res.explanation }}
+                </p>
+              }
+            </article>
+          }
+        </div>
+
+        @if (quizResult(); as qr) {
+          <div
+            class="oq-alert"
+            [class.oq-alert--success]="qr.score >= 60"
+            [class.oq-alert--info]="qr.score < 60"
+          >
+            {{
+              'lpu.quizResultSummary'
+                | lpT: { correct: qr.correctCount, total: qr.total, score: qr.score }
+            }}
+          </div>
+        }
+
+        <div class="lpu-panel__foot">
+          <button
+            type="button"
+            class="oq-btn oq-btn--primary"
+            [disabled]="!canSubmitQuiz() || submittingQuiz()"
+            (click)="submitQuiz()"
+          >
+            {{ submittingQuiz() ? ('common.loading' | t) : ('lpu.submitQuizBtn' | lpT) }}
+          </button>
+          <button type="button" class="oq-btn oq-btn--secondary" (click)="selectTab('writing')">
+            <span>{{ 'lpu.nextWritingBtn' | lpT }}</span>
+            <oq-icon name="arrow-right" [size]="15" />
+          </button>
+        </div>
+      </section>
+    }
+
+    @case ('writing') {
+      <section class="oq-card lpu-panel">
+        <div class="lpu-panel__head">
+          <div>
+            <h2>{{ 'lpu.writingHeading' | lpT }}</h2>
+            <p class="oq-muted">{{ d.writing.prompt }}</p>
+          </div>
+          <span class="oq-badge oq-badge--accent">{{ d.writing.targetBand }}</span>
+        </div>
+
+        <div class="lpu-target-terms">
+          <span class="oq-label">{{ 'lpu.targetWordsLabel' | lpT }}</span>
+          <div class="lpu-chips">
+            @for (term of d.writing.targetTerms; track term) {
+              <span class="oq-badge" [class.oq-badge--success]="usedTermsInDraft().has(term)">
+                {{ term }}
+              </span>
+            }
+          </div>
+        </div>
+
+        @if (!aiEnabled()) {
+          <div class="oq-alert oq-alert--info">
+            {{ 'lpu.aiDisabledNotice' | lpT }}
+          </div>
+        }
+
+        <div class="oq-field">
+          <label for="lpu-writing-input">{{
+            (d.track.languageCode === 'ko' ? 'lpu.koWritingInputLabel' : 'lpu.writingInputLabel')
+              | lpT
+          }}</label>
+          <textarea
+            id="lpu-writing-input"
+            rows="5"
+            maxlength="3000"
+            [value]="writingDraft()"
+            [placeholder]="
+              (d.track.languageCode === 'ko'
+                ? 'lpu.koWritingPlaceholder'
+                : 'lpu.writingPlaceholder'
+              ) | lpT
+            "
+            (input)="onWritingInput($event)"
+          ></textarea>
+        </div>
+
+        <div class="lpu-panel__actions">
+          <button
+            type="button"
+            class="oq-btn oq-btn--ghost oq-btn--sm"
+            (click)="showSampleWriting.set(!showSampleWriting())"
+          >
+            {{ (showSampleWriting() ? 'lpu.hideSampleBtn' : 'lpu.showSampleBtn') | lpT }}
+          </button>
+          <button
+            type="button"
+            class="oq-btn oq-btn--primary"
+            [disabled]="!canSubmitWriting()"
+            (click)="submitWriting()"
+          >
+            <oq-icon name="sparkles" [size]="15" />
+            <span>{{
+              (evaluatingWriting() ? 'lpu.evaluatingBtn' : 'lpu.evaluateWritingBtn') | lpT
+            }}</span>
+          </button>
+        </div>
+
+        @if (showSampleWriting()) {
+          <div class="lpu-passage-box">
+            <strong>{{ 'lpu.sampleTitle' | lpT }}</strong>
+            <p>{{ d.writing.sampleAnswer }}</p>
+          </div>
+        }
+
+        @if (d.progress.writingFeedback; as wf) {
+          <div class="oq-card lpu-feedback-card">
+            <div class="lpu-panel__head">
+              <strong>{{ 'lpu.writingResultTitle' | lpT }}</strong>
+              <span class="oq-badge oq-badge--success">{{ wf.estimatedBand }}</span>
+            </div>
+
+            <div class="oq-markdown" [innerHTML]="wf.summary | md"></div>
+
+            @if (wf.notableErrors.length > 0) {
+              <ul class="lpu-err-list">
+                @for (err of wf.notableErrors; track err.original) {
+                  <li class="lpu-err-item">
+                    <div>
+                      <del class="lpu-err-old">{{ err.original }}</del> →
+                      <strong class="lpu-err-new">{{ err.correction }}</strong>
+                    </div>
+                    <p class="oq-muted">{{ err.reason }}</p>
+                  </li>
+                }
+              </ul>
+            }
+
+            <div class="lpu-improved">
+              <div class="lpu-panel__head">
+                <strong>{{ 'lpu.upgradedTitle' | lpT }}</strong>
+                @if (speech.isTtsSupported) {
+                  <button
+                    type="button"
+                    class="oq-copy-btn"
+                    (click)="speakAudio(wf.upgradedVersion, 'wf-imp', 0.92)"
+                  >
+                    <oq-icon name="volume-2" [size]="13" />
+                    <span>{{ 'conv.listenBtn' | t }}</span>
+                  </button>
+                }
+              </div>
+              <div class="oq-markdown" [innerHTML]="wf.upgradedVersion | md"></div>
+            </div>
+
+            <div class="oq-markdown" [innerHTML]="wf.explanation | md"></div>
+
+            @if (wf.suggestedWords.length > 0) {
+              <div class="lpu-target-terms">
+                <strong>{{ 'conv.suggestedWordsTitle' | t }}</strong>
+                <div class="lpu-chips">
+                  @for (sw of wf.suggestedWords; track sw.term) {
+                    <div class="lpu-save-chip">
+                      <span
+                        ><strong>{{ sw.term }}</strong> — {{ sw.definition }}</span
+                      >
+                      <button
+                        type="button"
+                        class="oq-btn oq-btn--secondary oq-btn--sm"
+                        [disabled]="isSuggestedSaved(sw.term)"
+                        (click)="saveSuggestedWord(sw)"
+                      >
+                        <oq-icon
+                          [name]="isSuggestedSaved(sw.term) ? 'check' : 'plus'"
+                          [size]="13"
+                        />
+                        <span>{{
+                          (isSuggestedSaved(sw.term) ? 'conv.savedWord' : 'conv.saveWord') | t
+                        }}</span>
+                      </button>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        <div class="lpu-panel__foot">
+          <button type="button" class="oq-btn oq-btn--secondary" (click)="selectTab('speaking')">
+            <span>{{ 'lpu.nextSpeakingBtn' | lpT }}</span>
+            <oq-icon name="arrow-right" [size]="15" />
+          </button>
+        </div>
+      </section>
+    }
+
+    @case ('speaking') {
+      <section class="oq-card lpu-panel">
+        <div class="lpu-panel__head">
+          <div>
+            <h2>{{ 'lpu.speakingHeading' | lpT }}</h2>
+            <p class="oq-muted">{{ d.speakingTopicPrompt }}</p>
+          </div>
+          <div class="lpu-panel__actions">
+            @if (!speakingSession()) {
+              <button
+                type="button"
+                class="oq-btn oq-btn--primary"
+                [disabled]="!aiEnabled() || startingSpeaking()"
+                (click)="startSpeakingPractice()"
+              >
+                <oq-icon name="mic" [size]="15" />
+                <span>{{
+                  startingSpeaking() ? ('common.loading' | t) : ('lpu.startSpeakingBtn' | lpT)
+                }}</span>
+              </button>
+            } @else if (!d.progress.speakingCompleted) {
+              <button
+                type="button"
+                class="oq-btn oq-btn--secondary oq-btn--sm"
+                [disabled]="completingSpeaking()"
+                (click)="markSpeakingDone()"
+              >
+                <oq-icon name="check" [size]="14" />
+                <span>{{ 'lpu.markSpeakingDoneBtn' | lpT }}</span>
+              </button>
+            }
+          </div>
+        </div>
+
+        @if (!aiEnabled()) {
+          <div class="oq-alert oq-alert--info">{{ 'lpu.aiDisabledNotice' | lpT }}</div>
+        } @else if (!speakingSession()) {
+          <oq-empty-state
+            variant="warm"
+            icon="mic"
+            [title]="'lpu.speakingReadyTitle' | lpT"
+            [description]="'lpu.speakingReadyDesc' | lpT"
+          />
+        } @else {
+          <app-ai-conversation
+            [aiEnabled]="aiEnabled()"
+            [initialSession]="speakingSession()"
+            [embedded]="true"
+            (sessionUpdated)="onSpeakingUpdated($event)"
+          />
+        }
+      </section>
+    }
+  }
+}
+
+<oq-hangul-modal
+  [open]="handwritingTarget() !== null"
+  [title]="'lpu.writeModalTitle' | lpT"
+  [description]="'lpu.writeModalDesc' | lpT"
+  [expectedText]="handwritingTarget() ?? ''"
+  initialTab="guide"
+  (closed)="closeHandwriting()"
+/>

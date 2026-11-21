@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
-const ACCESS_TOKEN_KEY = 'openquiz_access_token';
-const REFRESH_TOKEN_KEY = 'openquiz_refresh_token';
+const ACCESS_TOKEN_KEY = 'argon_learning_access_token';
+const REFRESH_TOKEN_KEY = 'argon_learning_refresh_token';
 
 @Injectable({ providedIn: 'root' })
 export class TokenStorageService {

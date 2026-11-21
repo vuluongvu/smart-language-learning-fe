@@ -56,13 +56,14 @@
               : ('progress.personalBest' | t)
           "
           icon="trophy"
+          tone="cream"
         />
 
         <oq-stat-card
           [label]="'progress.lastQualified' | t"
           [value]="s.lastActivityDate ?? ('progress.noneYet' | t)"
-          [detail]="('streak.timezone' | t) + ' ' + s.timezone"
           icon="calendar"
+          tone="lavender"
         />
       </section>
     }
@@ -150,7 +151,7 @@
                 [class.tab-btn--on]="historyDays() === 14"
                 (click)="setHistoryWindow(14)"
               >
-                14d
+                {{ 'dashboard.activity14Label' | t }}
               </button>
               <button
                 type="button"
@@ -158,14 +159,21 @@
                 [class.tab-btn--on]="historyDays() === 30"
                 (click)="setHistoryWindow(30)"
               >
-                30d
+                {{ 'dashboard.activity30Label' | t }}
               </button>
             </div>
           </div>
 
+          <oq-activity-heatmap
+            [points]="hist.dailyActivities"
+            [lang]="i18n.lang()"
+            [ariaLabel]="'progress.dailyLog' | t: { days: hist.days }"
+          />
+
           @if (activeHistoryRows().length === 0) {
             <oq-empty-state
               [compact]="true"
+              variant="warm"
               icon="calendar"
               [title]="'progress.emptyLogTitle' | t"
               [description]="'progress.emptyLogDesc' | t"

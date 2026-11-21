@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
@@ -8,6 +8,8 @@ import {
   OqPageHeaderComponent,
 } from '../../shared/components';
 import { I18nService, TranslatePipe, TxKey } from '../../shared/i18n';
+import { LearningLanguageService } from '../../shared/services/learning-language.service';
+import { LearningLanguageCode } from '../../shared/types/learning-language.types';
 import {
   PaginationMeta,
   QuizDifficulty,
@@ -38,6 +40,19 @@ export class QuizzesListComponent implements OnInit {
   private readonly quizzesApi = inject(QuizzesApiService);
   private readonly topicsApi = inject(TopicsApiService);
   private readonly i18n = inject(I18nService);
+  protected readonly learningLang = inject(LearningLanguageService);
+  private lastLoadedLang: LearningLanguageCode | null = null;
+
+  constructor() {
+    effect(() => {
+      const lang = this.learningLang.activeLang();
+      if (this.lastLoadedLang && this.lastLoadedLang !== lang) {
+        this.selectedTopicId = null;
+        this.loadTopics();
+        this.loadQuizzes(1);
+      }
+    });
+  }
 
   protected readonly quizzes = signal<QuizSummary[]>([]);
   protected readonly topics = signal<TopicSummary[]>([]);
@@ -59,22 +74,30 @@ export class QuizzesListComponent implements OnInit {
 
   protected readonly confirmDeleteQuiz = signal<QuizSummary | null>(null);
   protected readonly isDeleting = signal(false);
+  protected readonly showMoreFilters = signal(false);
 
   ngOnInit(): void {
-    this.topicsApi.list({ limit: 100 }).subscribe({
+    this.loadTopics();
+    this.loadQuizzes(1);
+  }
+
+  private loadTopics(): void {
+    this.topicsApi.list({ limit: 100, languageCode: this.learningLang.activeLang() }).subscribe({
       next: (res) => this.topics.set(res.items),
       error: () => undefined,
     });
-    this.loadQuizzes(1);
   }
 
   loadQuizzes(page = 1): void {
     this.isLoading.set(true);
     this.errorMessage.set(null);
+    const activeLang = this.learningLang.activeLang();
+    this.lastLoadedLang = activeLang;
 
     this.quizzesApi
       .list({
         search: this.search,
+        languageCode: activeLang,
         topicId: this.selectedTopicId,
         status: this.statusFilter,
         difficulty: this.difficultyFilter,

@@ -1,11 +1,15 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
+  OqHangulPadComponent,
   OqIconComponent,
   OqPageHeaderComponent,
   OqProgressBarComponent,
 } from '../../shared/components';
 import { I18nService, TranslatePipe, TxKey } from '../../shared/i18n';
+import { SpeechService } from '../../shared/services/speech.service';
+import { containsHangul } from '../../shared/types/learning-language.types';
 import {
   FlashcardCardView,
   FlashcardSessionDetail,
@@ -24,9 +28,11 @@ import { FlashcardsApiService } from './flashcards-api.service';
   selector: 'app-flashcard-session',
   standalone: true,
   imports: [
+    NgTemplateOutlet,
     RouterLink,
     OqPageHeaderComponent,
     OqProgressBarComponent,
+    OqHangulPadComponent,
     OqIconComponent,
     TranslatePipe,
   ],
@@ -41,15 +47,24 @@ export class FlashcardSessionComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   protected readonly i18n = inject(I18nService);
+  protected readonly speech = inject(SpeechService);
 
   readonly session = signal<FlashcardSessionDetail | null>(null);
   readonly currentIndex = signal(0);
   readonly isFlipped = signal(false);
+  readonly hasFlippedOnce = signal(false);
   readonly isLoading = signal(false);
   readonly isSubmitting = signal(false);
   readonly isCompleting = signal(false);
   readonly errorMessage = signal<string | null>(null);
   readonly feedbackMessage = signal<string | null>(null);
+  readonly showHandwritingPad = signal(false);
+
+  readonly isKoreanSessionOrCard = computed(() => {
+    const s = this.session();
+    const card = this.currentCard();
+    return s?.languageCode === 'ko' || Boolean(card && containsHangul(card.term));
+  });
 
   readonly currentCard = computed<FlashcardCardView | null>(() => {
     const s = this.session();
@@ -135,7 +150,7 @@ export class FlashcardSessionComponent implements OnInit {
         this.session.set(detail);
         const firstUnreviewed = detail.cards.findIndex((card) => card.sessionReviewCount === 0);
         this.currentIndex.set(firstUnreviewed >= 0 ? firstUnreviewed : 0);
-        this.isFlipped.set(false);
+        this.resetCardFlip();
         this.isLoading.set(false);
       },
       error: (err: unknown) => {
@@ -153,13 +168,17 @@ export class FlashcardSessionComponent implements OnInit {
   }
 
   toggleFlip(): void {
-    this.isFlipped.update((value) => !value);
+    const next = !this.isFlipped();
+    if (next) {
+      this.hasFlippedOnce.set(true);
+    }
+    this.isFlipped.set(next);
   }
 
   previousCard(): void {
     if (this.currentIndex() > 0) {
       this.currentIndex.update((i) => i - 1);
-      this.isFlipped.set(false);
+      this.resetCardFlip();
     }
   }
 
@@ -170,7 +189,7 @@ export class FlashcardSessionComponent implements OnInit {
     }
     if (this.currentIndex() < s.cards.length - 1) {
       this.currentIndex.update((i) => i + 1);
-      this.isFlipped.set(false);
+      this.resetCardFlip();
     }
   }
 
@@ -180,7 +199,16 @@ export class FlashcardSessionComponent implements OnInit {
       return;
     }
     this.currentIndex.set(index);
+    this.resetCardFlip();
+  }
+
+  private resetCardFlip(): void {
     this.isFlipped.set(false);
+    this.hasFlippedOnce.set(false);
+  }
+
+  toggleHandwritingPad(): void {
+    this.showHandwritingPad.update((v) => !v);
   }
 
   rateCurrent(rating: ReviewRating): void {
@@ -209,12 +237,12 @@ export class FlashcardSessionComponent implements OnInit {
         );
         if (nextUnreviewedIdx >= 0) {
           this.currentIndex.set(nextUnreviewedIdx);
-          this.isFlipped.set(false);
+          this.resetCardFlip();
         } else if (this.currentIndex() < session.cards.length - 1) {
           this.currentIndex.update((i) => i + 1);
-          this.isFlipped.set(false);
+          this.resetCardFlip();
         } else {
-          this.isFlipped.set(false);
+          this.resetCardFlip();
         }
       },
       error: (err: unknown) => {
@@ -244,7 +272,7 @@ export class FlashcardSessionComponent implements OnInit {
       next: (completed) => {
         this.session.set(completed);
         this.isCompleting.set(false);
-        this.isFlipped.set(false);
+        this.resetCardFlip();
       },
       error: (err: unknown) => {
         this.errorMessage.set(
@@ -271,6 +299,7 @@ export class FlashcardSessionComponent implements OnInit {
 
     this.api
       .createSession({
+        languageCode: s.languageCode,
         topicId: s.topicId,
         vocabularyIds: s.forgottenVocabularyIds,
       })
@@ -297,7 +326,10 @@ export class FlashcardSessionComponent implements OnInit {
     const target = event.target as HTMLElement | null;
     if (
       target &&
-      (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT')
+      (target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.tagName === 'SELECT' ||
+        target.tagName === 'CANVAS')
     ) {
       return;
     }

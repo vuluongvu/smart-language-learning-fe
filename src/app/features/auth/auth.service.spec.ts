@@ -85,4 +85,84 @@ describe('AuthService', () => {
     expect(service.isAuthenticated()).toBe(false);
     expect(tokenStorage.getAccessToken()).toBeNull();
   });
+
+  it('signs in with Google ID token and links/unlinks Google provider on user state', () => {
+    let googleEmail = '';
+    service.googleLogin('google-id-token-123', 'Asia/Ho_Chi_Minh').subscribe((u) => {
+      googleEmail = u.email;
+    });
+
+    const loginReq = httpMock.expectOne(`${environment.apiBaseUrl}/auth/google`);
+    expect(loginReq.request.method).toBe('POST');
+    expect(loginReq.request.body).toEqual({
+      idToken: 'google-id-token-123',
+      timezone: 'Asia/Ho_Chi_Minh',
+    });
+    loginReq.flush({
+      statusCode: 200,
+      message: 'Success',
+      timestamp: '2026-01-01T00:00:00.000Z',
+      data: {
+        accessToken: 'g-access',
+        refreshToken: 'g-refresh',
+        user: { ...sampleUser, linkedProviders: ['local'] },
+      },
+    });
+    expect(googleEmail).toBe('learner@example.com');
+
+    service.linkGoogle('google-id-token-456').subscribe();
+    const linkReq = httpMock.expectOne(`${environment.apiBaseUrl}/auth/google/link`);
+    expect(linkReq.request.method).toBe('POST');
+    linkReq.flush({
+      statusCode: 200,
+      message: 'Success',
+      timestamp: '2026-01-01T00:00:00.000Z',
+      data: { message: 'Google account linked successfully', linkedProviders: ['local', 'google'] },
+    });
+    expect(service.user()?.linkedProviders).toEqual(['local', 'google']);
+
+    service.unlinkGoogle().subscribe();
+    const unlinkReq = httpMock.expectOne(`${environment.apiBaseUrl}/auth/google/unlink`);
+    expect(unlinkReq.request.method).toBe('POST');
+    unlinkReq.flush({
+      statusCode: 200,
+      message: 'Success',
+      timestamp: '2026-01-01T00:00:00.000Z',
+      data: { message: 'Google account unlinked successfully', linkedProviders: ['local'] },
+    });
+    expect(service.user()?.linkedProviders).toEqual(['local']);
+  });
+
+  it('sends confirmation email when deleting account and clears session on success', () => {
+    tokenStorage.setTokens('access-1', 'refresh-1');
+
+    let message = '';
+    service
+      .deleteAccount({
+        confirm: true,
+        confirmEmail: 'learner@example.com',
+        currentPassword: 'Password123!',
+      })
+      .subscribe((res) => {
+        message = res.message;
+      });
+
+    const req = httpMock.expectOne(`${environment.apiBaseUrl}/users/me`);
+    expect(req.request.method).toBe('DELETE');
+    expect(req.request.body).toEqual({
+      confirm: true,
+      confirmEmail: 'learner@example.com',
+      currentPassword: 'Password123!',
+    });
+    req.flush({
+      statusCode: 200,
+      message: 'Success',
+      timestamp: '2026-01-01T00:00:00.000Z',
+      data: { message: 'Account deleted successfully' },
+    });
+
+    expect(message).toBe('Account deleted successfully');
+    expect(service.isAuthenticated()).toBe(false);
+    expect(tokenStorage.getAccessToken()).toBeNull();
+  });
 });

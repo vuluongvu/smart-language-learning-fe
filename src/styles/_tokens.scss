@@ -1,33 +1,54 @@
 :root {
-  /* Core SaaS Canvas & Surfaces */
-  --oq-bg-canvas: #f8f9fc;
+  /* Core Friendly SaaS Canvas & Surfaces */
+  --oq-bg-canvas: #f7f8fc;
   --oq-bg-surface: #ffffff;
-  --oq-bg-subtle: #f1f4f9;
-  --oq-bg-hover: #f4f6fb;
+  --oq-bg-subtle: #f2f4fa;
+  --oq-bg-hover: #f5f7fc;
 
   /* Typography Hierarchy */
   --oq-text-primary: #172033;
   --oq-text-body: #334155;
   --oq-text-secondary: #64748b;
-  --oq-text-muted: #8490a3;
+  --oq-text-muted: #7c8aa0;
 
   /* Borders & Dividers */
-  --oq-border-subtle: #e9ecf2;
-  --oq-border-strong: #d4dbe7;
+  --oq-border-subtle: #e8ecf3;
+  --oq-border-strong: #d5dce8;
 
-  /* OpenQuiz Restrained Rose Accent */
-  --oq-accent: #e94b70;
-  --oq-accent-hover: #d9365d;
-  --oq-accent-soft: rgba(233, 75, 112, 0.1);
+  /* Argon Learning Primary Rose Accent */
+  --oq-accent: #f04470;
+  --oq-accent-hover: #e63766;
+  --oq-accent-soft: #fff0f4;
   --oq-on-accent: #ffffff;
 
+  /* Friendly Pastel Supporting Surfaces */
+  --oq-pastel-pink: #fff0f4;
+  --oq-pastel-pink-border: #ffd3df;
+  --oq-pastel-cream: #fff5e8;
+  --oq-pastel-cream-border: #fde2be;
+  --oq-pastel-cream-ink: #b45309;
+  --oq-pastel-green: #e7f4ea;
+  --oq-pastel-green-border: #bfe4c8;
+  --oq-pastel-green-ink: #047857;
+  --oq-pastel-lavender: #e9edff;
+  --oq-pastel-lavender-border: #cdd6ff;
+  --oq-pastel-lavender-ink: #4338ca;
+  --oq-pastel-sky: #e6f7fb;
+  --oq-pastel-sky-border: #bae6fd;
+  --oq-pastel-sky-ink: #0369a1;
+  --oq-pastel-plum: #f5ebff;
+  --oq-pastel-plum-border: #e3c8ff;
+  --oq-pastel-plum-ink: #7e22ce;
+
   /* Semantic Status */
-  --oq-success: #16a37a;
-  --oq-success-soft: rgba(22, 163, 122, 0.1);
-  --oq-warning: #d97706;
-  --oq-warning-soft: rgba(217, 119, 6, 0.1);
-  --oq-danger: #dc2626;
-  --oq-danger-soft: rgba(220, 38, 38, 0.1);
+  --oq-success: #10b981;
+  --oq-success-soft: rgba(16, 185, 129, 0.12);
+  --oq-warning: #f59e0b;
+  --oq-warning-soft: rgba(245, 158, 11, 0.12);
+  --oq-danger: #ef4444;
+  --oq-danger-soft: rgba(239, 68, 68, 0.12);
+  --oq-hw-paper: #ffffff;
+  --oq-hw-grid: #e2e8f0;
 
   /* Radii (12-16px component system) */
   --oq-radius-sm: 8px;
@@ -35,7 +56,7 @@
   --oq-radius-lg: 16px;
   --oq-radius-full: 9999px;
 
-  /* Spacing Scale */
+  /* Spacing Scale (4px / 8px base) */
   --oq-space-1: 4px;
   --oq-space-2: 8px;
   --oq-space-3: 12px;
@@ -44,12 +65,15 @@
   --oq-space-6: 24px;
   --oq-space-8: 32px;
 
-  /* Typography & Elevation */
-  --oq-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --oq-shadow-xs: 0 1px 2px rgba(23, 32, 51, 0.04);
-  --oq-shadow-sm: 0 1px 3px rgba(23, 32, 51, 0.05), 0 1px 2px rgba(23, 32, 51, 0.03);
-  --oq-shadow-md: 0 10px 28px -6px rgba(23, 32, 51, 0.1), 0 4px 10px -4px rgba(23, 32, 51, 0.04);
-  --oq-focus-ring: 0 0 0 3px rgba(233, 75, 112, 0.18);
+  /* Typography & Restrained Elevation */
+  --oq-font-sans:
+    'Be Vietnam Pro', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --oq-shadow-xs: 0 1px 2px rgba(23, 32, 51, 0.03);
+  --oq-shadow-sm: 0 2px 6px rgba(23, 32, 51, 0.05);
+  --oq-shadow-md: 0 12px 28px -6px rgba(23, 32, 51, 0.1);
+  --oq-focus-ring: 0 0 0 3px rgba(240, 68, 112, 0.18);
+  --oq-scrollbar-thumb: rgba(23, 32, 51, 0.14);
+  --oq-scrollbar-thumb-hover: rgba(23, 32, 51, 0.28);
   --oq-transition: 160ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
@@ -68,9 +92,27 @@
   --oq-border-strong: #2e3c52;
 
   --oq-accent: #f05b7e;
-  --oq-accent-hover: #e94b70;
-  --oq-accent-soft: rgba(233, 75, 112, 0.16);
+  --oq-accent-hover: #f04470;
+  --oq-accent-soft: rgba(240, 68, 112, 0.16);
   --oq-on-accent: #ffffff;
+
+  --oq-pastel-pink: #28151f;
+  --oq-pastel-pink-border: #4f2438;
+  --oq-pastel-cream: #241c13;
+  --oq-pastel-cream-border: #4a371f;
+  --oq-pastel-cream-ink: #fbbf24;
+  --oq-pastel-green: #12261c;
+  --oq-pastel-green-border: #214d37;
+  --oq-pastel-green-ink: #34d399;
+  --oq-pastel-lavender: #1a1f36;
+  --oq-pastel-lavender-border: #2e3761;
+  --oq-pastel-lavender-ink: #a5b4fc;
+  --oq-pastel-sky: #102836;
+  --oq-pastel-sky-border: #1e4963;
+  --oq-pastel-sky-ink: #38bdf8;
+  --oq-pastel-plum: #261838;
+  --oq-pastel-plum-border: #472b6b;
+  --oq-pastel-plum-ink: #c084fc;
 
   --oq-success: #22c592;
   --oq-success-soft: rgba(34, 197, 146, 0.15);
@@ -78,9 +120,13 @@
   --oq-warning-soft: rgba(245, 158, 11, 0.15);
   --oq-danger: #f87171;
   --oq-danger-soft: rgba(248, 113, 113, 0.15);
+  --oq-hw-paper: #e8eef6;
+  --oq-hw-grid: #cbd5e1;
 
   --oq-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.25);
   --oq-shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.35);
   --oq-shadow-md: 0 14px 32px rgba(0, 0, 0, 0.5);
   --oq-focus-ring: 0 0 0 3px rgba(240, 91, 126, 0.28);
+  --oq-scrollbar-thumb: rgba(243, 246, 252, 0.14);
+  --oq-scrollbar-thumb-hover: rgba(243, 246, 252, 0.28);
 }
