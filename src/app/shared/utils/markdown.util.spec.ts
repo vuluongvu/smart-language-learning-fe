@@ -76,3 +76,15 @@ describe('renderMarkdownToHtml', () => {
     );
   });
 });
+
+describe('renderMarkdownToHtml line breaks', () => {
+  it('renders literal <br> inside table cells as line breaks and still escapes other tags', () => {
+    const html = renderMarkdownToHtml(
+      ['| A | B |', '| --- | --- |', '| x<br>y | <script>z</script> |'].join('\n'),
+    );
+
+    expect(html).toContain('<td>x<br />y</td>');
+    expect(html).toContain('&lt;script&gt;');
+    expect(html).not.toContain('<script>');
+  });
+});
