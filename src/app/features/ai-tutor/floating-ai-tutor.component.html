@@ -7,7 +7,24 @@
         role="dialog"
         aria-modal="false"
         [attr.aria-label]="(learningLang.isKorean() ? 'ai.koTitle' : 'ai.title') | t"
+        [style.width.px]="panelWidth()"
+        [style.height.px]="panelHeight()"
       >
+        <div
+          class="ft-resize ft-resize--l"
+          (pointerdown)="startResize($event, 'l')"
+          (dblclick)="resetSize()"
+        ></div>
+        <div
+          class="ft-resize ft-resize--t"
+          (pointerdown)="startResize($event, 't')"
+          (dblclick)="resetSize()"
+        ></div>
+        <div
+          class="ft-resize ft-resize--tl"
+          (pointerdown)="startResize($event, 'tl')"
+          (dblclick)="resetSize()"
+        ></div>
         <header class="ft-head">
           <div class="ft-head__title">
             <span class="ft-head__badge" aria-hidden="true">
