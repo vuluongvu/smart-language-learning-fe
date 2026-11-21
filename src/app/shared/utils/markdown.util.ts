@@ -19,6 +19,9 @@ export function renderInlineMarkdown(raw: string): string {
   const codePlaceholders: string[] = [];
   let text = escapeHtml(raw);
 
+  // Allow literal <br> line breaks (common in AI-generated table cells); nothing else is unescaped.
+  text = text.replace(/&lt;br\s*\/?&gt;/gi, '<br />');
+
   // Protect inline code spans from emphasis/link replacements.
   text = text.replace(/`([^`\n]+)`/g, (_match, code: string) => {
     const idx = codePlaceholders.push(`<code>${code}</code>`) - 1;
