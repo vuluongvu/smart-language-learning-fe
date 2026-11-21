@@ -42,8 +42,9 @@
 }
 
 .ft-panel {
-  width: min(400px, 100%);
-  max-height: min(72vh, 560px);
+  position: relative;
+  max-width: 100%;
+  max-height: calc(100vh - 100px);
   display: flex;
   flex-direction: column;
   background: var(--oq-bg-surface);
@@ -243,7 +244,7 @@
   }
 
   .ft-panel {
-    max-height: min(68vh, 520px);
+    max-height: calc(100vh - 140px);
   }
 }
 
@@ -251,5 +252,35 @@
   .ft-fab {
     padding: 0 14px;
     height: 44px;
+  }
+}
+
+.ft-resize {
+  position: absolute;
+  z-index: 2;
+  touch-action: none;
+
+  &--l {
+    left: 0;
+    top: 14px;
+    bottom: 0;
+    width: 6px;
+    cursor: ew-resize;
+  }
+
+  &--t {
+    top: 0;
+    left: 14px;
+    right: 0;
+    height: 6px;
+    cursor: ns-resize;
+  }
+
+  &--tl {
+    top: 0;
+    left: 0;
+    width: 14px;
+    height: 14px;
+    cursor: nwse-resize;
   }
 }
